@@ -54,7 +54,6 @@ Bienvenue en Master 1!
 *** Témoignages d'étudiants
 **** Etudiant 1
      "Je n'ai jamais autant travaillé mais j'ai beaucoup appris!"
-
 **** Etudiant 2
      "Les tests automatiques, c'est génial!"
 **** Etudiant 3
@@ -92,7 +91,7 @@ Bienvenue en Master 1!
 ** Un mini-compilateur
    - Voir le fichier [file:doc/cours-01/marthe.ml]
 ** Pour la prochaine fois
-*** TODO Venir en cours à 13h45
+*** TODO Venir en cours à 13h15
 *** TODO Forker le GIT via le gitlab:
     git@moule.informatique.univ-paris-diderot.fr:Yann/compilation-m1-2018.git
     http://moule.informatique.univ-paris-diderot.fr:8080

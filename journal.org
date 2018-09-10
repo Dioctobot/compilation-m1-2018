@@ -1,0 +1,118 @@
+Bienvenue en Master 1!
+
+"Interprétation des programmes et Compilation"
+
+* Cours 1 <2017-09-10>
+** Présentation
+   Yann Régis-Gianas
+   yrg@irif.fr
+   http://yann.regis-gianas.org
+   FB / Twitter @yurug
+** Ce que vous allez apprendre ici et pourquoi.
+*** Le sujet affiché
+   - Écrire un compilateur, un traducteur d'un langage de
+     programmation vers un autre, typiquement, d'un langage de
+     haut-niveau vers un langage assembleur.
+*** Le sujet caché
+**** Deux semestres pour un premier "gros" projet de programmation
+     - 3 jalons en S1 et 8 jalons en S2
+     - Des outils de développement: générateur de codes, gestionnaire
+       de version, intégration continue, ...
+     - La méthodologie nécessaire pour travailler sur un projet réaliste.
+**** La compilation est un sujet pluridisciplinaire!
+     - Ecrire un compilateur n'est pas une compétence immédiatement
+       utilisable professionnellement.
+     - Mais c'est un prétexte pour:
+       - Apprendre à écrire un analyseur syntaxique, un analyseur statique, etc.
+       - Mieux comprendre la sémantique des langages de programmation.
+       - Mettre en pratique les cours d'architecture des machines, le
+	 cours de théorie des graphes, le cours de théorie des langages,
+	 de logiques, de sémantique, génie logiciel, méthodes formelles ...
+**** Écrire un compilateur vous transformera en meilleurs programmeurs
+** Fonctionnement du cours
+*** Un cours orienté "projet" et "inversé"
+    - Le cours est centré sur la réalisation du projet : elle dirige
+      les concepts et les discussions abordés lors des séances de
+      cours.
+    - Le code du projet est un code à trou : il faudra lire autant
+      qu'écrire!
+    - Vous aurez les sujets des jalons très rapidement et nous passerons
+      1/4 d'heure au début de chaque cours à travailler sur un ensemble
+      de questions que vous vous poserez.
+*** Ce que l'on attend de vous
+    - Un travail continu, une attitude pro-active et une approche méthodique :
+      - Un jalon à rendre toutes les trois semaines, testé automatiquement.
+      - Des questions à poser régulièrement.
+      - Une attention particulière aux indications de méthodologie!
+      - En cours: prise de notes, pensée critique, poser des questions
+      - En TP: poser des questions sur le jalon, discuter avec l'enseignant et entre vous
+      - Chez vous: lire (!), programmer
+    - Votre compréhension du projet sera évaluée individuellement en
+      soutenance (70% de la note) et à l'écrit (30% de la note).
+    - Un intérêt particulier donné à la qualité du code.
+    - En soutenance, on valide aussi votre capacité à expliquer votre code.
+*** Témoignages d'étudiants
+**** Etudiant 1
+     "Je n'ai jamais autant travaillé mais j'ai beaucoup appris!"
+
+**** Etudiant 2
+     "Les tests automatiques, c'est génial!"
+**** Etudiant 3
+     "Le Caml, c'était vraiment pas mon truc, mais ça c'était avant."
+**** Etudiant 4
+     "Maintenant, je comprends vraiment ce qui se passe quand mon
+      programme Java, Python, C ou Caml s'exécute!"
+**** Etudiant 5
+     "Au début, j'avais peur de M. Régis-Gianas. Maintenant,
+      il me fait toujours peur mais pour d'autres raisons."
+*** Calendrier, horaires et équipes enseignantes
+*** Enseignants
+    - Semestre 1: Adrien Guatto en TP, YRG en cours.
+    - Semestre 2: Peter Habermehl en TP, Adrien Guatto et YRG en cours.
+*** Horaires
+    - Semestre 1: Lundi 13h30 - 15h30, salle 1009 & 2031
+      (Exceptionnellement 15h aujourd'hui)
+*** Calendrier
+10/09 : Cours d'introduction
+17/09 : Cours sur les aspects pratiques du parsing (usage d'ocamllex et menhir) -- Publication de la spécification du jalon 1
+24/09 : Soutien au jalon 1, le parseur du langage source Hopix
+01/10 : Cours sur la théorie du parsing - séance 1
+08/10 : Cours sur la théorie du parsing - séance 2
+15/10 : Cours d'introduction à la sémantique opérationnelle (comment lire une spécification de sémantique opérationnelle) -- Publication de la spécification du jalon 2
+21/10 : Rendu jalon 1
+22/10 : Soutien au jalon 2, l'interpréteur de Hopix
+29/10 : Cours de sémantique dynamique et statique - séance 1 -- Publication de la spécification du jalon 3
+05/11 : Soutien au jalon 3, le typeur d'Hopix (ici, je suis en mission à Boston)
+12/11 : Cours de sémantique dynamique et statique - séance 2
+15/11 : Rendu jalon 2
+19/11 : Cours de sémantique dynamique et statique - séance 3
+26/11 : Soutien au projet (jalons 1,  2 et 3).
+20/12 : Rendu jalon 3
+
+** Un mini-compilateur
+   - Voir le fichier [file:doc/cours-01/marthe.ml]
+** Pour la prochaine fois
+*** TODO Venir en cours à 13h45
+*** TODO Forker le GIT via le gitlab:
+    git@moule.informatique.univ-paris-diderot.fr:Yann/compilation-m1-2018.git
+    http://moule.informatique.univ-paris-diderot.fr:8080
+    DEADLINE:<2018-09-17>
+*** TODO Remplir le fichier AUTEURS (2 étudiants par groupes)
+    DEADLINE:<2018-09-20>
+*** TODO Rajouter les enseignants (via gitlab)
+    DEADLINE:<2018-09-20>
+    Yann Regis-Gianas (2 comptes)
+    Adrien Guatto
+    Peter Habermehl
+*** TODO Faire une pull-request pour mettre à jour le fichier /.mrconfig
+    DEADLINE:<2016-09-18>
+*** TODO S'inscrire sur la liste de diffusion du cours  https://listes.univ-paris-diderot.fr/sympa/info/compilation-m1-2018
+*** TODO Travailler régulièrement sur le GIT.
+*** TODO Poser des questions sur le forum
+*** TODO Préparation du prochain cours
+**** TODO Lire la documentation de ocamllex
+     [[https://caml.inria.fr/pub/docs/manual-ocaml/lexyacc.html]]
+**** TODO Lire la documentation de menhir
+     [[http://pauillac.inria.fr/~fpottier/menhir/manual.pdf]]
+**** TODO Vérifier son environnement de développement *avant* le TP
+**** TODO Faire les exercices de marthe.ml

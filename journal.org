@@ -2,7 +2,7 @@ Bienvenue en Master 1!
 
 "Interprétation des programmes et Compilation"
 
-* Cours 1 <2017-09-10>
+* Cours 1 "Introduction" <2018-09-10>
 ** Présentation
    Yann Régis-Gianas
    yrg@irif.fr
@@ -115,3 +115,22 @@ Bienvenue en Master 1!
      [[http://pauillac.inria.fr/~fpottier/menhir/manual.pdf]]
 **** TODO Vérifier son environnement de développement *avant* le TP
 **** TODO Faire les exercices de marthe.ml
+* Cours 2 "Aspects pratiques de l'analyse syntaxique" <2018-09-17>
+** FAQ
+** Retour sur le mini-compilateur Marthe
+** Quelques définitions préliminaires
+   - Définir:
+     - Grammaire formelle, non terminal, terminal, symbole d'entrée
+     - Dérivation, dérivation gauche, dérivation droite
+     - Arbre de production, arbre de syntaxe concret, arbre de syntaxe abstraite
+     - Classification de Chomsky
+   - Voir le fichier [file:doc/cours-02/01-definitions-analyse-syntaxique.md]
+** OCamllex et Menhir, par l'exemple
+*** Présentation d'OCamllex
+*** Présentation de Menhir
+*** Marthe, reloaded
+   - Voir le fichier [file:doc/cours-02/marthe-reloaded/]
+** Pour la prochaine fois
+*** TODO Terminer les TODOs de la dernière séance
+*** TODO Lire la spécification du jalon 1
+*** TODO Terminer marthe-reloaded

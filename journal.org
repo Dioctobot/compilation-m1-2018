@@ -130,6 +130,8 @@ Bienvenue en Master 1!
 *** Présentation de Menhir
 *** Marthe, reloaded
    - Voir le fichier [file:doc/cours-02/marthe-reloaded/]
+*** Point important
+    [https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#]
 ** Pour la prochaine fois
 *** TODO Terminer les TODOs de la dernière séance
 *** TODO Lire la spécification du jalon 1

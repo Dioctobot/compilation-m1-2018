@@ -1,0 +1,8 @@
+true : package(unix), package(str), package(sexplib), package(ppx_sexp_conv)
+true : package(pprint), package(lambda-term)
+true : thread
+
+<src>            : include
+<src/common>     : include
+<src/utilities>  : include
+<src/hopix>      : include

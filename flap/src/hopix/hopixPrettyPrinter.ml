@@ -9,10 +9,21 @@ let int i = string (Int32.to_string i)
 
 let semicolon = string ";"
 
-let gtype_definition sep what ks =
-    string "=" ++ group (
-      separate_map (break 1 ^^ string sep ^^ break 1) what ks
-    )
+let sqbrackets d = string "<" ^^ d ^^ string ">"
+
+let separate_postgrouped_map sep f xs =
+  let rec aux = function
+  | [] -> empty
+  | x :: xs -> group (sep ^^ f x) ^^ break 1 ^^ aux xs
+  in
+  match xs with
+  | [] -> empty
+  | x :: xs -> f x ^^ break 1 ^^ aux xs
+
+let gtype_definition sep what around ks =
+  around (group (
+              separate_postgrouped_map (break 1 ^^ string sep ^^ break 1) what ks
+    ))
 
 let rec program p =
   separate_map hardline (located definition) p
@@ -23,8 +34,8 @@ and definition = function
       group (group (string "type"
                     ++ located type_constructor t
                     ^^ group (type_parameters ts))
-             ++ group (type_definition tdef))
-    )
+             ++ string "=") 
+      ++ type_definition tdef)
   | DeclareExtern (x, t) ->
     group (string "extern" ++ located identifier x
            ++ string ":" ++ located ty t)
@@ -32,7 +43,7 @@ and definition = function
     group (value_definition false vdef)
 
 and rec_function_definition paren rv =
-  group (string "fun"
+  group (string "def"
          ^^ space
          ^^ separate_map (hardline ^^ string "and" ^^ space)
              (fun (x, d) ->
@@ -45,33 +56,22 @@ and rec_function_definition paren rv =
 and function_definition paren sep = function
   | FunctionDefinition (xs, e) ->
     group (
-      string "fun"
-      ^^ parens (
+      parens (
              group (separate_map (comma ^^ break 1) (located identifier) xs)
          )
       ^^ sep ^^ located (if_paren_expression paren) e)
-
-and function_type_parameters = function
-  | [] ->
-    empty
-  | ts ->
-    space ^^ group (
-      brackets (separate_map (comma ^^ break 1) (located type_variable) ts)
-      ^^ break 1
-    )
 
 and type_parameters = function
   | [] ->
      empty
   | ts ->
-     space ^^
-     parens (separate_map (comma ^^ break 1) (located type_variable) ts)
+     sqbrackets (separate_map (comma ^^ break 1) (located type_variable) ts)
 
 and type_definition = function
   | DefineSumType ks ->
-    gtype_definition "|" dataconstructor_definition ks
+    gtype_definition "|" dataconstructor_definition (fun x -> x) ks
   | DefineRecordType ls ->
-    gtype_definition "&" label_definition ls
+    gtype_definition ";" label_definition braces ls
   | Abstract ->
     empty
 
@@ -83,13 +83,13 @@ and dataconstructor_definition (k, tys) =
     | [] ->
       located dataconstructor k
     | _ ->
-      located dataconstructor k
-      ++ string "of" ++ parens (
-        separate_map (string "," ^^ break 1) (located ty) tys
-                          )
+       group (located dataconstructor k
+              ++ parens (
+                     separate_map (string "," ^^ break 1) (located ty) tys
+                   ))
 
 and label_definition (l, t) =
-  located label l ++ string ":" ++ located ty t
+  group (located label l ++ string ":" ++ located ty t)
 
 and dataconstructor (KId k) =
   string k
@@ -109,9 +109,11 @@ and value_definition paren = function
     assert false (* By parsing. *)
 
 and rec_function prefix (f, ot, fdef) =
-  string prefix ++ located identifier f
-  ^^ optional_type_scheme_annotation ot
-  ++ function_definition true (space ^^ string "=" ^^ break 1) fdef
+  group (nest 2 (
+      group (string prefix ++ located identifier f)
+      ^^ optional_type_scheme_annotation ot
+      ++ function_definition true (space ^^ string "=" ^^ break 1) fdef
+  ))
 
 and optional_type_annotation = function
   | None -> empty
@@ -135,14 +137,17 @@ and ty t = match t with
     type_constructor tcon
   | TyCon (tcon, tys) ->
     group (type_constructor tcon
-           ++ parens(
+           ^^ sqbrackets (
              separate_map (string "," ^^ break 1) (located ty) tys
            ))
   | TyVar tvar ->
     type_variable tvar
   | TyArrow (ins, out) ->
-    separate_map (space ^^ string "*" ^^ break 1) (located may_paren_ty) ins
-    ++ string "->" ++ located may_paren_ty out
+     group (
+         group (separate_postgrouped_map
+           (space ^^ string "*" ^^ break 1) 
+           (located may_paren_ty) ins
+         ^^ string "->") ++ located may_paren_ty out)
 
 and may_paren_ty t =
   match t with
@@ -175,11 +180,8 @@ and expression = function
     ^^ break 1 ^^ group (located expression e2)
 
   | Fun (fdef) ->
-    (* /!\ rigorously, we should use (function_definition true)
-       below, but this adds many parenthesis that are almost ever
-       superfluous *)
-    string "\\"
-    ^^ function_definition true (space ^^ string "=>" ^^ break 1) fdef
+     string "fun"
+     ++ function_definition true (space ^^ string "=>" ^^ break 1) fdef
 
   | Record (ls, tys) ->
     braces (separate_map (semicolon ^^ break 1) make_label ls)
@@ -210,11 +212,12 @@ and expression = function
 
   | Case (e, bs) ->
     group (
-      group (string "match" ++ located may_paren_expression e ++ string "with")
-      ++ group (
-             separate_map (break 1) (located branch) bs
+      group (group (
+                 string "case" ++ located may_paren_expression e) ++ string "{"
+             )
+      ++ group (separate_map (break 1) (located branch) bs)
+      ++ string "}"
       )
-    )
 
   | Field (e, l) ->
      located may_paren_expression e ^^ string "." ^^ located label l
@@ -254,14 +257,14 @@ and expression = function
 and braces' d =
   group (string "{" ^^ break 1 ^^ d ++ string "}")
 
-
 and make_label (l, e) =
   located label l ++ string "=" ++ located expression e
 
 and guarded_expression (c, t) =
   nest 2 (
-      parens (located expression c) ^^ (break 1)
-      ^^ braces' (located expression t)
+      parens (located expression c) 
+      ^^ (break 1) ^^ string "then"
+      ^^ parens (located expression t)
   )
 
 and optional_type_instantiation = function
@@ -275,7 +278,7 @@ and optional_type_instantiation = function
 
 and else_expression = function
   | None -> empty
-  | Some e -> break 1 ^^ string "else" ++ braces' (located expression e)
+  | Some e -> break 1 ^^ string "else" ++ parens (located expression e)
 
 and function_type_arguments = function
   | None ->

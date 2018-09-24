@@ -84,7 +84,7 @@ let loop read eval print =
    Voici des exemples de programmes Marthe pour illustrent ces idées:
 
    * Exemple 1:
-   On veut traduire "1 + 2" en "EPlus (EInt 1, EInt 2)".
+   On veut traduire "1 + 2" en "EAdd (EInt 1, EInt 2)".
    La sous-chaîne "1" a été reconnue comme "EInt 1".
    La sous-chaîne "2" a été reconnue comme "EInt 2".
    La sous-chaîne "1 + 2" a été reconnue en "EPlus (EInt 1, EInt 2)".
@@ -324,7 +324,7 @@ exception ParseError of string * token
     factor ::=
       INT(x)
     | VAR(x)
-    | SUM LPAREN x COMMA expression COMMA expression COMMA expression RPAREN
+    | SUM LPAREN VAR COMMA expression COMMA expression COMMA expression RPAREN
     | LPAREN expression RPAREN
 
     La fonction [parse] transforme une liste de lexèmes en un arbre du type [e]
@@ -413,7 +413,7 @@ let parse : token list -> e = fun tokens ->
     let t = factor () in
     match current () with
       | Star ->
-	next ();
+        next ();
         EMult (t, factor ())
 
       | token -> t

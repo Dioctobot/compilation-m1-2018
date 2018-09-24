@@ -1,0 +1,2 @@
+[students/vador-skywalker]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:skywalker/compilation-m1-2018.git vador-skywalker

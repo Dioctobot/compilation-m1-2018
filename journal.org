@@ -65,13 +65,13 @@ Bienvenue en Master 1!
      "Au début, j'avais peur de M. Régis-Gianas. Maintenant,
       il me fait toujours peur mais pour d'autres raisons."
 *** Calendrier, horaires et équipes enseignantes
-*** Enseignants
+**** Enseignants
     - Semestre 1: Adrien Guatto en TP, YRG en cours.
     - Semestre 2: Peter Habermehl en TP, Adrien Guatto et YRG en cours.
-*** Horaires
+**** Horaires
     - Semestre 1: Lundi 13h30 - 15h30, salle 1009 & 2031
       (Exceptionnellement 15h aujourd'hui)
-*** Calendrier
+**** Calendrier
 10/09 : Cours d'introduction
 17/09 : Cours sur les aspects pratiques du parsing (usage d'ocamllex et menhir) -- Publication de la spécification du jalon 1
 24/09 : Soutien au jalon 1, le parseur du langage source Hopix
@@ -136,3 +136,41 @@ Bienvenue en Master 1!
 *** TODO Terminer les TODOs de la dernière séance
 *** TODO Lire la spécification du jalon 1
 *** TODO Terminer marthe-reloaded
+* Cours 3 "Introduction à la théorie de l'analyse syntaxique" <2018-10-01>
+** FAQ
+   - Comment ne pas produire uniquement des ``Sequence l`` où `l` est de taille 2?
+** Généralités
+   - Référence du cours : https://dickgrune.com/Books/PTAPG_1st_Edition/BookBody.pdf
+*** Spécification d'un analyseur syntaxique
+
+    parse : token list -> ast
+
+    `parse tokens` produit un arbre si et seulement si `tokens` est un
+    mot du langage d'une certaine grammaire non ambigue G.
+
+    
+
+*** Classification des algorithmes d'analyse syntaxique
+**** Ascendant / descendant
+**** Directionnel / non directionnel
+**** Expressivité / Complexité
+*** Les algorithmes de type LR
+    - Inventé par Donald Knuth
+    - Objectif: analyse grammaticale en temps linéaire
+    - LR(k):
+      - L : Left-to-right, on lit l'entrée de gauche à droite.
+      - R : Rightmost, on construit la dérivation rightmost.
+      - k : On a le droit de lire k tokens en avance pour prendre une décision
+    - https://en.wikipedia.org/wiki/LR_parser
+**** LR(0)
+     - Comment construire l'automate LR(0) correspondant à une grammaire donnée?
+     - Comment utiliser l'automate LR(0) pour reconnaître un mot?
+     - Réponse : au tableau! (ou dans les transparents [file:doc/cours-03/LR.pdf])
+     - Conflits LR(0)
+**** LR(1)
+     - Comment construire l'automate LR(1) correspondant à une grammaire donnée?
+     - Comment utiliser l'automate LR(1) pour reconnaître un mot?
+     - Réponse : au tableau! (ou dans les transparents [file:doc/cours-03/LR.pdf])
+     - LALR(1)
+     - L'algorithme utilisé par Menhir
+       

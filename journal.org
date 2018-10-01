@@ -148,7 +148,11 @@ Bienvenue en Master 1!
     `parse tokens` produit un arbre si et seulement si `tokens` est un
     mot du langage d'une certaine grammaire non ambigue G.
 
-    
+    Si la grammaire est ambigue, on peut définir un analyseur syntaxique
+    à condition de :
+    - fournir un opérateur de choix par les arbres syntaxiques possibles ;
+    - ou bien en rendant déterministe la fonction d'analyse syntaxique ;
+    - ou fournissant une grammaire non ambigue G' équivalente à G.
 
 *** Classification des algorithmes d'analyse syntaxique
 **** Ascendant / descendant

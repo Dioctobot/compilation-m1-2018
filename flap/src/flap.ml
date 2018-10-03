@@ -30,22 +30,29 @@ and initialize_options () =
 and initialize_languages () =
   HopixInitialization.initialize ()
 
+(** Infer source language from the extension of the input file or from the
+    related command line option. *)
+let infer_source_language () =
+  try
+    Languages.get_from_extension
+    @@ Filename.extension (Options.get_input_filename ())
+  with _ ->
+    Languages.get (get_source_language ())
+
 (** Given the source language and the target language returns
     the right compiler (as a first-class module). *)
 let get_compiler () : (module Compilers.Compiler) =
   let source_language =
-    get_source_language ()
+    infer_source_language ()
   in
   let target_language =
     if is_target_language_set () then
-      get_target_language ()
+      Languages.get (get_target_language ())
     else
       source_language
   in
   let using = List.map Languages.get (Options.get_using ()) in
-  Compilers.get ~using
-    (Languages.get source_language)
-    (Languages.get target_language)
+  Compilers.get ~using source_language target_language
 
 (** The evaluation function evaluates some code and prints the results
     into the standard output. It also benchmarks the time taken to
@@ -184,7 +191,7 @@ let batch_compilation () =
   in
   if Options.get_verbose_mode () then
     output_string stdout (Target.print_ast cast ^ "\n");
-  if not (Options.get_dry_mode ()) then (
+  if not (Options.get_dry_mode () || output_filename = input_filename) then (
     let cout = open_out output_filename in
     output_string cout (Target.print_ast cast);
     close_out cout;

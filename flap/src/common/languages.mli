@@ -69,5 +69,10 @@ end
 (** [get name] returns a language of flap called [name] if it exists. *)
 val get : string -> (module Language)
 
+(** [get_from_extension ext] returns a language of flap whose extension
+    is [ext] if it exists. *)
+val get_from_extension : string -> (module Language)
+
+
 (** [register l] inserts [l] in the set of flap's languages. *)
 val register : (module Language) -> unit

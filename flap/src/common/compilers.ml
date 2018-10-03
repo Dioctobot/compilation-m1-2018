@@ -20,7 +20,7 @@ end
     one can get compiler from L1 to L3. *)
 let compose (module C1 : Compiler) (module C2 : Compiler) : (module Compiler) =
   let c2_source_is_c1_target =
-    Obj.magic (* Do not do that at home, kids! *)
+    Obj.magic (* Do not do this at home, kids! *)
   in
   (module struct
     module Source = C1.Source
@@ -54,7 +54,7 @@ let string_of_compiler_passes xs =
   ) xs)
 
 (** Compiler implementations are stored in the following
-    hashing table. *)
+    mutable association list. *)
 let compilers : (string  * (string * (module Compiler))) list ref =
   ref []
 

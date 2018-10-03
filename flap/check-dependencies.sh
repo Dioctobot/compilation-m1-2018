@@ -16,6 +16,5 @@ echo '---------------------'
 echo 'Checking dependencies'
 echo '---------------------'
 check pprint
-check lambda-term
 check sexplib
 check ppx_sexp_conv

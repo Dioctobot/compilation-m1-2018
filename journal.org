@@ -183,12 +183,15 @@ Bienvenue en Master 1!
 ** Analyse descendante
 *** Retour sur le parser de Marthe
 *** Analyse prédictive LL
+    [file:doc/cours-04/LL.pdf]
 **** Principe de l'analyse prédictive LL(k)
 **** La récursion à gauche
 **** LL(1) sur la grammaire de Marthe
 **** LL(1) sur la grammaire des s-expressions
 **** Traitement des règles ε
 **** LL(1) sur la grammaire de Marthe étendue par la factorielle
+**** Comparaison LL(k) vs LR(k)
+     [file:doc/cours-04/llvslr.png]
 *** Bilan sur l'analyse syntaxique
 **** Savoirs
      - Terminologie: grammaire, terminaux/tokens, non terminaux, lexing/parsing, ...

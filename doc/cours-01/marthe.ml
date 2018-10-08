@@ -414,7 +414,7 @@ let parse : token list -> e = fun tokens ->
     match current () with
       | Star ->
         next ();
-        EMult (t, factor ())
+        EMult (t, term ())
 
       | token -> t
 

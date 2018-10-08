@@ -1,2 +1,2 @@
-[students/vador-skywalker]
-checkout = git clone git@moule.informatique.univ-paris-diderot.fr:skywalker/compilation-m1-2018.git vador-skywalker
+[students/debois-franzi]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:franzi/compilation-m1-2018.git debois-franzi

@@ -1,8 +1,8 @@
-FROM ocaml/opam
+FROM ocaml/opam2
 MAINTAINER Yann Regis-Gianas
 
 USER root
-RUN apt-get install -y bc sshpass
+RUN apt-get install -y bc sshpass m4
 
 USER opam
 RUN opam update

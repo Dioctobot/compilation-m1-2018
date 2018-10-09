@@ -33,10 +33,10 @@ and initialize_languages () =
 (** Infer source language from the extension of the input file or from the
     related command line option. *)
 let infer_source_language () =
-  try
+  if Options.is_input_filename_set () then
     Languages.get_from_extension
     @@ Filename.extension (Options.get_input_filename ())
-  with _ ->
+  else
     Languages.get (get_source_language ())
 
 (** Given the source language and the target language returns

@@ -1,0 +1,2 @@
+val main =
+  for i = 0 downto 10 { nothing () }

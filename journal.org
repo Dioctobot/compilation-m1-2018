@@ -200,7 +200,7 @@ Bienvenue en Master 1!
      - LL(1)
 **** Savoirs-faire
      - Utiliser un générateur d'analyseurs syntaxiques LR(1)
-     - Utiliser un générateurs d'analyseurs lexicals LL(1)
+     - Utiliser un générateurs d'analyseurs lexicaux LEX
      - Ne pas utiliser de regexp pour faire de l'analyse syntaxique
      - Produire et faire tourner à la main l'automate LR(1) d'une grammaire
      - Produire et faire tourner à la main l'automate LL(1)  d'une grammaire
@@ -210,9 +210,10 @@ Bienvenue en Master 1!
       - Implémenter votre propre générateur de parseurs LR, LL, ou autres!
 ***** Lectures
       - Les algorithmes Earley, GLR (voir le livre de Grune/Jacobs)
-      - Les combinateurs d'analyse syntaxique
+      - Les combinateurs d'analyse syntaxique / parsing combinators
       - L'analyse syntaxique du C, du shell script
       - L'analyse syntaxique pour les langages naturels (IBM/Watson)
 ***** Sujets de recherche
-      - L'analyse syntaxique incrémentale (voir la thèse de doctorat de Tim Wagner)
+      - L'analyse syntaxique incrémentale 
+        (voir la thèse de doctorat de Tim Wagner)
       -> Peut-on certifier un analyseur syntaxique incrémental?

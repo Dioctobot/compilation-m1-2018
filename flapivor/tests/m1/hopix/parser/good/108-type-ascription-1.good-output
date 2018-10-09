@@ -1,0 +1,1 @@
+val main = case you { | (me : Int) => me }

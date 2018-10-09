@@ -1,0 +1,2 @@
+val main =
+  while True { nothing () }

@@ -1,0 +1,1 @@
+type People = { age : Int; name : String; firstname : String }

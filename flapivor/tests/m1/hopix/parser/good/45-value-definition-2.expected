@@ -1,0 +1,1 @@
+val inconsistency : forall a.a = 0

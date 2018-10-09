@@ -1,0 +1,6 @@
+val main =
+  while True {
+    while {
+      x := !x - 1
+    }
+  }

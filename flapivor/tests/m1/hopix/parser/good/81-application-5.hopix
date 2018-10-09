@@ -1,0 +1,1 @@
+val omega = fun (x) => x (x)

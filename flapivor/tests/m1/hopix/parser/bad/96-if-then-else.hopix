@@ -1,0 +1,2 @@
+val main =
+  if True then else 1

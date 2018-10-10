@@ -54,7 +54,7 @@ docker exec --user root $PROJECT /etc/init.d/ssh restart
 # Compiling the project
 #
 echo "Compiling project..."
-docker exec $PROJECT /bin/bash -c "export PATH=/home/opam/.opam/4.02.3/bin:$PATH && make -C /home/opam/source/flap > /tmp/compilation.log"
+docker exec $PROJECT /bin/bash -c "export PATH=/home/opam/.opam/4.05.0/bin:$PATH && make -C /home/opam/source/flap > /tmp/compilation.log"
 
 if [ ! $? -eq 0 ]; then
     echo "Compilation failed!"

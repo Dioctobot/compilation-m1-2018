@@ -43,9 +43,11 @@ echo email2: $EMAIL2
 echo "Preparing a fresh machine..."
 docker run -td --name $PROJECT flapivor /bin/bash
 docker cp $LONGPROJECT $PROJECT:/home/opam/source
+docker exec --user root $PROJECT rm -fr /home/opam/source/flap/tests
+docker exec --user root $PROJECT mkdir -p /home/opam/source/flap/tests
 docker cp ssh_config $PROJECT:/etc/ssh/
 for ts in "$@"; do
-    docker cp $ts $PROJECT:/home/opam/source/flap/
+    docker cp $ts $PROJECT:/home/opam/source/flap/tests/
 done
 docker exec --user root $PROJECT chown -R opam:opam /home/opam
 docker exec --user root $PROJECT /etc/init.d/ssh restart
@@ -83,16 +85,17 @@ echo "Running test suites..."
 
 L=""
 for ts in "$@"; do
-  ts=`basename $ts`
+  sts=`basename $ts`
   echo "  $ts"
   docker exec $PROJECT /bin/bash -c \
   "export MIPSHOST=`/sbin/ip route|awk '/default/ { print $3 }'` && \
-   export PATH=/home/opam/.opam/4.02.3/bin:$PATH && \
+   export PATH=/home/opam/.opam/4.05.0/bin:$PATH && \
    VERBOSE=1 make -C /home/opam/source/flap/$ts check > /tmp/tests.log"
-  docker cp $PROJECT:/tmp/tests.log $LOG-$ts.log
+  docker cp $PROJECT:/tmp/tests.log $LOG-$sts.log
   echo -n $ts "," `date --rfc-3339=ns` "," $COMMIT "," >> $LONGPROJECT/log/scores.csv
-  tail -n 4 $LOG-$ts.log | head -n 3 | cut -f':' -d2 | tr '\n' ',' >> $LONGPROJECT/log/scores.csv
-  L=`echo $LOG-$ts.log $L`
+  tail -n 5 $LOG-$sts.log | head -n 3 | cut -d':' -f2 | tr '\n' ',' >> $LONGPROJECT/log/scores.csv
+  echo '' >> $LONGPROJECT/log/scores.csv
+  L=`echo $LOG-$sts.log $L`
 done
 
 cd $LONGPROJECT
@@ -108,7 +111,7 @@ le commit $COMMIT de votre projet de compilation a produit les résultats suivan
 
 EOF
 
-tail -n 1 $LONGPROJECT/log/scores >> /tmp/$PROJECT.message
+tail -n 1 $LONGPROJECT/log/scores.csv >> /tmp/$PROJECT.message
 
 cat >> /tmp/$PROJECT.message <<EOF
 

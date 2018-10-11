@@ -5,4 +5,4 @@ checkout = git clone git@moule.informatique.univ-paris-diderot.fr:franzi/compila
 [students/martinot-nalin]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:martinot/compilation-m1-2018.git martinot-nalin
 [students/vienot-donato-lelievre_osswald]
-checkout = git clone git@moule.informatique.univ-paris-diderot.fr:skywalker/compilation-m1-2018.git vienot-donato-lelievre_osswald
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:iLambda/compilation-m1-2018.git vienot-donato-lelievre_osswald

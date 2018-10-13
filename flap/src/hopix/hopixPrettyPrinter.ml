@@ -36,11 +36,11 @@ and definition = function
       group (group (string "type"
                     ++ located type_constructor t
                     ^^ group (type_parameters_bracketed ts))
-             ++ string "=") 
+             ++ string "=")
       ++ type_definition tdef)
   | DeclareExtern (x, t) ->
     group (string "extern" ++ located identifier x
-           ++ string ":" ++ located ty t)
+           ++ string ":" ++ located type_scheme t)
   | DefineValue vdef ->
     group (value_definition false vdef)
 
@@ -326,7 +326,7 @@ and pattern = function
   | PVariable x ->
     located identifier x
   | PTypeAnnotation (p, t) ->
-    located pattern p ++ string ":" ++ located ty t
+    parens (located pattern p ++ string ":" ++ located ty t)
   | PTaggedValue (k, tys, ps) ->
      located dataconstructor k
      ^^ optional_type_instantiation tys

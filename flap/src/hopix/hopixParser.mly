@@ -107,26 +107,19 @@ function_definition:
 expression:
   var_id=located(identifier)       
     {Variable (var_id, None)}
-    
-| e_int = located(literal)        
-    {Literal (e_int)}
-| e_char= located(literal)        
-    {Literal (e_char)}/*
-| e_string=located(literal)       
-    {Literal (e_string)}
+| lit= located(literal)        
+    {Literal (lit)}
 | constr_id=located(constructor)
     {Tagged (constr_id,None, [])}
 | REF e=located(expression)
     {Ref (e)}
 | EXCLMARK e=located(expression)
-    {Read (e)}
+    {Read (e)}/*
 | e1=located(expression) COLON EQUAL e2=located(expression)
     {Assign (e1,e2)}
-*/
- 
- /*/| Tagged of
-      constructor located * ty located list option * expression located list*/
- /*constr_id [ < [ type { , type } ] > ] [ ( expr { , expr } ) ]*/
+| e=located(expression) DOT lab=located(label)
+    {Field (e,lab)}
+ */
  
 ty:
   type_con=type_constructor opty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))

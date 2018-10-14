@@ -6,3 +6,5 @@ checkout = git clone git@moule.informatique.univ-paris-diderot.fr:franzi/compila
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:martinot/compilation-m1-2018.git martinot-nalin
 [students/vienot-donato-lelievre_osswald]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:iLambda/compilation-m1-2018.git vienot-donato-lelievre_osswald
+[students/pierre-dibo-jason-bardot]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:dibo/compilation-m1-2018.git pierre-dibo-jason-bardot

@@ -1,0 +1,2 @@
+val polybox =
+  case x { { box = y }<Int> => y }

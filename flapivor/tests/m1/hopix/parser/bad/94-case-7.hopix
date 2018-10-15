@@ -1,0 +1,4 @@
+val mono =
+  case x {
+  | Pair<Int Int> (x, y) => x + y
+  }

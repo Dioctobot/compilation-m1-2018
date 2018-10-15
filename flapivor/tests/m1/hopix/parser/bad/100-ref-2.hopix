@@ -1,0 +1,1 @@
+val ill_typed = ref * 1

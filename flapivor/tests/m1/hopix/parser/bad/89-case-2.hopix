@@ -1,0 +1,4 @@
+val what_is_in_the_box =
+ case box {
+   { Box = box } => box
+ }

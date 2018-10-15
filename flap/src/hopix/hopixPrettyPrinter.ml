@@ -7,6 +7,8 @@ open Position
 
 let int i = string (Int32.to_string i)
 
+let colon = string ","
+
 let semicolon = string ";"
 
 let sqbrackets d = string "<" ^^ d ^^ string ">"
@@ -33,12 +35,12 @@ and definition = function
     nest 2 (
       group (group (string "type"
                     ++ located type_constructor t
-                    ^^ group (type_parameters ts))
-             ++ string "=") 
+                    ^^ group (type_parameters_bracketed ts))
+             ++ string "=")
       ++ type_definition tdef)
   | DeclareExtern (x, t) ->
     group (string "extern" ++ located identifier x
-           ++ string ":" ++ located ty t)
+           ++ string ":" ++ located type_scheme t)
   | DefineValue vdef ->
     group (value_definition false vdef)
 
@@ -61,11 +63,14 @@ and function_definition paren sep = function
          )
       ^^ sep ^^ located (if_paren_expression paren) e)
 
-and type_parameters = function
+and type_parameters ts =
+  separate_map (comma ^^ break 1) (located type_variable) ts
+
+and type_parameters_bracketed = function
   | [] ->
      empty
   | ts ->
-     sqbrackets (separate_map (comma ^^ break 1) (located type_variable) ts)
+     sqbrackets (type_parameters ts)
 
 and type_definition = function
   | DefineSumType ks ->
@@ -130,7 +135,7 @@ and type_scheme_annotation t =
   group (break 1 ^^ string ":" ++ located type_scheme t)
 
 and type_scheme (ForallTy (ts, t)) =
-  string "forall" ^^ type_parameters ts ^^ string "." ^^ located ty t
+  string "forall " ^^ type_parameters ts ^^ string "." ^^ located ty t
 
 and ty t = match t with
   | TyCon (tcon, []) ->
@@ -206,7 +211,7 @@ and expression = function
                empty
             | es ->
                parens (
-                 separate_map (semicolon ^^ break 1) (located expression) es
+                 separate_map (colon ^^ break 1) (located expression) es
                ))
       )
 
@@ -321,7 +326,7 @@ and pattern = function
   | PVariable x ->
     located identifier x
   | PTypeAnnotation (p, t) ->
-    located pattern p ++ string ":" ++ located ty t
+    parens (located pattern p ++ string ":" ++ located ty t)
   | PTaggedValue (k, tys, ps) ->
      located dataconstructor k
      ^^ optional_type_instantiation tys

@@ -65,13 +65,13 @@ Bienvenue en Master 1!
      "Au début, j'avais peur de M. Régis-Gianas. Maintenant,
       il me fait toujours peur mais pour d'autres raisons."
 *** Calendrier, horaires et équipes enseignantes
-*** Enseignants
+**** Enseignants
     - Semestre 1: Adrien Guatto en TP, YRG en cours.
     - Semestre 2: Peter Habermehl en TP, Adrien Guatto et YRG en cours.
-*** Horaires
+**** Horaires
     - Semestre 1: Lundi 13h30 - 15h30, salle 1009 & 2031
       (Exceptionnellement 15h aujourd'hui)
-*** Calendrier
+**** Calendrier
 10/09 : Cours d'introduction
 17/09 : Cours sur les aspects pratiques du parsing (usage d'ocamllex et menhir) -- Publication de la spécification du jalon 1
 24/09 : Soutien au jalon 1, le parseur du langage source Hopix
@@ -136,3 +136,84 @@ Bienvenue en Master 1!
 *** TODO Terminer les TODOs de la dernière séance
 *** TODO Lire la spécification du jalon 1
 *** TODO Terminer marthe-reloaded
+* Cours 3 "Introduction à la théorie de l'analyse syntaxique" (cours 1) <2018-10-01>
+** FAQ
+   - Comment ne pas produire uniquement des ``Sequence l`` où `l` est de taille 2?
+** Généralités
+   - Référence du cours : https://dickgrune.com/Books/PTAPG_1st_Edition/BookBody.pdf
+*** Spécification d'un analyseur syntaxique
+
+    parse : token list -> ast
+
+    `parse tokens` produit un arbre si et seulement si `tokens` est un
+    mot du langage d'une certaine grammaire non ambigue G.
+
+    Si la grammaire est ambigue, on peut définir un analyseur syntaxique
+    à condition de :
+    - fournir un opérateur de choix par les arbres syntaxiques possibles ;
+    - ou bien en rendant déterministe la fonction d'analyse syntaxique ;
+    - ou fournissant une grammaire non ambigue G' équivalente à G.
+
+*** Classification des algorithmes d'analyse syntaxique
+**** Ascendant / descendant
+**** Directionnel / non directionnel
+**** Expressivité / Complexité
+*** Les algorithmes de type LR
+    - Inventé par Donald Knuth
+    - Objectif: analyse grammaticale en temps linéaire
+    - LR(k):
+      - L : Left-to-right, on lit l'entrée de gauche à droite.
+      - R : Rightmost, on construit la dérivation rightmost.
+      - k : On a le droit de lire k tokens en avance pour prendre une décision
+    - https://en.wikipedia.org/wiki/LR_parser
+**** LR(0)
+     - Comment construire l'automate LR(0) correspondant à une grammaire donnée?
+     - Comment utiliser l'automate LR(0) pour reconnaître un mot?
+     - Réponse : au tableau! (ou dans les transparents [file:doc/cours-03/LR.pdf])
+     - Conflits LR(0)
+**** LR(1)
+     - Comment construire l'automate LR(1) correspondant à une grammaire donnée?
+     - Comment utiliser l'automate LR(1) pour reconnaître un mot?
+     - Réponse : au tableau! (ou dans les transparents [file:doc/cours-03/LR.pdf])
+     - LALR(1)
+     - L'algorithme utilisé par Menhir
+       
+* Cours 4 "Introduction à la théorie de l'analyse syntaxique" (cours 2) <2018-10-08>
+** FAQ
+** Analyse descendante
+*** Retour sur le parser de Marthe
+*** Analyse prédictive LL
+    [file:doc/cours-04/LL.pdf]
+**** Principe de l'analyse prédictive LL(k)
+**** La récursion à gauche
+**** LL(1) sur la grammaire de Marthe
+**** LL(1) sur la grammaire des s-expressions
+**** Traitement des règles ε
+**** LL(1) sur la grammaire de Marthe étendue par la factorielle
+**** Comparaison LL(k) vs LR(k)
+     [file:doc/cours-04/llvslr.png]
+*** Bilan sur l'analyse syntaxique
+**** Savoirs
+     - Terminologie: grammaire, terminaux/tokens, non terminaux, lexing/parsing, ...
+     - Classification des algorithmes d'analyse syntaxique
+     - LR(1) / LALR(1)
+     - LL(1)
+**** Savoirs-faire
+     - Utiliser un générateur d'analyseurs syntaxiques LR(1)
+     - Utiliser un générateurs d'analyseurs lexicaux LEX
+     - Ne pas utiliser de regexp pour faire de l'analyse syntaxique
+     - Produire et faire tourner à la main l'automate LR(1) d'une grammaire
+     - Produire et faire tourner à la main l'automate LL(1)  d'une grammaire
+**** Pour aller plus loin
+***** Idées de projet
+      - Implémenter un parseur pour un vrai langage (Java, ...) ou un format de données.
+      - Implémenter votre propre générateur de parseurs LR, LL, ou autres!
+***** Lectures
+      - Les algorithmes Earley, GLR (voir le livre de Grune/Jacobs)
+      - Les combinateurs d'analyse syntaxique / parsing combinators
+      - L'analyse syntaxique du C, du shell script
+      - L'analyse syntaxique pour les langages naturels (IBM/Watson)
+***** Sujets de recherche
+      - L'analyse syntaxique incrémentale 
+        (voir la thèse de doctorat de Tim Wagner)
+      -> Peut-on certifier un analyseur syntaxique incrémental?

@@ -1,0 +1,6 @@
+val style_evaluation =
+  case hair_color {
+  | Red    => Good
+  | Yellow => Good
+  | Brown  => Good
+  | _      => Good

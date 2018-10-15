@@ -1,0 +1,1 @@
+val beta = (fn (x) => x) (0)

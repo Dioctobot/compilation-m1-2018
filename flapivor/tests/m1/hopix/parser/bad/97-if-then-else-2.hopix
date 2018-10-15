@@ -1,0 +1,3 @@
+val main =
+  if failure () then print (error_message); else 0;
+  exit (EXIT_FAILURE)

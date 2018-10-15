@@ -71,11 +71,21 @@ end
 let languages : (string, (module Language)) Hashtbl.t =
   Hashtbl.create 13
 
+let extensions : (string, (module Language)) Hashtbl.t =
+  Hashtbl.create 13
+
 let get (l : string) : (module Language) =
   try
     Hashtbl.find languages l
   with Not_found ->
     Error.global_error "initialization" "There is no such language."
 
+let get_from_extension (l : string) : (module Language) =
+  try
+    Hashtbl.find extensions l
+  with Not_found ->
+    Error.global_error "initialization" "This extension is not supported."
+
 let register (module L : Language) =
-  Hashtbl.add languages L.name (module L)
+  Hashtbl.add languages L.name (module L);
+  Hashtbl.add extensions L.extension (module L)

@@ -1,0 +1,3 @@
+val main =
+  def f (x) = x;
+  f (0 0)

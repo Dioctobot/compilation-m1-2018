@@ -30,6 +30,8 @@ let var_id = ['a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* | alien_prefix_id
 
 let all_var_id = var_id | alien_infix_id
 
+let binop = '+' | '-' | '*' | '/' | "&&" | "||" | "=?" | "<=?" | ">=?" | "<?" | ">?" | alien_infix_id
+
 let constr_id = ['`' 'A'-'Z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']*
 
 let label_id = ['a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']*
@@ -102,6 +104,7 @@ rule token = parse
   (** Identifiers *)
   | var_id as vi            { VAR_ID vi                 }
   | all_var_id as avi       { ALL_VAR_ID avi            }
+  | binop as bi             { BINOP bi                  }
   | type_con as tcons       { TYPE_CONS tcons           }
   | type_variable as tvar   { TYPE_VAR tvar             }
   | constr_id as consi      { CONSTR_ID consi           }

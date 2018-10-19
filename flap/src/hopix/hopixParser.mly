@@ -7,7 +7,7 @@
 
 %token EQUAL STAR
 
-%token<string> VAR_ID ALL_VAR_ID TYPE_CONS TYPE_VAR CONSTR_ID LABEL
+%token<string> VAR_ID ALL_VAR_ID BINOP TYPE_CONS TYPE_VAR CONSTR_ID LABEL
 
 %token LPAREN RPAREN LCHEVRON RCHEVRON RARROWEQUAL UNDERSCORE EXCLMARK
 %token DOT COMMA COLON SEMICOLON
@@ -114,13 +114,41 @@ expression:
 | REF e=located(expression)
     {Ref (e)}
 | EXCLMARK e=located(expression)
-    {Read (e)}/*
+    {Read (e)}
+| WHILE e1=located(expression) LCBRACK e2=located(expression) RCBRACK    
+    {While(e1,e2)}
+| LPAREN e1=located(expression) COLON typ=located(ty) RPAREN
+    {TypeAnnotation(e1,typ)}
+| vdef=value_definition SEMICOLON e=located(expression)
+    {Define (vdef,e)}
+/*
+| e=located(expression) LPAREN elist=separated_nonempty_list(COMMA, located(expression)) RPAREN
+    {Apply(e,elist)}
 | e1=located(expression) COLON EQUAL e2=located(expression)
     {Assign (e1,e2)}
 | e=located(expression) DOT lab=located(label)
     {Field (e,lab)}
- */
+| IF e1=located(expression) THEN e2=located(expression) op=option(preceded(ELSE, located(expression)))
+    { IfThenElse (e1,e2,op)}
+*/
+/*
+
+  | Record of (label located * expression located) list * ty located list option
+
+  | Sequence of expression located list
+
+  | Fun of function_definition
+
+  | Case of expression located * branch located list
+
+
+  | For of
+      identifier located
+      * expression located * expression located * expression located option
+      * expression located
+*/
  
+
 ty:
   type_con=type_constructor opty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
 {

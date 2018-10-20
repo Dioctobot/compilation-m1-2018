@@ -12,7 +12,7 @@ and definition =
   | DefineType of
       type_constructor located * type_variable located list * type_definition
   (** A toplevel declaration for an external value. *)
-  | DeclareExtern of identifier located * type_scheme located
+  | DeclareExtern of identifier located * ty located
   (** A toplevel definition of value(s). *)
   | DefineValue of value_definition
 

@@ -217,3 +217,46 @@ Bienvenue en Master 1!
       - L'analyse syntaxique incrémentale 
         (voir la thèse de doctorat de Tim Wagner)
       -> Peut-on certifier un analyseur syntaxique incrémental?
+* Cours 5 "Introduction à la sémantique des langages de programmation" <2018-10-15>
+** FAQ
+** Théorie de la sémantique, quelques définitions
+   - Comment donner du sens à de la syntaxe?
+     -> Le rôle de la sémantique
+     -> Dans quel langage décrit-on une sémantique?
+        -> Les maths! Sémantique dénotationnelle
+        -> Les programmes!
+           -> Sémantique opérationnelle dynamique
+              -> Sémantique opérationnelle à petits pas
+              -> Sémantique opérationnelle à grands pas
+           -> Sémantique opérationnelle statique
+** Sémantique de Marthe
+*** Syntaxe
+    Désormais, on s'intérèsse aux langages d'*arbres*.
+
+       t ::= n | t + t | t * t
+
+    est une façon polie d'écrire:
+
+       type t = Int of int | Add of t * t | Mul of t * t
+
+*** Sémantique opérationnelle à petits pas pour Marthe
+    - "t → t'" se lit "en une étape de calcul, t se réécrit en t'".
+    - Voir les règles écrites au tableau.
+*** Sémantique opérationnelle à grands pas pour Marthe
+    - "t ⇓ v" se lit "le terme t s'évalue en la valeur v".
+** Notion de variable dans les programmes
+*** Syntaxe
+    On étend la syntaxe avec un "let" et une notion de variable.
+
+       t ::= x | let x = t in t | ...
+*** Terminologie
+    - variable libre, variable liée, substitution sans capture
+*** Sémantique
+    - Nous avons vu deux variantes de l'évaluation du let:
+
+      let x = t₁ in t₂ → t₂[x / t₁]    "Appel par nom"
+
+      let x = v in t₂ → t₂[x / v] v    "Appel par valeur"
+
+*** Implémentation en OCaml
+    - Voir [file:doc/cours-05/martheSemantic.ml]

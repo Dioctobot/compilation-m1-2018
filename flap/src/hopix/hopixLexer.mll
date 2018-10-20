@@ -29,3 +29,4 @@ rule token = parse
 
   (** Lexing error. *)
   | _               { error lexbuf "unexpected character." }
+

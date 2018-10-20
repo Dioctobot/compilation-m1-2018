@@ -9,3 +9,7 @@ checkout = git clone git@moule.informatique.univ-paris-diderot.fr:iLambda/compil
 
 [students/aillerie-darkaoui]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:darkaoui/compilation-m1-2018.git aillerie-darkaoui
+[students/etame_mayi]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:etamemay/compilation-m1-2018.git etame_mayi
+
+

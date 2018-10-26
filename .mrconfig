@@ -14,3 +14,5 @@ checkout = git clone git@moule.informatique.univ-paris-diderot.fr:mkunev24/compi
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:etamemay/compilation-m1-2018.git etame_mayi
 [students/pierre-dibo-jason-bardot]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:dibo/compilation-m1-2018.git pierre-dibo-jason-bardot
+[students/haifa]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:Haifa/compilation-m1-2018.git haifa

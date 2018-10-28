@@ -7,7 +7,7 @@
 
 %token EOF
 
-%token<string> VAR_ID ALL_VAR_ID TYPE_CONS TYPE_VAR CONSTR_ID LABEL BINOP_OP BINOP_ID BINOP
+%token<string> VAR_ID ALL_VAR_ID TYPE_CONS TYPE_VAR CONSTR_ID LABEL BINOP
 
 %token<char> CHAR
 %token<string> STRING 
@@ -24,7 +24,7 @@
 %token ASSIGN RARROWEQUAL RARROW
 %token PIPE AMP
 
-%token EQUAL MINUS PLUS STAR SLASH
+%token EQUAL STAR
 
 %start<HopixAST.t> program
 
@@ -32,14 +32,13 @@
 %right COLON SEMICOLON DOT
 %right RARROWEQUAL
 %right THEN ELSE
-%right LPAREN
 %right EXCLMARK
 %right REF EQUAL
 
-%left PLUS MINUS
-%left SLASH STAR
 %left BINOP
 %left ASSIGN
+
+/*%right LPAREN*/
 
 %%
 
@@ -47,48 +46,52 @@ program: ds=located(definition)*EOF
   {ds}
 
 definition:
-  TYPE type_cons=located(type_constructor) oplvar=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(type_variable)), RCHEVRON)) optd=option(preceded(EQUAL, type_definition))
+  TYPE type_cons=located(type_constructor) oplvar=loption(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(type_variable)), RCHEVRON)) optd=option(preceded(EQUAL, type_definition))
 {
-  let aux = match oplvar, optd with
-    | None, None -> DefineType (type_cons, [], Abstract)
-    | Some var, None -> DefineType (type_cons, var, Abstract)
-    | None, Some td -> DefineType (type_cons, [], td)
-    | Some var, Some td -> DefineType (type_cons, var, td)
-  in aux
+  let aux = function
+    | None -> DefineType (type_cons, oplvar, Abstract)
+    | Some td -> DefineType (type_cons, oplvar, td)
+  in aux optd
 }
 | EXTERN avi=located(all_identifier) COLON typed=located(type_scheme)
   {DeclareExtern (avi, typed)}
 | vd=value_definition
   {DefineValue vd}
 
-type_definition:
-  option(PIPE) consty=separated_nonempty_list(PIPE, pair(located(constructor), option(delimited(LPAREN, separated_nonempty_list(COMMA, located(ty)), RPAREN))))
+tdef_sum:
+  consty=pair(located(constructor), loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(ty)), RPAREN)))
 {
-  let cons_tdef h =
-    let cons, lty = h in
-    let ct = function
-      | None -> (cons, [])
-      | Some o -> (cons, o)
-    in
-    [ct lty]
-  in
-  let rec aux = function
-    | [] -> failwith "Should not be reached"
-    | [hd] -> cons_tdef hd
-    | hd::tl -> List.append (cons_tdef hd) (aux tl)
-    in DefineSumType (aux consty)
+  consty
 }
-| LCBRACK labty=separated_nonempty_list(SEMICOLON, separated_pair(located(label), COLON, located(ty))) RCBRACK
+
+lab_ty:
+  lt=separated_pair(located(label), COLON, located(ty))
+{
+  lt
+}
+
+type_definition:
+  option(PIPE) lconsty=separated_nonempty_list(PIPE, tdef_sum)
+{
+  DefineSumType (lconsty)
+}
+| labty=delimited(LCBRACK, separated_nonempty_list(SEMICOLON, lab_ty), RCBRACK)
 {
   DefineRecordType (labty)
 }
 |
   {Abstract}
 
-record_expression:
-  lp=separated_pair(located(label), EQUAL, located(expression))
+lab_expr_rec:
+  lep=separated_pair(located(label), EQUAL, located(expression))
 {
-  lp
+  lep
+}
+
+ty_chevron:
+  lty=option(delimited(LCHEVRON, loption(separated_nonempty_list(COMMA, located(ty))), RCHEVRON))
+{
+  lty
 }
 
 expression:
@@ -96,36 +99,34 @@ expression:
 {
   Literal (lit)
 }
-| var_id=located(identifier) opty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
+| var_id=located(all_identifier) opty=option(delimited(LCHEVRON, loption(separated_nonempty_list(COMMA, located(ty))), RCHEVRON))
 {
   Variable (var_id, opty)
 }
-| constr_id=located(constructor) lty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON)) lexpr=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN))
+| constr_id=located(constructor) tc=ty_chevron lexpr=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN))
 {
-  Tagged (constr_id, lty, lexpr)
+  Tagged (constr_id, tc, lexpr)
 }
-| labexpr=delimited(LCBRACK, separated_nonempty_list(SEMICOLON, record_expression), RCBRACK) lty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
+| labexpr=delimited(LCBRACK, separated_nonempty_list(SEMICOLON, lab_expr_rec), RCBRACK) tc=ty_chevron
 {
-  Record (labexpr, lty)
+  Record (labexpr, tc)
 }
 | e=located(expression) DOT lab=located(label)
   {Field (e,lab)}
+| e1=located(expression) SEMICOLON e2=located(expression)
+{
+  Sequence ([e1;e2])
+}
 | vdef=value_definition SEMICOLON e=located(expression)
   {Define (vdef,e)}
-| FUN lvar_id=delimited(LPAREN, option(separated_nonempty_list(COMMA, located(identifier))), RPAREN) RARROWEQUAL expr=located(expression)
+| FUN lvar_id=delimited(LPAREN, loption(separated_nonempty_list(COMMA, located(identifier))), RPAREN) RARROWEQUAL expr=located(expression)
 {
-  let aux = function
-    | None -> Fun (FunctionDefinition([], expr))
-    | Some id -> Fun (FunctionDefinition(id, expr))
-  in aux lvar_id
-}
-| e=located(expression) LPAREN elist=option(separated_nonempty_list(COMMA, located(expression))) RPAREN
+  Fun (FunctionDefinition(lvar_id, expr))
+} /* TODO *//*
+| func=located(expression) lexpr=delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN)
 {
-  let aux = function
-    | None -> Apply (e, [])
-    | Some expr -> Apply (e, expr)
-  in aux elist
-}
+  Apply (func, lexpr)
+}*/
 | expr1=located(expression) b=binop expr2=located(expression)
 {
   let id = Position.with_poss $startpos(b) $endpos(b) b in
@@ -135,15 +136,15 @@ expression:
 }
 | CASE expr=located(expression) LCBRACK br=branches RCBRACK
   { Case (expr, br)}
-| IF e1=located(expression) THEN e2=located(expression) op=option(preceded(ELSE, located(expression)))
-    { IfThenElse (e1,e2,op)}
+| IF e1=located(expression) THEN e2=located(expression) op=ioption(preceded(ELSE, located(expression)))
+  { IfThenElse (e1,e2,op)}
 | REF e=located(expression)
   {Ref (e)}
 | e1=located(expression) ASSIGN e2=located(expression)
   {Assign (e1,e2)}
 | EXCLMARK e=located(expression)
   {Read (e)}
-| WHILE e1=located(expression) LCBRACK e2=located(expression) RCBRACK    
+| WHILE e1=located(expression) e2=delimited(LCBRACK, located(expression), RCBRACK)
   {While(e1,e2)}
 | FOR var_id=located(identifier) EQUAL e1=located(expression) TO e2=located(expression) opt=option(preceded(BY, located(expression))) e3=delimited(LCBRACK, located(expression), RCBRACK)
 {
@@ -153,50 +154,38 @@ expression:
 {
  expr
 }
-| LPAREN e1=located(expression) COLON typ=located(ty) RPAREN
-  {TypeAnnotation(e1,typ)}
+| expr=delimited(LPAREN, separated_pair(located(expression), COLON, located(ty)), RPAREN)
+{
+  let (e, t) = expr in
+  TypeAnnotation(e, t)
+}
 
-value_definition:
+%inline value_definition:
   VAL var_id=located(identifier) oty=option(preceded(COLON, located(type_scheme))) EQUAL expr=located(expression)
 {
   SimpleValue (var_id, oty, expr)
 }
-| DEF fundef=separated_nonempty_list(AND, poly_function_definition)
+| DEF fundef=separated_nonempty_list(AND, function_definition)
 {
   RecFunctions (fundef)
 }
 
-poly_function_definition:
-  var_id=located(identifier) COLON oty=option(located(type_scheme)) fundef=function_definition
-{
-  (var_id, oty, fundef)
-}
-
 function_definition:
-  avi=located(all_identifier) LPAREN lvi=option(separated_nonempty_list(COMMA, located(identifier))) RPAREN EQUAL expr=located(expression)
+  avi=located(all_identifier) oty=option(preceded(COLON, located(type_scheme))) lvi=delimited(LPAREN, loption(separated_nonempty_list(COMMA, located(identifier))), RPAREN) EQUAL expr=located(expression)
 {
-  let aux = function
-    | None -> FunctionDefinition ([avi], expr)
-    | Some vi -> FunctionDefinition (avi::vi, expr)
-  in aux lvi
+  (avi, oty, FunctionDefinition (lvi, expr))
 }
 
 type_scheme:
-  ltvar=option(delimited(FORALL, separated_nonempty_list(COMMA, located(type_variable)), DOT)) typed=located(ty)
+  ltvar=loption(delimited(FORALL, separated_nonempty_list(COMMA, located(type_variable)), DOT)) typed=located(ty)
 {
-  let aux = function
-    | None -> ForallTy ([], typed)
-    | Some tvar -> ForallTy (tvar, typed)
-  in aux ltvar
+  ForallTy (ltvar, typed)
 }
 
 ty:
-  type_cons=type_constructor opty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
+  type_cons=type_constructor opty=loption(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
 {
-  let aux = match opty with
-    | None -> TyCon (type_cons, [])
-    | Some o -> TyCon (type_cons, o)
-  in aux
+  TyCon (type_cons, opty)
 }
 | lty=separated_nonempty_list(STAR, located(ty_term)) RARROW rty=located(ty)
 {
@@ -212,12 +201,9 @@ ty:
 }
 
 ty_term:
-  type_cons=type_constructor opty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
+  type_cons=type_constructor opty=loption(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
 {
-  let aux = match opty with
-    | None -> TyCon (type_cons, [])
-    | Some o -> TyCon (type_cons, o)
-  in aux
+  TyCon (type_cons, opty)
 }
 | tvar=type_variable
 {
@@ -257,13 +243,13 @@ pattern:
 {
   PLiteral lit
 }
-| constr_id=located(constructor) oty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON)) lopat=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(pattern)), RPAREN))
+| constr_id=located(constructor) tc=ty_chevron lopat=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(pattern)), RPAREN))
 {
-  PTaggedValue (constr_id, oty, lopat)
+  PTaggedValue (constr_id, tc, lopat)
 }
-| LCBRACK labpat=separated_nonempty_list(SEMICOLON, record_pattern) RCBRACK oty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
+|  labpat=delimited(LCBRACK, separated_nonempty_list(SEMICOLON, record_pattern), RCBRACK)  tc=ty_chevron
 {
-  PRecord (labpat, oty)
+  PRecord (labpat, tc)
 }
 | pat1=located(pattern) PIPE pat2=located(pattern)
 {

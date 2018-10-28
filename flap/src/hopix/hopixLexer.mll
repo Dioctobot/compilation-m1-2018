@@ -109,10 +109,7 @@ rule token = parse
 
   (** Operators *)
   | "="             { EQUAL       }
-  | "-"             { MINUS       }
-  | "+"             { PLUS        }
   | "*"             { STAR        }
-  | "/"             { SLASH       }
 
   (** Identifiers *)
   | var_id as vi            { VAR_ID vi                 }
@@ -121,8 +118,6 @@ rule token = parse
   | type_variable as tvar   { TYPE_VAR tvar             }
   | constr_id as consi      { CONSTR_ID consi           }
   | label_id as labi        { LABEL labi                }
-  | binop_operator as biop  { BINOP_OP biop             }
-  | binop_id as bid         { BINOP_ID bid              }
   | binop as bi             { BINOP bi                  }
   
 

@@ -218,7 +218,7 @@ Bienvenue en Master 1!
         (voir la thèse de doctorat de Tim Wagner)
       -> Peut-on certifier un analyseur syntaxique incrémental?
 * Cours 5 "Introduction à la sémantique des langages de programmation" <2018-10-15>
-** FAQ
+** FAQ Projet
 ** Théorie de la sémantique, quelques définitions
    - Comment donner du sens à de la syntaxe?
      -> Le rôle de la sémantique
@@ -260,3 +260,13 @@ Bienvenue en Master 1!
 
 *** Implémentation en OCaml
     - Voir [file:doc/cours-05/martheSemantic.ml]
+* Cours 6 "Sémantique des langages du premier ordre" <2018-10-29>
+** FAQ Projet
+** Retour sur le cours dernier
+** Une toute première passe de compilation
+   voir [file:doc/cours-06/liaison-des-noms.pdf]
+** Les langages du premier ordre
+   voir [file:doc/cours-06/langage-du-premier-ordre.pdf]
+*** Conditions
+*** Fonctions de seconde classe
+

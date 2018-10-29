@@ -267,6 +267,7 @@ Bienvenue en Master 1!
    voir [file:doc/cours-06/liaison-des-noms.pdf]
 ** Les langages du premier ordre
    voir [file:doc/cours-06/langage-du-premier-ordre.pdf]
+   voir [file:doc/cours-06/langage-du-premier-ordre-suite.pdf]
 *** Conditions
 *** Fonctions de seconde classe
 

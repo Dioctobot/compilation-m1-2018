@@ -262,7 +262,57 @@ Bienvenue en Master 1!
     - Voir [file:doc/cours-05/martheSemantic.ml]
 * Cours 6 "Sémantique des langages du premier ordre" <2018-10-29>
 ** FAQ Projet
+   - Doit-on rendre les règles de sémantique que nous avons choisies?
+     Réponse: Non, vous devez seulement être capable de les écrire
+     pendant la soutenance.
+   - Et si on n'implémente pas exactement la sémantique que vous attendez
+     mais que l'on passe les tests.
+     Réponse: Tout ira bien. Les tests devraient tout de même faire le
+     travail de séparation entre les mauvaises et les bonnes réponses.
+   - Peut-on vraiment implémenter des fonctions récursives avec ces
+     règles de sémantique?
+     Réponse: Bien sûr! On en reparlera lors du cours sur les fermetures.
+     En fait, il faut en parler en peu maintenant à cause du calendrier.
+
+     let rec fact n =
+       if n = 0 then 1 else n * fact (n - 1)
+
+     Quelle est la forme la fermeture de "fact"?
+
+     (fun n -> if n = 0 then 1 else n * fact (n - 1))
+     [ fact = que mettre ici? ]
+
+     Il faut créer une fermeture cyclique. Heureusement, les
+     opérations sur les environnements le permettent!
+
+   - Peut-on travailler sur l'interpréteur quand le parseur n'est
+     pas fini?
+     Réponse: Oui. Les tests fonctionneront tout de même.
+
 ** Retour sur le cours dernier
+   - Sémantique à petits pas:
+
+                        t -> t'
+
+     Deux types de règles de réécriture:
+
+     - Passage au contexte : comment réécrire en profondeur dans
+       les programmes.
+       - Par exemple:
+
+               e₁ → e₁'
+	 ——————————————————
+	 e₁ + e₂ → e₁' + e₂
+
+     - Réduction : comment faire avancer le calcul?
+
+        ——————————————
+         n₁ + n₂ → n₃
+   - Sémantique à grands pas:
+
+     Le jugement est de la forme "t ⇓ v"
+   - La variable libre et de substitution
+
 ** Une toute première passe de compilation
    voir [file:doc/cours-06/liaison-des-noms.pdf]
 ** Les langages du premier ordre

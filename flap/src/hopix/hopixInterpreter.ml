@@ -237,16 +237,16 @@ let primitives =
   let binarith name =
     intbin name (fun x -> VInt x) in
   let binarithops = Int32.(
-    [ ("`+", add); ("`-", sub); ("`*", mul); ("`/", div) ]
+    [ ("`+`", add); ("`-`", sub); ("`*`", mul); ("`/`", div) ]
   ) in
   (* Define arithmetic comparison operators. *)
   let cmparith name = intbin name bool_as_value in
   let cmparithops =
-    [ ("`=", ( = ));
-      ("`<", ( < ));
-      ("`>", ( > ));
-      ("`>=", ( >= ));
-      ("`<=", ( <= )) ]
+    [ ("`=?`", ( = ));
+      ("`<?`", ( < ));
+      ("`>?`", ( > ));
+      ("`>=?`", ( >= ));
+      ("`<=?`", ( <= )) ]
   in
   let boolbin name out op =
     VPrimitive (name, fun m -> function

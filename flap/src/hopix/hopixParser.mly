@@ -129,9 +129,12 @@ expression:
 }*/
 | expr1=located(expression) b=binop expr2=located(expression)
 {
-  let id = Position.with_poss $startpos(b) $endpos(b) b in
+  (*let id = Position.with_poss $startpos(b) $endpos(b) b in
   let e_var = Variable (id, None) in
-  let loc_expr = Position.with_poss $startpos(b) $endpos(b) e_var in
+  let loc_expr = Position.with_poss $startpos(b) $endpos(b) e_var in*)
+  let id = Position.with_poss $startpos $endpos b in
+  let e_var = Variable (id, None) in
+  let loc_expr = Position.with_poss $startpos $endpos e_var in
   Apply(loc_expr, [expr1; expr2])
 }
 | CASE expr=located(expression) LCBRACK br=branches RCBRACK

@@ -54,11 +54,12 @@ let atom = ['\000'-'\255']
 
 let char = "\'" atom "\'"
 
-let string_atom = ['A'-'Z' 'a'-'z' '0'-'9' '_']
-  | "\\'" | "\\n" | "\\t" | "\\b" | "\\r"
+let string_atom = ['\000'-'\255']
+  | "\\0"['x']['0'-'9' 'a'-'f' 'A'-'F']['0'-'9' 'a'-'f' 'A'-'F']
+  | "\\n" | "\\t" | "\\b" | "\\r"
   | blank | newline | ['#'-'@'] | "\\\""
 
-let string = "\"" string_atom* "\""
+let string = "\"" (string_atom | "\\'" )"\""
 
 rule token = parse
 
@@ -124,29 +125,27 @@ rule token = parse
   (** Literals *)
   | int as i        { INT (Int32.of_string i) }
   | char as c       { CHAR c.[1]              }
-  | string as str   { STRING str              }
+  | string as s   { 
+    let str = (String.sub s 1 (String.length s -2)) in
+    STRING str
+    }
 
 
   (** Comments *)
-  | "(*"            { comments lexbuf         }
+  | "(*"            { comment_block lexbuf }
 
   (** Lexing error. *)
   | _               { error lexbuf "unexpected character." }
 
-and read_string str = parse
-  | '"'           { STRING (Buffer.contents str)}
-  | "\\'"         { Buffer.add_char str '\''; read_string str lexbuf }
-  | "\\n"         { Buffer.add_char str '\n'; read_string str lexbuf }
-  | "\\t"         { Buffer.add_char str '\t'; read_string str lexbuf }
-  | "\\b"         { Buffer.add_char str '\b'; read_string str lexbuf }
-  | "\\r"         { Buffer.add_char str '\r'; read_string str lexbuf }
-  | "\\\""        { error lexbuf "TODO" (*Buffer.add_char str '\"'; read_string str lexbuf*) }
-  | eof           { raise End_of_file   }
 
 (*Lexbuf is use to incremented the current position of the buffer/reader*)
-and comments = parse
+and comment_block = parse
+  | "(*"    { comment_inline lexbuf                   }
   | "*)"    { token lexbuf (*Meaning end of comment*) }
   | eof     { raise End_of_file                       }
-  | newline { token lexbuf                            }
-  | _       { comments lexbuf                         }
+  | _       { comment_block lexbuf                    }
 
+and comment_inline = parse
+  | eof     { EOF }
+  | newline { token lexbuf }
+  | _       { comment_inline lexbuf}

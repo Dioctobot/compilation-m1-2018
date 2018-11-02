@@ -256,7 +256,7 @@ let primitives =
   in
   let boolarith name = boolbin name (fun x -> if x then ptrue else pfalse) in
   let boolarithops =
-    [ ("`||", ( || )); ("`&&", ( && )) ]
+    [ ("`||`", ( || )); ("`&&`", ( && )) ]
   in
   let generic_printer =
     VPrimitive ("print", fun m vs ->

@@ -71,10 +71,28 @@ let rec check : Env.t -> t -> unit = fun env -> function
 
 let rec big_eval = function
   | Int n -> Int n
-  | Var x -> assert false
+  | Var x -> assert false (* dead code *)
   | Add (t1, t2) -> begin
       match big_eval t1, big_eval t2 with
       | Int n, Int m -> Int (n + m)
-      | _, _ -> assert false
+      | _, _ -> assert false (* dead code *)
     end
   | Let (x, t1, t2) -> big_eval (subst x (big_eval t1) t2)
+
+let rec fast_eval (env : (string * t) list) = function
+  | Int n -> Int n
+  | Var x -> lookup env x
+  | Add (t1, t2) -> begin
+      match fast_eval env t1, fast_eval env t2 with
+      | Int n, Int m -> Int (n + m)
+      | _, _ -> assert false (* dead code *)
+    end
+  | Let (x, t1, t2) ->
+     let env = bind env x (fast_eval env t1) in
+     fast_eval env t2
+
+and lookup env x =
+  List.assoc x env
+
+and bind env x v =
+  (x, v) :: env

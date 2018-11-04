@@ -148,7 +148,7 @@ let internalize_ty env ty =
   let pos = Position.position ty in
   let ty = Position.value ty in
   let aty = aty_of_ty ty in
-  check_well_formed_type pos env aty;
+  ignore (check_well_formed_type pos env aty);
   aty
 
 let empty_typing_environment = {

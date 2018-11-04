@@ -314,8 +314,16 @@ let rec evaluate runtime ast =
                         E, M ⊢ dv ⇒ E', M'
 
 *)
-and definition runtime d =
-failwith "Students! This is your job!"
+and definition runtime d = match (Position.value d) with
+  | DefineType (tcons, ltvar, tdef) -> failwith "Students! This is your job! (in definition)"
+  | DeclareExtern (id, tsch) -> failwith "Students! This is your job! (in definition)"
+  | DefineValue (vd) -> failwith "Students! This is your job! (in definition)"
+
+
+and type_definition tdef = match tdef with
+  | DefineSumType lconslty -> failwith "Students! This is your job! (in type_definition)"
+  | DefineRecordType llty -> failwith "Students! This is your job! (in type_definition)"
+  | Abstract -> failwith "Students! This is your job! (in type_definition)"
 
 and expression' environment memory e =
   expression (position e) environment memory (value e)
@@ -326,8 +334,57 @@ and expression' environment memory e =
 
    and E = [runtime.environment], M = [runtime.memory].
 *)
-and expression position environment memory =
-failwith "Students! This is your job!"
+and expression position environment memory = function
+  | Literal lit -> failwith "Students! This is your job! (in expression)"
+  | Variable (id, olty) -> failwith "Students! This is your job! (in expression)"
+  | Tagged (cons, olty, lexpr) -> failwith "Students! This is your job! (in expression)"
+  | Record (llexpr, olty) -> failwith "Students! This is your job! (in expression)"
+  | Field (expr, lab) -> failwith "Students! This is your job! (in expression)"
+  | Sequence lexpr -> failwith "Students! This is your job! (in expression)"
+  | Define (vd, expr) -> failwith "Students! This is your job! (in expression)"
+  | Fun fd -> failwith "Students! This is your job! (in expression)"
+  | Apply (expr, lexpr) -> failwith "Students! This is your job! (in expression)"
+  | Ref expr -> failwith "Students! This is your job! (in expression)"
+  | Assign (e1, e2) -> failwith "Students! This is your job! (in expression)"
+  | Read expr -> failwith "Students! This is your job! (in expression)"
+  | Case (expr, lbr) -> failwith "Students! This is your job! (in expression)"
+  | IfThenElse (e1, e2, oe3) -> failwith "Students! This is your job! (in expression)"
+  | While (e1, e2) -> failwith "Students! This is your job! (in expression)"
+  | For (id, e1, e2, oe3, e4) -> failwith "Students! This is your job! (in expression)"
+  | TypeAnnotation (expr, t) -> failwith "Students! This is your job! (in expression)"
+
+and value_definition vd = match vd with
+  | SimpleValue (id, otsc, expr) -> failwith "Students! This is your job! (in value_definition)"
+  | RecFunctions (polfd) -> failwith "Students! This is your job! (in value_definition)"
+
+and function_definition fd = match fd with
+  | FunctionDefinition (lid, expr) -> failwith "Students! This is your job! (in function_definition)"
+
+and pattern pat = match pat with
+  | PVariable id -> failwith "Students! This is your job! (in pattern)"
+  | PWildcard -> failwith "Students! This is your job! (in pattern)"
+  | PTypeAnnotation (p, t) -> failwith "Students! This is your job! (in pattern)"
+  | PLiteral lit -> failwith "Students! This is your job! (in pattern)"
+  | PTaggedValue (cons, lty, lp) -> failwith "Students! This is your job! (in pattern)"
+  | PRecord (llp, olty) -> failwith "Students! This is your job! (in pattern)"
+  | POr lp -> failwith "Students! This is your job! (in pattern)"
+  | PAnd lp -> failwith "Students! This is your job! (in pattern)"
+
+and branch br = match br with
+  | Branch (pat, expr) -> failwith "Students! This is your job! (in branch)"
+
+and ty t = match t with
+  | TyCon (tcons, lty) -> failwith "Students! This is your job! (in ty)"
+  | TyArrow (lty, rty) -> failwith "Students! This is your job! (in ty)"
+  | TyVar tvar -> failwith "Students! This is your job! (in ty)"
+
+and type_scheme tsc = match tsc with
+  | ForallTy (ltvar, t) -> failwith "Students! This is your job! (in type_scheme)"
+
+and literal lit = match lit with
+  | LInt x -> VInt x
+  | LString str -> VString str
+  | LChar c -> VChar c
 
 (** This function returns the difference between two runtimes. *)
 and extract_observable runtime runtime' =

@@ -19,7 +19,10 @@ failwith "Students! This is your job!"
 
 (** [typecheck tenv ast] checks that [ast] is a well-formed program
     under the typing environment [tenv]. *)
-let typecheck tenv ast : typing_environment =
-failwith "Students! This is your job!"
+let typecheck tenv ast : typing_environment = match ast with
+  | [] -> tenv
+  | hd::tl -> tenv
+
+and definitioncheck tenv = ()
 
 let print_typing_environment = HopixTypes.print_typing_environment

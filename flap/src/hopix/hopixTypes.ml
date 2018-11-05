@@ -141,14 +141,17 @@ and type_information =
 
 exception UnboundTypeConstructor of Position.position * type_constructor
 
-let check_well_formed_type pos env ty =
-     failwith "Students! This is your job!"
+let rec check_well_formed_type pos env ty = match ty with
+  | ATyVar tvar -> List.mem tvar env.type_variables
+  | ATyCon (tcons, lat) -> true(*List.for_all (check_well_formed_type pos env )*)
+  | ATyArrow (lat, at) -> true (*List.fold_left (fun wf t -> wf && check_well_formed_type pos env t) true (t::lat)*)
 
+   
 let internalize_ty env ty =
   let pos = Position.position ty in
   let ty = Position.value ty in
   let aty = aty_of_ty ty in
-  ignore (check_well_formed_type pos env aty);
+  check_well_formed_type pos env aty;
   aty
 
 let empty_typing_environment = {

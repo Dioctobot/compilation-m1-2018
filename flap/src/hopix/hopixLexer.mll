@@ -17,7 +17,7 @@
 let lowercase = ['a'-'z']
 let uppercase = ['A'-'Z']
 let digit = ['0'-'9']
-let symbols = ('_'|'/'|'='|'?')
+let symbols = ('_'|'!'|'='|'?')
 let operator = ('*'|'/'|'-'|'+')
 
 let newline = ('\010'|'\013'|"\013\010")
@@ -36,10 +36,10 @@ let const_id = '`'|'`'? type_con
 (* let type_variable = label_id *)
 
 let printable = ([' '-'!']|['#'-'&']|['-'-'[']|[']'-'~'])
-let slash_char = ('\n'|"\r"|"\b"|"\t")
-let atom = (['\000'-'\255']|("\\0x"(digit|['a'-'f']|['A'-'F'])(digit|['a'-'f']|['A'-'F']) )|printable|slash_char|'\\')
-let chr = '\''('"'|'\''|atom)'\''
-let str = '\"' (atom|"'"|'\"')* '\"'
+let slash_char = ("\\n"|"\\r"|"\\b"|"\\t")
+let atom = ("\\"(('0'|'1')(digit)(digit)|'2'['0'-'5']['0'-'5'])|("\\0x"(digit|['a'-'f']|['A'-'F'])(digit|['a'-'f']|['A'-'F']) )|printable|slash_char|"\\\\")
+let chr = '\''('"'|"\\\'"|atom)'\''
+let str = '\"' (atom|'\''|"\\\"")* '\"'
 let integer = ('-'? digit+|"0x"(digit|['a'-'f']|['A'-'F'])+|"0o"(['0'-'7'])+|"0b"(['0'-'1'])+)
 
 rule token = parse
@@ -95,7 +95,7 @@ rule token = parse
  | type_con as ty  { TY_CON ty }
  | const_id as id  { CONST id }
  | integer as x    { INT (Int32.of_string x) }
- | chr as c        { CHAR (String.get c 1) }
+ | chr as c        { CHAR (String.get (Scanf.unescaped c) 1) }
  | alien_infix_id as id     { INFIX id }
  | alien_prefix_id as id    { PREFIX id }
  | label_id as id  { LABEL id }

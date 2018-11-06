@@ -300,6 +300,8 @@ let initial_runtime () = {
   environment = primitives;
 }
 
+
+
 let rec evaluate runtime ast =
   try
     let runtime' = List.fold_left definition runtime ast in
@@ -335,13 +337,29 @@ and expression' environment memory e =
    and E = [runtime.environment], M = [runtime.memory].
 *)
 and expression position environment memory = function
-  | Literal lit -> failwith "Students! This is your job! (in expression)"
-  | Variable (id, olty) -> failwith "Students! This is your job! (in expression)"
-  | Tagged (cons, olty, lexpr) -> failwith "Students! This is your job! (in expression)"
-  | Record (llexpr, olty) -> failwith "Students! This is your job! (in expression)"
-  | Field (expr, lab) -> failwith "Students! This is your job! (in expression)"
-  | Sequence lexpr -> failwith "Students! This is your job! (in expression)"
-  | Define (vd, expr) -> failwith "Students! This is your job! (in expression)"
+  | Literal lit ->  literal lit.value
+  | Variable (id, _) -> Environment.lookup id.position id.value environment
+  | Tagged (cons, olty, lexpr) -> 
+    let lv = List.map (fun e -> expression' environment memory e) lexpr in
+    VTagged (cons.value, lv)
+  | Record (llexpr, olty) -> 
+    let rec aux = function
+      [] -> []
+      | hd::tl -> ((fst hd).value, expression' environment memory (snd hd))::(aux tl)
+    in VRecord (aux llexpr)
+  | Field (expr, lab) -> 
+    let f = match (expression' environment memory expr) with
+      | VRecord record -> List.assoc lab.value record
+      | _ -> error [position] "Expected VRecord"
+    in f
+  | Sequence lexpr ->
+    let f = match lexpr with
+      | [] -> error [position] "Sequence cannot be empty"
+      | hd1::hd2::tl -> expression' environment memory hd2
+      | _ -> error [position] "Expected Sequence"
+    in f
+  | Define (vd, expr) -> let runtime = value_definition environment memory vd in
+    expression' runtime.environment runtime.memory expr
   | Fun fd -> failwith "Students! This is your job! (in expression)"
   | Apply (expr, lexpr) -> failwith "Students! This is your job! (in expression)"
   | Ref expr -> failwith "Students! This is your job! (in expression)"
@@ -353,10 +371,22 @@ and expression position environment memory = function
   | For (id, e1, e2, oe3, e4) -> failwith "Students! This is your job! (in expression)"
   | TypeAnnotation (expr, t) -> failwith "Students! This is your job! (in expression)"
 
-and value_definition vd = match vd with
-  | SimpleValue (id, otsc, expr) -> failwith "Students! This is your job! (in value_definition)"
-  | RecFunctions (polfd) -> failwith "Students! This is your job! (in value_definition)"
-
+and value_definition environment memory vd = match vd with
+  | SimpleValue (id, otsc, expr) ->
+    let e = expression' environment memory expr in
+    {
+      memory = memory;
+      environment = Environment.bind environment id.value e;
+    }
+  | RecFunctions (polfd) -> 
+    let rec f env = function
+      | [] -> env
+      | hd::tl -> f env tl 
+    in
+    {
+      memory = memory;
+      environment = f Environment.empty polfd;
+    }
 and function_definition fd = match fd with
   | FunctionDefinition (lid, expr) -> failwith "Students! This is your job! (in function_definition)"
 

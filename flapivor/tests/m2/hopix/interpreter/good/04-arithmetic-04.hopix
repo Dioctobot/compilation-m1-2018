@@ -1,0 +1,2 @@
+val x = 37 * 2
+val test = print_int (x)

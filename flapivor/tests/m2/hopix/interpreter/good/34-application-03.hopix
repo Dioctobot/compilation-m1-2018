@@ -1,0 +1,3 @@
+val apply = fun (f, x) => f (x)
+val id = fun (x) => x
+val test = print_string (apply (id, "This test is OK.\n"))

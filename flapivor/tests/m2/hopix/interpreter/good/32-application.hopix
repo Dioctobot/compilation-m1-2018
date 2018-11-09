@@ -1,0 +1,2 @@
+val id = fun (x) => x
+val test = print_string (id ("This test is OK.\n"))

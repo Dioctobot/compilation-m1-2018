@@ -1,0 +1,3 @@
+val btrue = true
+val bfalse = false
+val test = print_string ("OK\n")

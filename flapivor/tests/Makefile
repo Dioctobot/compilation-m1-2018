@@ -1,4 +1,4 @@
-.PHONY: check m1
+.PHONY: check m1 m2
 
 check: m1 m2
 

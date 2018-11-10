@@ -348,28 +348,48 @@ and expression position environment memory = function
       | hd::tl -> ((fst hd).value, expression' environment memory (snd hd))::(aux tl)
     in VRecord (aux llexpr)
   | Field (expr, lab) -> 
-    let f = match (expression' environment memory expr) with
+    (match (expression' environment memory expr) with
       | VRecord record -> List.assoc lab.value record
-      | _ -> error [position] "Expected VRecord"
-    in f
+      | _ -> error [position] "Expected VRecord")
   | Sequence lexpr ->
-    let f = match lexpr with
+    (match lexpr with
       | [] -> error [position] "Sequence cannot be empty"
       | hd1::hd2::tl -> expression' environment memory hd2
-      | _ -> error [position] "Expected Sequence"
-    in f
-  | Define (vd, expr) -> let runtime = value_definition environment memory vd in
+      | _ -> error [position] "Expected Sequence")
+  | Define (vd, expr) -> 
+    let runtime = value_definition environment memory vd in
     expression' runtime.environment runtime.memory expr
-  | Fun fd -> failwith "Students! This is your job! (in expression)"
+  | Fun fd -> function_definition environment fd
   | Apply (expr, lexpr) -> failwith "Students! This is your job! (in expression)"
-  | Ref expr -> failwith "Students! This is your job! (in expression)"
-  | Assign (e1, e2) -> failwith "Students! This is your job! (in expression)"
-  | Read expr -> failwith "Students! This is your job! (in expression)"
+    (*let app = expression' environment memory expr in
+    let values = List.map (fun e -> expression' environment memory e) lexpr in
+    let f = match app with
+      | VClosure (e, id expr) -> ()
+      | VPrimitive (str, em) -> em memory values
+      | _ -> error [position] "Apply fail"*)
+  | Ref expr ->
+    let e = expression' environment memory expr in
+    let loc = Memory.allocate memory (Int32.of_string "0") e in
+    VLocation loc
+  | Assign (e1, e2) ->
+    (match expression' environment memory e1 with
+      | VLocation loc -> 
+        let expr = expression' environment memory e2 in
+        let block = Memory.dereference memory loc in
+        Memory.write block (Int32.of_string "0") expr;
+        VUnit
+      | _ ->  error [position] "Assign fail")
+  | Read expr ->
+    (match expression' environment memory expr with
+      | VLocation loc ->
+        let block = Memory.dereference memory loc in
+        Memory.read block (Int32.of_string "0")
+      | _ ->  error [position] "Read fail")
   | Case (expr, lbr) -> failwith "Students! This is your job! (in expression)"
   | IfThenElse (e1, e2, oe3) -> failwith "Students! This is your job! (in expression)"
   | While (e1, e2) -> failwith "Students! This is your job! (in expression)"
   | For (id, e1, e2, oe3, e4) -> failwith "Students! This is your job! (in expression)"
-  | TypeAnnotation (expr, t) -> failwith "Students! This is your job! (in expression)"
+  | TypeAnnotation (expr, t) -> expression' environment memory expr
 
 and value_definition environment memory vd = match vd with
   | SimpleValue (id, otsc, expr) ->
@@ -381,14 +401,22 @@ and value_definition environment memory vd = match vd with
   | RecFunctions (polfd) -> 
     let rec f env = function
       | [] -> env
-      | hd::tl -> f env tl 
+      | hd::tl -> 
+        let (id, fd) = match hd with
+          | (i, _, f) -> (i, f)
+        in
+        let closure newenv = function_definition newenv fd in
+        let e = Environment.bind env id.value (closure Environment.empty) in
+        Environment.update id.position id.value e (closure e);
+        f e tl 
     in
     {
       memory = memory;
-      environment = f Environment.empty polfd;
+      environment = f environment polfd;
     }
-and function_definition fd = match fd with
-  | FunctionDefinition (lid, expr) -> failwith "Students! This is your job! (in function_definition)"
+
+and function_definition environment fd = match fd with
+  | FunctionDefinition (lid, expr) -> VClosure (environment, lid, expr)
 
 and pattern pat = match pat with
   | PVariable id -> failwith "Students! This is your job! (in pattern)"

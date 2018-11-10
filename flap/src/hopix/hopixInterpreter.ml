@@ -316,10 +316,10 @@ let rec evaluate runtime ast =
                         E, M ⊢ dv ⇒ E', M'
 
 *)
-and definition runtime d = match (Position.value d) with
-  | DefineType (tcons, ltvar, tdef) -> failwith "Students! This is your job! (in definition)"
-  | DeclareExtern (id, tsch) -> failwith "Students! This is your job! (in definition)"
-  | DefineValue (vd) -> failwith "Students! This is your job! (in definition)"
+and definition runtime d = match d.value with
+  | DefineType _ -> runtime
+  | DeclareExtern _ -> runtime
+  | DefineValue (vd) -> value_definition runtime.environment runtime.memory vd
 
 
 and type_definition tdef = match tdef with

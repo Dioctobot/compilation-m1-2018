@@ -1,0 +1,25 @@
+def concat (l1, l2) =
+  case l1 {
+  | N => l2
+  | C (x, xs) => C (x, concat (xs, l2))
+  }
+
+val l = C (1, C (2, N))
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+
+def len (l) =
+  case l {
+  | N => 0
+  | C (x, xs) => 1 + len (xs)
+  }
+
+val test =
+  print_int (len (l));
+  print_string ("\n")
+
+

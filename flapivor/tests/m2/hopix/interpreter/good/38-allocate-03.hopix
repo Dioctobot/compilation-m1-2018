@@ -1,0 +1,4 @@
+val r = ref "This test is KO.\n"
+val test =
+    r := "This test is OK.\n";
+    print_string (!r)

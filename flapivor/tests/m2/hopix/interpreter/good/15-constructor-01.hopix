@@ -1,0 +1,2 @@
+val s = S
+val test = print_string ("Construction succeeds.\n")

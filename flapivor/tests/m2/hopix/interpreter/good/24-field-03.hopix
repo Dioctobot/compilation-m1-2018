@@ -1,0 +1,4 @@
+val t = { a = "0"; x = "Field extraction is still a success!\n"; y = 31 }
+val u = { a = { a = { a = t } }; b = 42 }
+val z = u.a.a.a.x
+val test = print_string (z)

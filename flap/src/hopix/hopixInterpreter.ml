@@ -321,12 +321,6 @@ and definition runtime d = match d.value with
   | DeclareExtern _ -> runtime
   | DefineValue (vd) -> value_definition runtime.environment runtime.memory vd
 
-
-and type_definition tdef = match tdef with
-  | DefineSumType lconslty -> failwith "Students! This is your job! (in type_definition)"
-  | DefineRecordType llty -> failwith "Students! This is your job! (in type_definition)"
-  | Abstract -> failwith "Students! This is your job! (in type_definition)"
-
 and expression' environment memory e =
   expression (position e) environment memory (value e)
 
@@ -385,9 +379,23 @@ and expression position environment memory = function
         let block = Memory.dereference memory loc in
         Memory.read block (Int32.of_string "0")
       | _ ->  error [position] "Read fail")
-  | Case (expr, lbr) -> failwith "Students! This is your job! (in expression)"
-  | IfThenElse (e1, e2, oe3) -> failwith "Students! This is your job! (in expression)"
-  | While (e1, e2) -> failwith "Students! This is your job! (in expression)"
+  | Case (expr, lbr) -> let value = expression' environment memory expr in
+    branch environment memory value lbr
+  | IfThenElse (e1, e2, oe3) -> let boolean = expression' environment memory e1 in
+    if boolean = ptrue then
+      expression' environment memory e2
+    else 
+      (match oe3 with
+        | None -> VUnit
+        | Some e -> expression' environment memory e)
+  | While (e1, e2) -> 
+    let rec aux vunit = 
+      let boolean = expression' environment memory e1 in
+      if value_as_bool boolean then
+        aux (expression' environment memory e2)
+      else
+        vunit
+    in aux VUnit
   | For (id, e1, e2, oe3, e4) -> failwith "Students! This is your job! (in expression)"
   | TypeAnnotation (expr, t) -> expression' environment memory expr
 
@@ -418,26 +426,39 @@ and value_definition environment memory vd = match vd with
 and function_definition environment fd = match fd with
   | FunctionDefinition (lid, expr) -> VClosure (environment, lid, expr)
 
-and pattern pat = match pat with
-  | PVariable id -> failwith "Students! This is your job! (in pattern)"
-  | PWildcard -> failwith "Students! This is your job! (in pattern)"
-  | PTypeAnnotation (p, t) -> failwith "Students! This is your job! (in pattern)"
-  | PLiteral lit -> failwith "Students! This is your job! (in pattern)"
+and pattern environment memory evalue pat = match pat with
+  | PVariable id -> Some (Environment.bind environment id.value evalue)
+  | PWildcard -> Some environment
+  | PTypeAnnotation (p, t) -> pattern environment memory evalue p.value
+  | PLiteral lit -> None
   | PTaggedValue (cons, lty, lp) -> failwith "Students! This is your job! (in pattern)"
   | PRecord (llp, olty) -> failwith "Students! This is your job! (in pattern)"
-  | POr lp -> failwith "Students! This is your job! (in pattern)"
-  | PAnd lp -> failwith "Students! This is your job! (in pattern)"
+  | POr lp -> 
+      let rec aux env = function
+        | [] -> Some env
+        | hd::tl ->
+          (match pattern env memory evalue hd.value with
+            | None -> aux env tl
+            | Some e -> Some e)
+      in aux environment lp
+  | PAnd lp -> 
+    let rec aux env = function
+    | [] -> Some env
+    | hd::tl ->
+      (match pattern env memory evalue hd.value with
+        | None -> None
+        | Some e -> aux env tl)
+    in aux environment lp
 
-and branch br = match br with
-  | Branch (pat, expr) -> failwith "Students! This is your job! (in branch)"
+and branch environment memory evalue brs = match brs with
+      | [] -> evalue
+      | hd::tl ->
+        (match hd.value with
+          | Branch (pat, e) -> 
+            (match pattern environment memory evalue pat.value with
+              | None -> branch environment memory evalue tl
+              | Some env -> expression' env memory e))
 
-and ty t = match t with
-  | TyCon (tcons, lty) -> failwith "Students! This is your job! (in ty)"
-  | TyArrow (lty, rty) -> failwith "Students! This is your job! (in ty)"
-  | TyVar tvar -> failwith "Students! This is your job! (in ty)"
-
-and type_scheme tsc = match tsc with
-  | ForallTy (ltvar, t) -> failwith "Students! This is your job! (in type_scheme)"
 
 and literal lit = match lit with
   | LInt x -> VInt x

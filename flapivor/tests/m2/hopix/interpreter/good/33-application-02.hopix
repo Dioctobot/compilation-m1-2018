@@ -1,0 +1,5 @@
+val first = fun (x, y) => x
+val test =
+  print_string ("This test is ");
+  print_string (first ("OK", "KO"));
+  print_string (".\n")

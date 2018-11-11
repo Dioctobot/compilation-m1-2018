@@ -1,0 +1,4 @@
+val test =
+  val x = "This test is KO.\n";
+  val x = "This test is OK.\n";
+  print_string (x)

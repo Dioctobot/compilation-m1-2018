@@ -1,0 +1,2 @@
+val some_string = "Easy as a pie!\n"
+val test = print_string (some_string)

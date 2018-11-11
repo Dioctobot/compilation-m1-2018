@@ -1,0 +1,7 @@
+val r = ref "KO"
+val alias = r
+val test =
+    alias := "OK";
+    print_string ("This test is ");
+    print_string (!r);
+    print_string (".\n")

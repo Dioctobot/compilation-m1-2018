@@ -1,0 +1,4 @@
+val f = ref (fun (x) => x)
+val test =
+    f := (fun (x) => "This test is OK.\n");
+    print_string (!f ("This test is KO.\n"))

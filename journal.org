@@ -315,7 +315,6 @@ Bienvenue en Master 1!
 
 ** Une toute première passe de compilation
    voir [file:doc/cours-06/liaison-des-noms.pdf]
-
 * Cours 7 "Sémantique des langages du premier ordre" <2018-11-12>
 ** FAQ Projet
 ** Les langages du premier ordre

@@ -46,6 +46,7 @@ OK 26-char-literal-6.good-output
 OK 27-string-literal-1.good-output
 OK 28-string-literal-2.good-output
 OK 29-string-literal-3.good-output
+OK 30-string-literal-4.good-output
 OK 31-type-definition-sum-1.good-output
 OK 32-type-definition-sum-2.good-output
 OK 33-type-definition-sum-3.good-output

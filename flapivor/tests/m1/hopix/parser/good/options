@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 -s hopix --verbose true --dry true
+=======
+-s hopix --verbose true --dry true --unsafe true
+>>>>>>> 9fb28ef6e27fe7242f6fc98e039b73669d453b79

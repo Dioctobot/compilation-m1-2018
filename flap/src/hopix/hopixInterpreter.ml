@@ -300,7 +300,71 @@ let initial_runtime () = {
   environment = primitives;
 }
 
+let rec size_expression expr = match expr with
+  | Literal lit -> 
+    begin match lit.value with
+      | LInt    i -> Int32.to_int i
+      | LString str -> String.length str
+      | LChar   c -> Char.code c
+    end
+  | Variable (id, _) ->
+    begin match id.value with
+      | Id str -> String.length str
+    end
+  | Tagged (cons, _, lexpr) ->
+    let rec aux = function
+      | [] -> 0
+      | hd::tl -> size_expression hd.value + aux tl
+    in 
+    begin match cons.value with
+      | KId str -> String.length str + aux lexpr
+    end
+  (*| Record _ ->
+  | Field _ ->
+  | Sequence _ ->
+  | Define _ ->
+  | Fun _ ->
+  | Apply _ ->
+  | Ref _ ->
+  | Assign _ ->
+  | Read _ ->
+  | Case _ ->
+  | IfThenElse _ ->
+  | While _ ->
+  | For _ ->
+  | TypeAnnotation _ ->*)
+  | _ -> 1024
 
+let size_environnement env = 1024
+
+let rec size_evalue eval = match eval with
+  | VInt i -> Int32.to_int i
+  | VChar c -> Char.code c
+  | VString str -> String.length str
+  | VUnit -> 0
+  | VTagged (KId (str), leg) -> 
+    let rec aux = function
+      | [] -> 0
+      | hd::tl -> size_evalue hd + aux tl
+    in 
+    String.length str + aux leg
+  | VRecord l -> 
+    let rec aux = function
+      | [] -> 0
+      | hd::tl -> 
+        (match hd with
+          | LId str, e -> String.length str + size_evalue e + aux tl)
+    in aux l
+  | VLocation i -> let str = Memory.print_location i in
+    int_of_string (String.sub str 1 (String.length str))
+  | VClosure (env, lid, expr) ->
+    let rec aux = function
+      | [] -> 0
+      | hd::tl -> 
+        (match hd.value with
+          | Id str -> String.length str + aux tl)
+    in size_environnement env + aux lid + size_expression expr.value
+  | VPrimitive (str, f) -> String.length str + 1024
 
 let rec evaluate runtime ast =
   try
@@ -308,6 +372,7 @@ let rec evaluate runtime ast =
     (runtime', extract_observable runtime runtime')
   with Environment.UnboundIdentifier (Id x, pos) ->
     Error.error "interpretation" pos (Printf.sprintf "`%s' is unbound." x)
+
 
 (** [definition pos runtime d] evaluates the new definition [d]
     into a new runtime [runtime']. In the specification, this
@@ -331,79 +396,119 @@ and expression' environment memory e =
    and E = [runtime.environment], M = [runtime.memory].
 *)
 and expression position environment memory = function
-  | Literal lit ->  literal lit.value
-  | Variable (id, _) -> Environment.lookup id.position id.value environment
-  | Tagged (cons, olty, lexpr) -> 
-    let lv = List.map (fun e -> expression' environment memory e) lexpr in
-    VTagged (cons.value, lv)
+  | Literal lit ->  literal lit.value, memory
+  | Variable (id, _) -> Environment.lookup id.position id.value environment, memory
+  | Tagged (cons, olty, lexpr) ->
+    let rec evalue_memory evalue mem = function
+    | [] -> List.rev evalue, mem
+    | hd::tl -> 
+      let (eval, memory') = expression' environment memory hd in
+      evalue_memory (eval::evalue) memory' tl
+    in
+    let lv, memory' = evalue_memory [] memory lexpr  in
+    VTagged (cons.value, lv), memory'
   | Record (llexpr, olty) -> 
-    let rec aux = function
-      [] -> []
-      | hd::tl -> ((fst hd).value, expression' environment memory (snd hd))::(aux tl)
-    in VRecord (aux llexpr)
+    let rec evalue_memory evalue mem = function
+      | [] -> List.rev evalue, mem
+      | hd::tl -> 
+        let label = (fst hd).value in
+        let eval, memory' = expression' environment memory (snd hd) in
+        evalue_memory ((label, eval)::evalue) memory' tl
+    in
+    let leval, memory' = evalue_memory [] memory llexpr in
+    VRecord leval, memory'
   | Field (expr, lab) -> 
     (match (expression' environment memory expr) with
-      | VRecord record -> List.assoc lab.value record
+      | VRecord record, memory' -> (List.assoc lab.value record), memory'
       | _ -> error [position] "Expected VRecord")
   | Sequence lexpr ->
     (match lexpr with
       | [] -> error [position] "Sequence cannot be empty"
-      | hd1::hd2::tl -> expression' environment memory hd2
+      | hd1::hd2::tl -> 
+        let eval, memory' = expression' environment memory hd1 in
+        let eval', memory'' = expression' environment memory' hd2 in
+        eval', memory''
       | _ -> error [position] "Expected Sequence")
   | Define (vd, expr) -> 
     let runtime = value_definition environment memory vd in
-    expression' runtime.environment runtime.memory expr
-  | Fun fd -> function_definition environment fd
-  | Apply (expr, lexpr) -> failwith "Students! This is your job! (in expression)"
-    (*let app = expression' environment memory expr in
-    let values = List.map (fun e -> expression' environment memory e) lexpr in
-    let f = match app with
-      | VClosure (e, id expr) -> ()
-      | VPrimitive (str, em) -> em memory values
-      | _ -> error [position] "Apply fail"*)
+    let eval, memory'' = expression' runtime.environment runtime.memory expr in
+    eval, memory''
+  | Fun fd -> function_definition environment fd, memory
+  | Apply (expr, lexpr) ->
+    let eval, memory' = expression' environment memory expr in
+    (match eval with
+      | VClosure (env, lid, e) -> 
+        let eval', memory'' = expression' env memory' e in
+        let runtime = runtime_function env memory'' lid eval' in
+        expression' runtime.environment runtime.memory e
+      | VPrimitive (str, f) -> assert false
+      | _ -> error [position] "Apply fail")
   | Ref expr ->
-    let e = expression' environment memory expr in
-    let loc = Memory.allocate memory (Int32.of_string "0") e in
-    VLocation loc
-  | Assign (e1, e2) ->
-    (match expression' environment memory e1 with
+    let eval, memory' = expression' environment memory expr in
+    (*let size = memory'.bound in*)
+    let loc = Memory.allocate memory' (Int32.of_int (size_evalue eval)) eval in
+    VLocation loc, memory'
+  | Assign (e, e') -> let eval, memory' = expression' environment memory e in
+    (match eval with
       | VLocation loc -> 
-        let expr = expression' environment memory e2 in
-        let block = Memory.dereference memory loc in
-        Memory.write block (Int32.of_string "0") expr;
-        VUnit
+        let eval', memory'' = expression' environment memory' e' in
+        let block = Memory.dereference memory'' loc in
+        Memory.write block (Memory.size block) eval';
+        VUnit, memory''
       | _ ->  error [position] "Assign fail")
-  | Read expr ->
-    (match expression' environment memory expr with
+  | Read expr -> let eval, memory' = expression' environment memory expr in
+    (match eval with
       | VLocation loc ->
-        let block = Memory.dereference memory loc in
-        Memory.read block (Int32.of_string "0")
+        let block = Memory.dereference memory' loc in
+        Memory.read block (Memory.size block), memory'
       | _ ->  error [position] "Read fail")
-  | Case (expr, lbr) -> let value = expression' environment memory expr in
-    branch environment memory value lbr
-  | IfThenElse (e1, e2, oe3) -> let boolean = expression' environment memory e1 in
-    if boolean = ptrue then
-      expression' environment memory e2
-    else 
+  (*| Case (expr, lbr) -> let value = expression' environment memory expr in
+    branch environment memory value lbr*)
+  | IfThenElse (e1, e2, oe3) -> let eval, memory' = expression' environment memory e1 in
+    if eval = ptrue then (* value_as_bool eval *)
+      expression' environment memory' e2
+    else
       (match oe3 with
-        | None -> VUnit
-        | Some e -> expression' environment memory e)
+        | None -> error [position] "IfThenElse fail"
+        | Some e -> expression' environment memory' e)
   | While (e1, e2) -> 
-    let rec aux vunit = 
-      let boolean = expression' environment memory e1 in
-      if value_as_bool boolean then
-        aux (expression' environment memory e2)
+    let rec aux gvalue = 
+      let eval, memory' = gvalue in
+      let eval', memory'' = expression' environment memory' e2 in
+      if value_as_bool eval then
+        aux (expression' environment memory'' e2)
       else
-        vunit
-    in aux VUnit
-  | For (id, e1, e2, oe3, e4) -> failwith "Students! This is your job! (in expression)"
+        VUnit, memory'
+    in aux (expression' environment memory e1)
+  | For (id, e1, e2, oe3, e4) -> (* TODO *)
+    let [@ warning "-26"] aux =
+    let forinit, memory1 = expression' environment memory e1 in
+    let forend, memory2 = expression' environment memory1 e2 in
+    let environment' = Environment.bind environment id.value forinit in
+    let step, memory3 = (match oe3 with
+      | None -> int_as_value Int32.one, memory2
+      | Some st -> expression' environment memory2 st)
+    in
+    assert false
+    in aux
   | TypeAnnotation (expr, t) -> expression' environment memory expr
+  | _ -> assert false
+
+and runtime_function environment memory lid evalue =
+  let rec aux env = function
+    | [] -> env
+    | hd::tl -> aux (Environment.bind env hd.value evalue) tl
+  in
+  {
+    memory = memory;
+    environment = aux environment lid;
+  }
 
 and value_definition environment memory vd = match vd with
   | SimpleValue (id, otsc, expr) ->
-    let e = expression' environment memory expr in
+    let e, memory' = expression' environment memory expr in
     {
-      memory = memory;
+      memory = memory';
       environment = Environment.bind environment id.value e;
     }
   | RecFunctions (polfd) -> 
@@ -426,6 +531,7 @@ and value_definition environment memory vd = match vd with
 and function_definition environment fd = match fd with
   | FunctionDefinition (lid, expr) -> VClosure (environment, lid, expr)
 
+(*
 and pattern environment memory evalue pat = match pat with
   | PVariable id -> Some (Environment.bind environment id.value evalue)
   | PWildcard -> Some environment
@@ -458,7 +564,7 @@ and branch environment memory evalue brs = match brs with
             (match pattern environment memory evalue pat.value with
               | None -> branch environment memory evalue tl
               | Some env -> expression' env memory e))
-
+*)
 
 and literal lit = match lit with
   | LInt x -> VInt x
@@ -482,6 +588,7 @@ and extract_observable runtime runtime' =
     new_memory =
       runtime'.memory
   }
+
 
 (** This function displays a difference between two runtimes. *)
 let print_observable runtime observation =

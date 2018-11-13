@@ -38,7 +38,7 @@
 %left BINOP
 %left ASSIGN
 
-/*%right LPAREN*/
+%right LPAREN
 
 %%
 
@@ -122,16 +122,13 @@ expression:
 | FUN lvar_id=delimited(LPAREN, loption(separated_nonempty_list(COMMA, located(identifier))), RPAREN) RARROWEQUAL expr=located(expression)
 {
   Fun (FunctionDefinition(lvar_id, expr))
-} /* TODO *//*
+} /* TODO */
 | func=located(expression) lexpr=delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN)
 {
   Apply (func, lexpr)
-}*/
+}
 | expr1=located(expression) b=binop expr2=located(expression)
 {
-  (*let id = Position.with_poss $startpos(b) $endpos(b) b in
-  let e_var = Variable (id, None) in
-  let loc_expr = Position.with_poss $startpos(b) $endpos(b) e_var in*)
   let id = Position.with_poss $startpos $endpos b in
   let e_var = Variable (id, None) in
   let loc_expr = Position.with_poss $startpos $endpos e_var in

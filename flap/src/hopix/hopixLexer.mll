@@ -11,7 +11,22 @@
   let error lexbuf =
     error "during lexing" (lex_join lexbuf.lex_start_p lexbuf.lex_curr_p)
 
+  let convert_char str = match (String.length str) with
+    | 1 -> str.[0]
+    | 2 -> str.[1]
+    | 3 -> 
+      (match str with
+        | "\'\\n" -> '\n'
+        | "\'\\t" -> '\t'
+        | "\'\\b" -> '\b'
+        | "\'\\r" -> '\r'
+        | "\'\\\'" -> '\''
+        | "\'\\\\" -> '\\'
+        | _ -> failwith "convert char parse error")
+    | _ -> failwith "convert char parse error"
 
+
+  let index = ref 0
 }
 
 let newline = ('\010' | '\013' | "\013\010")
@@ -124,28 +139,45 @@ rule token = parse
 
   (** Literals *)
   | int as i        { INT (Int32.of_string i) }
-  | char as c       { CHAR c.[1]              }
-  | string as s   { 
-    let str = (String.sub s 1 (String.length s -2)) in
+  | char as c       { CHAR (convert_char c)     }
+
+  (*| string as s   { 
+    let str = (String.sub s 1 (String.length s - 2)) in
     STRING str
-    }
+    }*)
+
+  | '"'             { read_string (Buffer.create 1024) lexbuf }
 
 
   (** Comments *)
-  | "(*"            { comment_block lexbuf }
+  | "(*"            { index := succ !index; comments lexbuf }
 
   (** Lexing error. *)
   | _               { error lexbuf "unexpected character." }
 
 
-(*Lexbuf is use to incremented the current position of the buffer/reader*)
-and comment_block = parse
-  | "(*"    { comment_inline lexbuf                   }
-  | "*)"    { token lexbuf (*Meaning end of comment*) }
-  | eof     { raise End_of_file                       }
-  | _       { comment_block lexbuf                    }
+and read_string buf = parse
+  | '"'       { STRING (Buffer.contents buf)                        }
+  | '\\' '\'' { Buffer.add_char buf '\''; read_string buf lexbuf    }
+  | '\\' 'n'  { Buffer.add_char buf '\n'; read_string buf lexbuf    }
+  | '\\' 't'  { Buffer.add_char buf '\t'; read_string buf lexbuf    }
+  | '\\' 'b'  { Buffer.add_char buf '\b'; read_string buf lexbuf    }
+  | '\\' 'r'  { Buffer.add_char buf '\r'; read_string buf lexbuf    }
+  | [^ '"' '\\']+
+    { Buffer.add_string buf (Lexing.lexeme lexbuf);
+      read_string buf lexbuf
+    }
+  | _   { error lexbuf ("Illegal string character: " ^ Lexing.lexeme lexbuf) }
+  | eof { raise End_of_file }
 
-and comment_inline = parse
-  | eof     { EOF }
-  | newline { token lexbuf }
-  | _       { comment_inline lexbuf}
+(*Lexbuf is use to incremented the current position of the buffer/reader*)
+and comments = parse
+  | "(*"    { index := succ !index; comments lexbuf   }
+  | "*)"    
+    { 
+      index := pred !index; 
+      if !index = 0 then token lexbuf else comments lexbuf
+    }
+  | eof     { raise End_of_file                       }
+  | newline { next_line_and token lexbuf              }
+  | _       { comments lexbuf                         }

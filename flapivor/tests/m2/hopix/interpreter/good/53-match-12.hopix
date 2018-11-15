@@ -1,0 +1,14 @@
+val write = fun (x) =>
+  case x {
+  | O => print_string ("O")
+  | K => print_string ("K")
+  | D => print_string (".")
+  | N => print_string ("\n")
+  }
+
+val test =
+  print_string ("This test is ");
+  write (O);
+  write (K);
+  write (D);
+  write (N)

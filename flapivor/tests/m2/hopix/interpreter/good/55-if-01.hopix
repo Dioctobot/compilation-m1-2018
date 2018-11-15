@@ -1,0 +1,7 @@
+def f (x) =
+  if x >? 0 then "OK" else "KO"
+
+val test =
+  print_string ("This test is ");
+  print_string (f (33));
+  print_string (".\n")

@@ -93,10 +93,10 @@ and pattern =
   | PTypeAnnotation of pattern located * ty located
   (** A literal pattern. *)
   | PLiteral of literal located
-  (** A pattern for a tagged value [K @ ty₁ ... ty₂ | p_1; ...; p_n]]. *)
+  (** A pattern for a tagged value K [ty₁ ... tyₙ] (p_1; ...; p_n). *)
   | PTaggedValue of
       constructor located * ty located list option * pattern located list
-  (** A pattern for a record [[l_1 = p_1; ...; l_n = p_n @ ty₁ ... tyₘ]]. *)
+  (** A pattern for a record {l_1 = p_1; ...; l_n = p_n }  [ ty₁ ... tyₘ ]. *)
   | PRecord of (label located * pattern located) list * ty located list option
   (** A disjunctive pattern [ p₁ | ... | pₙ ]. *)
   | POr of pattern located list

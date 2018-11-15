@@ -1,0 +1,38 @@
+def map (f, l) =
+    case l { N => N | C (x, xs) => C (f (x), map (f, xs)) }
+
+def concat (l1, l2) =
+    case l1 { N => l2 | C (x, xs) => C (x, concat (xs, l2)) }
+
+def flatten (l) =
+    case l { N => N | C (l, ls) => concat (l, flatten (ls)) }
+
+def return (x) = C (x, N)
+
+def bind (x, f) = flatten (map (f, x))
+
+val fail = N
+
+def range (start, stop) = if start >? stop then N else C (start, range (start + 1, stop))
+
+def all_sums (start, stop, n) =
+    bind (range (start, stop), fun (x) =>
+    bind (range (start, stop), fun (y) =>
+    if x + y =? n then return (`(x, y, n)) else fail
+    ))
+
+def show_sum (s) =
+    case s { `(x, y, n) =>
+      print_int (x);
+      print_string (" + ");
+      print_int (y);
+      print_string (" = ");
+      print_int (n);
+      print_string ("\n")
+    }
+
+def iter (f, l) =
+    case l { N => nothing | C (x, xs) => f (x); iter (f, xs) }
+
+val test =
+    iter (show_sum, all_sums (13, 73, 73))

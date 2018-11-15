@@ -1,15 +1,18 @@
-[students/vador-skywalker]
-checkout = git clone git@moule.informatique.univ-paris-diderot.fr:skywalker/compilation-m1-2018.git vador-skywalker
 [students/debois-franzi]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:franzi/compilation-m1-2018.git debois-franzi
 [students/martinot-nalin]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:martinot/compilation-m1-2018.git martinot-nalin
 [students/vienot-donato-lelievre_osswald]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:iLambda/compilation-m1-2018.git vienot-donato-lelievre_osswald
-
 [students/aillerie-darkaoui]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:darkaoui/compilation-m1-2018.git aillerie-darkaoui
+[students/nourel-hadj_aissa]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:asere/compilation-m1-2018.git nourel-hadj_aissa
+[students/martin_kunev]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:mkunev24/compilation-m1-2018.git martin_kunev
 [students/etame_mayi]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:etamemay/compilation-m1-2018.git etame_mayi
-
-
+[students/pierre-dibo-jason-bardot]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:dibo/compilation-m1-2018.git pierre-dibo-jason-bardot
+[students/haifa]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:Haifa/compilation-m1-2018.git haifa

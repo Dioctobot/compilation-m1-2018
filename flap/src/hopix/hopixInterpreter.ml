@@ -237,16 +237,16 @@ let primitives =
   let binarith name =
     intbin name (fun x -> VInt x) in
   let binarithops = Int32.(
-    [ ("`+", add); ("`-", sub); ("`*", mul); ("`/", div) ]
+    [ ("`+`", add); ("`-`", sub); ("`*`", mul); ("`/`", div) ]
   ) in
   (* Define arithmetic comparison operators. *)
   let cmparith name = intbin name bool_as_value in
   let cmparithops =
-    [ ("`=", ( = ));
-      ("`<", ( < ));
-      ("`>", ( > ));
-      ("`>=", ( >= ));
-      ("`<=", ( <= )) ]
+    [ ("`=?`", ( = ));
+      ("`<?`", ( < ));
+      ("`>?`", ( > ));
+      ("`>=?`", ( >= ));
+      ("`<=?`", ( <= )) ]
   in
   let boolbin name out op =
     VPrimitive (name, fun m -> function
@@ -256,7 +256,7 @@ let primitives =
   in
   let boolarith name = boolbin name (fun x -> if x then ptrue else pfalse) in
   let boolarithops =
-    [ ("`||", ( || )); ("`&&", ( && )) ]
+    [ ("`||`", ( || )); ("`&&`", ( && )) ]
   in
   let generic_printer =
     VPrimitive ("print", fun m vs ->
@@ -314,8 +314,11 @@ let rec evaluate runtime ast =
                         E, M ⊢ dv ⇒ E', M'
 
 *)
-and definition runtime d =
-failwith "Students! This is your job!"
+and definition runtime d = match (value d) with
+  | DefineType (ty_var, ty_con_l, ty_def) -> failwith "Cas DefineType"
+  | DeclareExtern (id, ty_sch) -> failwith "Cas DeclareExtern"
+  | DefineValue vdef -> failwith "Cas DefineValue"
+
 
 and expression' environment memory e =
   expression (position e) environment memory (value e)
@@ -326,8 +329,25 @@ and expression' environment memory e =
 
    and E = [runtime.environment], M = [runtime.memory].
 *)
-and expression position environment memory =
-failwith "Students! This is your job!"
+and expression position environment memory value =
+  match value with
+  | Literal lit -> failwith "Cas Literal"
+  | Variable (name, ty_l_o) -> failwith "Cas Variable"
+  | Tagged (cons, ty_l_o, expr_m) -> failwith "Cas Tagged"
+  | Record (expr_lbl_l, ty_l_o) -> failwith "Cas Record"
+  | Field (expr, lbl) -> failwith "Cas Field"
+  | Sequence (expr_l) -> failwith "Cas Sequence"
+  | Define (vdef, expr) -> failwith "Cas Define"
+  | Fun (fdef) -> failwith "Cas Fun"
+  | Apply (expr, expr_l) -> failwith "Cas Apply"
+  | Ref (expr) -> failwith "Cas Ref"
+  | Assign (expr_deb, expr_fin) -> failwith "Cas Assign"
+  | Read (expr) -> failwith "Cas Read"
+  | Case (expr, branch_l) -> failwith "Cas Case"
+  | IfThenElse (expr_cond, expr_true, expr_false) -> failwith "Cas IfThenElse"
+  | While (expr_cond, expr_loop) -> failwith "Cas While"
+  | For (id, expr_cond, expr_inc, expr_o, expr_loop) -> failwith "Cas For"
+  | TypeAnnotation (expr, ty) -> failwith "Cas TypeAnnotation"
 
 (** This function returns the difference between two runtimes. *)
 and extract_observable runtime runtime' =

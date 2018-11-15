@@ -1,0 +1,4 @@
+val test =
+    val msg = "This test is OK.\n";
+    val cst = (fun (x) => msg);
+    print_string (cst ("This test is KO.\n"))

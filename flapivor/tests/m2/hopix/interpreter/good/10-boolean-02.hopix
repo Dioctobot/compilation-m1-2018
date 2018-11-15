@@ -1,0 +1,2 @@
+val b = true
+val test = if b then print_string ("OK\n") else print_string ("KO\n")

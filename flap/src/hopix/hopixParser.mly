@@ -38,11 +38,11 @@
 %left BINOP
 %left ASSIGN
 
-%right LPAREN
+/*%right LPAREN*/
 
 %%
 
-program: ds=located(definition)*EOF
+program: ds=list(located(definition)) EOF
   {ds}
 
 definition:
@@ -122,11 +122,11 @@ expression:
 | FUN lvar_id=delimited(LPAREN, loption(separated_nonempty_list(COMMA, located(identifier))), RPAREN) RARROWEQUAL expr=located(expression)
 {
   Fun (FunctionDefinition(lvar_id, expr))
-} /* TODO */
+} /* TODO *//*
 | func=located(expression) lexpr=delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN)
 {
   Apply (func, lexpr)
-}
+}*/
 | expr1=located(expression) b=binop expr2=located(expression)
 {
   let id = Position.with_poss $startpos $endpos b in

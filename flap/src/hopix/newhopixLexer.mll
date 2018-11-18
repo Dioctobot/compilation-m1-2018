@@ -11,7 +11,18 @@
   let error lexbuf =
     error "during lexing" (lex_join lexbuf.lex_start_p lexbuf.lex_curr_p)
 
-
+  let read_char str = match (String.length str) with
+    | 1 -> str.[0]
+    | 2 -> str.[1]
+    | _ ->
+      (match str with
+        | "\'\\n" -> '\n'
+        | "\'\\t" -> '\t'
+        | "\'\\b" -> '\b'
+        | "\'\\r" -> '\r'
+        | "\'\\\'" -> '\''
+        | "\'\\\\" -> '\\'
+        | _ -> failwith "convert char parse error")
 }
 
 let newline = ('\010' | '\013' | "\013\010")
@@ -20,32 +31,25 @@ let blank   = [' ' '\009' '\012']
 
 let digit = ['0'-'9']
 
-(*Approndir : 
-** https://stackoverflow.com/questions/20889996/how-do-i-remove-all-non-ascii-characters-with-regex-and-notepad
-** https://stackoverflow.com/questions/14565934/regular-expression-to-remove-all-non-printable-characters
-*)
-
-let printable = ['\x00'-'\x1F']+
-
-let remove_printable = [^'\x1F'-'\x7F']+
+let printable = _
 
 let alien_infix_id = '`' (['A'-'Z' 'a'-'z' '0'-'9' '+' '-' '*' '/' '=' '_' '!' '?'])+ '`'
 
 let alien_prefix_id = '`' (['a'-'z' '0'-'9' ' ' '+' '-' '*' '/' '=' '_' '!' '?'])+
 
+let var_id = ['a'-'z']['A'-'Z' 'a'-'z' '0'-'9' '_']* | alien_prefix_id
+
+let all_var_id = var_id | alien_infix_id
+
 let binop = ("&&" | "||" | "=?" | "<=?" | ">=?" | "<?" | ">?") | alien_infix_id
 
-let constr_id = '`' | '`'? ['A'-'Z']['A'-'Z' 'a'-'z' '0'-'9' '_']*
+let constr_id = ['`' 'A'-'Z']['A'-'Z' 'a'-'z' '0'-'9' '_']*
 
 let label_id = ['a'-'z']['A'-'Z' 'a'-'z' '0'-'9' '_']*
 
 let type_cons = ['`' 'A'-'Z']['A'-'Z' 'a'-'z' '0'-'9' '_']*
 
 let type_variable = ['a'-'z']['A'-'Z' 'a'-'z' '0'-'9' '_']*
-
-let var_id = ['a'-'z']['A'-'Z' 'a'-'z' '0'-'9' '_'] | alien_prefix_id
-
-let all_var_id = var_id | alien_infix_id
 
 let int = '-'? ['0'-'9']+
   | '0'['x']['0'-'9' 'a'-'f' 'A'-'F']+
@@ -57,14 +61,9 @@ let atom = ['\000'-'\255']
   | printable
   |"\\\\" | "\\'" | "\\n" | "\\t" | "\\b" | "\\r"
 
-let non_printable_atom = ['\000'-'\255']
-  | "\\0"['x']['0'-'9' 'a'-'f' 'A'-'F']['0'-'9' 'a'-'f' 'A'-'F']
-  | remove_printable
-  | "\\n" | "\\t" | "\\b" | "\\r"
-
 let char = "\'" atom "\'"
 
-let string = "\"" (non_printable_atom | "\'" | "\\'" | "\\\'" )* "\""
+let string = "\"" (atom | "\'" | "\\'" | "\\\'" )* "\""
 
 rule token = parse
 
@@ -80,7 +79,16 @@ rule token = parse
   | "def"           { DEF           }
   | "and"           { AND           }
   | "forall"        { FORALL        }
-
+  | "fun"           { FUN           }
+  | "case"          { CASE          }
+  | "if"            { IF            }
+  | "then"          { THEN          }
+  | "else"          { ELSE          }
+  | "ref"           { REF           }
+  | "while"         { WHILE         }
+  | "for"           { FOR           }
+  | "to"            { TO            }
+  | "by"            { BY            }
   
   (** Punctuation *)
   | "."             { DOT         }
@@ -93,11 +101,13 @@ rule token = parse
   | ">"             { RCHEVRON    }
   | "{"             { LCBRACK     }
   | "}"             { RCBRACK     }
-
-
+  | ":="            { ASSIGN      }
+  | "!"             { EXCLMARK    }
   | "->"            { RARROW      }
-
+  | "=>"            { RARROWEQUAL }
   | "|"             { PIPE        }
+  | "&"             { AMP         }
+  | "_"             { UNDERSCORE  }
 
   (** Operators *)
   | "="             { EQUAL       }
@@ -114,10 +124,10 @@ rule token = parse
 
   (** Literals *)
   | int as i        { INT (Int32.of_string i)   } 
+  | char as c       { CHAR (read_char c)     }
 
   (** Comments *)
   | "(*"            { comments 1 lexbuf }
-
 
   (** Lexing error. *)
   | _               { error lexbuf "unexpected character." }

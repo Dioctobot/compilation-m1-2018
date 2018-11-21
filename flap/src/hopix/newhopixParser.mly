@@ -25,8 +25,7 @@
 
 %start<HopixAST.t> program
 
-%left ASSIGN
-%left BINOP /*STAR*/
+
 
 %right PIPE AMP 
 %right RARROWEQUAL
@@ -36,7 +35,8 @@
 %right EXCLMARK
 %right REF EQUAL
 
-
+%left ASSIGN
+%left BINOP /*STAR*/
 
 %%
 

@@ -1,0 +1,3 @@
+fst : Int * Int -> Int
+snd : Int * Int -> Int
+main : Int

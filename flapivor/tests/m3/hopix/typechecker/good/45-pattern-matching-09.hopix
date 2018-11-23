@@ -1,0 +1,5 @@
+type `<a, b> = `(a, b)
+
+val x : Int = case `<`<Int, Int>, Int>(`<Int, Int>(22, 44), 33) {
+  `<`<Int, Int>, Int>(`<Int, Int>(x : Int, y : Int), _ : Int) => x + y
+}

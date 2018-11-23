@@ -1,0 +1,1 @@
+fix0 : forall a, b. ((a -> b) -> (a -> b)) * a * b -> b

@@ -1,1 +1,0 @@
-type Triple<a, b, c> = Triple (a, b, c) 

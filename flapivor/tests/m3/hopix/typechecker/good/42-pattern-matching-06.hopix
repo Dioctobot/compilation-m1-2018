@@ -1,0 +1,3 @@
+type Option<a> = None | Some (a)
+
+val x : Int = case Some<Int>(42) { Some<Int>(_ : Int) | None<Int> => 0 }

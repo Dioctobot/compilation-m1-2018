@@ -1,0 +1,1 @@
+val x : Int = case "Doctor" { "Doctor" => 1 | (_ : String) => 0 }

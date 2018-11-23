@@ -1,0 +1,1 @@
+def f : Int -> String (x) = f (31) + 0

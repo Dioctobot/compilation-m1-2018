@@ -1,0 +1,7 @@
+val x : Ref<Int> = ref (4)
+
+val main : Int =
+    while (!x >? 0) {
+      x := !x - 1
+    };
+    !x

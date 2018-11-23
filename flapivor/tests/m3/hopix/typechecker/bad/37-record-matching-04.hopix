@@ -1,0 +1,4 @@
+type T = { x : Int }
+type U = { z : Int }
+
+val main : Int = case { x = 0 }<> { { z = (y : Int) }<> => y }

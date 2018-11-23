@@ -1,1 +1,0 @@
-val beta = (fun (x) => x) (0)

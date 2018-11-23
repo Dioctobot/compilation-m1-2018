@@ -1,2 +1,0 @@
-val main =
-  def ping () = (pong ()) and pong () = (ping ()) ; ping ()

@@ -1,0 +1,5 @@
+def fst : Int * Int -> Int (x, y) = snd (y, x)
+
+and snd : Int * Int -> Int (x, y) = fst (x, y)
+
+val main : Int = fst (3, 4)

@@ -1,0 +1,2 @@
+val main : Int =
+    case 0 { (x : Int) | (y : String) => x }

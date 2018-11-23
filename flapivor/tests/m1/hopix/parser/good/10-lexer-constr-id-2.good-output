@@ -1,1 +1,0 @@
-val x = Cons(0, Nil(1))

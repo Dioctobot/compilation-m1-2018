@@ -1,0 +1,7 @@
+type T = { x : Int }
+
+type U = { y : Int }
+
+val r : T = { x = 0 }<>
+
+val ry : Int = r.y

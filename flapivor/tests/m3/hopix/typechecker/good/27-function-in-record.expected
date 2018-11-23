@@ -1,0 +1,4 @@
+f : Int -> Int
+boxed_f : F<Int, Int>
+apply_boxed_f : forall a, b. F<a, b> * a -> b
+main : Int

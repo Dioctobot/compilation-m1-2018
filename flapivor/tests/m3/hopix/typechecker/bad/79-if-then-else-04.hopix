@@ -1,0 +1,2 @@
+val main : Int =
+    if "String" then 0 else 1

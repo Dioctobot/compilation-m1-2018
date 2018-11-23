@@ -1,0 +1,1 @@
+val x : Ref<Int> = ref (0)

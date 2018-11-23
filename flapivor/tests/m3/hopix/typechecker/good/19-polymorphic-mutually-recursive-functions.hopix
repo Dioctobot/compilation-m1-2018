@@ -1,0 +1,5 @@
+def false_rec : forall a, b. a -> b (x) = false_rec2<b, a> (x)
+
+and false_rec2 : forall a, b. b -> a (x) = false_rec<b, a> (x)
+
+val main : String = false_rec<Int, String> (43)

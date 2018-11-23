@@ -1,2 +1,0 @@
-val nest =
-  case bird { | Nest(Some(bird)) => bird | Nest(None) => nothing }

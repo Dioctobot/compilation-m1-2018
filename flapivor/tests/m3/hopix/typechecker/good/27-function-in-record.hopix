@@ -1,0 +1,9 @@
+type F<a, b> = { apply : a -> b }
+
+def f : Int -> Int (x) = x + 1
+
+val boxed_f : F<Int, Int> = { apply = f }<Int, Int>
+
+def apply_boxed_f : forall a, b. F<a, b> * a -> b (boxed_f, a) = boxed_f.apply (a)
+
+val main : Int = apply_boxed_f<Int, Int>(boxed_f, 42)

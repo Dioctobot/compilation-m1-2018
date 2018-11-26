@@ -27,13 +27,6 @@
         error buf "unexpected character."
       else
         str.[0]
-
-  let convert_char (s : string) : char =
-    Char.chr ( int_of_string (String.sub s 1 ((String.length s) - 1)) )
-
-  let convert_string (s:string) : string =
-    (s |> convert_char |> Char.escaped)
-
 }
 
 (* Approndir : 
@@ -77,9 +70,6 @@ let int = ('-'?['0'-'9']+
   | "0b"['0'-'1']+
   | "0o"['0'-'7']+)
 
-let try_int = ('-'?['0'-'9']+
-  | "0x"['0'-'9' 'a'-'f' 'A'-'F']*)
-
 let atom = (set_num
   | "\\0"['x']['0'-'9' 'a'-'f' 'A'-'F']['0'-'9' 'a'-'f' 'A'-'F']
   | printable
@@ -94,11 +84,7 @@ let char = ('\'' atom '\'')
 
 let string = ('"' (removable_atom | ['\''] | "\"" )* '"')
 
-(*
 let binop = ("&&" | "||" | "=?" | "<=?" | ">=?" | "<?" | ">?" | alien_infix_id)
-*)
-let binop = alien_infix_id
-
 
 rule token = parse
 
@@ -182,7 +168,6 @@ and read_string buf = parse
   | '"'           { STRING (Buffer.contents buf)                                   }
   | '\\' '\"'     { Buffer.add_char buf '\"' ; read_string buf lexbuf    }
   | '\\'          { Buffer.add_char buf (add_char lexbuf); read_string buf lexbuf    }
-  | '\\' int as i { Buffer.add_string buf (convert_string i); read_string buf lexbuf}
   | print+
     { Buffer.add_string buf (Lexing.lexeme lexbuf);
       read_string buf lexbuf
@@ -191,22 +176,13 @@ and read_string buf = parse
   | eof { raise End_of_file }
 
 and add_char = parse
-
-(*
   | int as i  { Char.chr (int_of_string i) }
-  | int as i  { 
-    (match i with
-      | _ -> Char.chr (int_of_string i))
-  }*)
   | "n"       { '\n' }
   | "t"       { '\t' }
   | "b"       { '\b' }
   | "r"       { '\r' }
   | "\\"      { '\\' }
   | "'"       { '\'' }
-
-and add_string = parse
-  | int as i  { Char.chr (int_of_string i) }
 
 and comments index = parse
   | "(*"    { comments (succ index) lexbuf  }

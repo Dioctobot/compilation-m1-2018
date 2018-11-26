@@ -1,0 +1,2 @@
+def apply : forall a, b. (a -> b) * b -> b (f, x) = f (x)
+

@@ -1,0 +1,6 @@
+type `<a, b> = `(a, b)
+type P = { l : Int }
+
+val x : Int = case `<P, Int>({ l = 22 }<>, 33) {
+  `<P, Int>( { l = x : Int }<>, (y : Int)) => x + y
+}

@@ -1,0 +1,3 @@
+val x : Ref<Int> = ref 0
+
+val y : String = !x

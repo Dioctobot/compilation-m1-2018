@@ -1,0 +1,3 @@
+p : P<Int, String>
+x : Int
+y : String

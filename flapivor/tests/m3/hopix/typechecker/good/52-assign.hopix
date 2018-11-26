@@ -1,0 +1,4 @@
+val x : Ref<Int> = ref (0)
+
+val main : Unit =
+    x := 1

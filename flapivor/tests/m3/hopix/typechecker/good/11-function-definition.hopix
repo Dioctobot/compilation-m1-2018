@@ -1,0 +1,4 @@
+def id : Int -> Int (x) = x
+
+val main : Int =
+    id (42)

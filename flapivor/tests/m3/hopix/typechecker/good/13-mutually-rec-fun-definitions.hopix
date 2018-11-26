@@ -1,0 +1,6 @@
+def double_omega : Int -> Int (x) =
+    omega (x)
+and omega : Int -> Int (x) =
+    double_omega (x)
+
+val main : Int = double_omega (73)

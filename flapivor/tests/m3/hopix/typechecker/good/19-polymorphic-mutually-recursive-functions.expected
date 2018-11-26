@@ -1,0 +1,3 @@
+false_rec : forall a, b. a -> b
+false_rec2 : forall b, a. a -> b
+main : String

@@ -1,0 +1,3 @@
+type S = C (Int, Unit -> S)
+
+def from : Int -> S (n) = C<> (n, (fun (u) => from (n + 1) : Unit -> S))

@@ -322,5 +322,187 @@ Bienvenue en Master 1!
    voir [file:doc/cours-06/langage-du-premier-ordre-suite.pdf]
 *** Conditions
 *** Fonctions de seconde classe
+* Cours 8 "Sémantique des langages d'ordre supérieur" <2018-11-19>
+** FAQ Projet
+** Brève présentation de la compilation des langages du premier ordre
+** Marthe à la sauce Curry (MiniML)
+*** Syntaxe
+
+    t ::=
+      >   x
+      >   n
+      >   +, -, /, *
+      >   fun x -> t
+      >   t t
+      >   let x = t in t
+
+    let x = t1 in t2     ==     (fun x -> t2) t1
+
+*** Sémantique opérationnelle à petits pas
+
+    Les valeurs du langage
+
+    v ::= n | fun x -> t
+
+    Relation de réduction: t_1 -> t_2
 
 
+    Règle de réduction
+
+    ——————————————————————————  (β-réduction en appel par valeur)
+    (fun x -> t) v -> t[x ↦ v]
+
+    —————————————————————————–
+    let x = v in t -> t[x ↦ v]
+
+    ————————————  où ⊕ ∈ { +, -, /, -} et m est le résultat de l'opération ⊕ sur ces deux entiers
+    n₁ ⊕ n₂ -> m
+
+    Règle de passage au contexte
+
+        t -> t'
+    ——————————————
+    n ⊕ t -> n ⊕ t'
+
+          t₁ -> t₁'
+    —————————————–—————–
+    t₁ ⊕ t₂ -> t₁' ⊕ t₂
+
+          t₁ -> t₁'
+    ———————————————————–
+       t₁ t₂ -> t₁' t₂
+
+               t₂ -> t₂'
+    ———————————————————–————————————————————–
+       (fun x -> t₁) t₂ -> (fun x -> t₁) t₂'
+
+              t₁ -> t₁'
+   ———————————————————————————————–
+   let x = t₁ in t₂ -> let x = t₁' in t₂
+
+   Une autre formulation:
+
+   Plutôt que de définir toutes ces règles de passage au contexte, on
+   peut définir une nouvelle entité syntaxique que l'on appelle un
+   contexte d'évaluation C.
+
+   C := [] | v ⊕ C | C ⊕ t | let x = C in t | (fun x -> t) C | C t
+
+   Th: Pour tout terme t qui n'est pas une valeur, il existe un unique C, t = C[t₀]
+       tel que il existe t₀' qui est le réduit de t₀.
+
+*** Sémantique opérationnelle à grands pas
+
+    E ⊢ t ⇓ v
+
+    v := n | (fun x -> t)[E]
+
+    ————————————
+    E ⊢ x ⇓ E(x)
+
+    ———————————————————————————————
+    E ⊢ fun x -> t ⇓ fun x -> t [E]
+
+    E ⊢ t₁ ⇓ v₁  E + x ↦ v₁ ⊢ t₂ ⇓ v₂
+    —-——————————————————————————————–
+        E ⊢ let x = t₁ in t₂ ⇓ v₂
+
+	E ⊢ t₁ ⇓ (fun x -> t)[E_f]
+	E ⊢ t₂ ⇓ v₂
+	E_f + x ↦ v₂ ⊢ t ⇓ v
+	———————————————–————
+   	    E ⊢ t₁ t₂ ⇓ v
+
+    E ⊢ t₁ ⇓ n₁
+    E ⊢ t₂ ⇓ n₂
+    m = n₁ ⊕ n₂
+    ———————————————————
+    E ⊢ t₁ ⊕ t₂ ⇓ m
+
+**** À propos de E
+
+     let f x y =
+       let z = something_huge () in
+       fun k -> x
+
+*** Typage, vérification et inférence des types
+
+    τ ::= int | τ -> τ | α
+    σ ::= ∀ α₁ ... αₙ. τ
+
+    Γ ::= • | Γ (x : σ)
+
+    Γ ⊢ t : σ
+    Γ ⊢ t : τ
+
+
+    Γ(x) = σ
+    ——————————
+    Γ ⊢ x : σ
+
+    Γ ⊢ t₁ : σ    Γ + (x : σ) ⊢ t₂ : τ
+    ————————————————————–—————————————–
+    Γ ⊢ let x = t₁ in t₂ : τ
+
+    Γ (x : τ₁) ⊢ t : τ₂
+    ————————————————————————–
+    Γ ⊢ fun x -> t : τ₁ -> τ₂
+
+    Γ ⊢ t₁ : τ₁ -> τ₂
+    Γ ⊢ t₂ : τ₁
+    ————————————————————————–
+    Γ ⊢ t₁ t₂ : τ₂
+
+    Γ ⊢ t₁ : int
+    Γ ⊢ t₂ : int
+    ——————————————————
+    Γ ⊢ t₁ ⊕ t₂ : int
+
+
+    • ⊢ 1 + 1 : int    ...
+    ——————————————————————————–—
+    • ⊢ let x = 1 + 1 in x : int
+
+
+    • ⊢ fun x -> x : α -> α
+    (id : ∀ α. α -> α) ⊢ id 0 : int
+    ————————————————————————————————————–
+    • ⊢ let id = fun x -> x in id 0 : int
+
+    Il manque donc une règle de généralisation:
+
+    Gen (fausse):
+
+    Γ : t : τ   α₁...αₙ sont les variables de type libres de τ
+    ———————————————————–——————————————————————————————————————
+    Γ ⊢ t : ∀ α₁...αₙ. τ
+
+    Inst:
+
+    Γ ⊢ t : ∀ α₁...αₙ. τ
+    —————————————————–—-
+    Γ : t : τ[αᵢ ↦ τᵢ]
+
+
+    (x : α) ⊢ x : α
+    ———————————————————–
+    (x : α) ⊢ x : ∀ α. α
+    ——————————————–—————-
+    (x : α) ⊢ x : β
+    —————————————————————
+    ⊢ fun x -> x : α -> β
+    ————————————————————————————–
+    ⊢ fun x -> x : ∀ α β. α -> β
+
+
+    Gen:
+
+    Γ : t : τ   α₁...αₙ sont les variables de type libres de τ et n'apparaissent pas dans Γ.
+    ———————————————————–———————————————————————————————————————————————————————————————————–
+    Γ ⊢ t : ∀ α₁...αₙ. τ
+
+
+** Présentation du cours du second semestre
+
+
+   Hopix -> Hobix -> Fopix -> Retrolix -> MIPS|AMD64

@@ -1,0 +1,3 @@
+type T<a> = { l : a }
+
+val x : T<String> = { l = 0 }<String>

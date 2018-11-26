@@ -1,0 +1,5 @@
+type Option = Some (Int) | None
+
+val none : Option = None<>
+
+val some42 : Option = Some<> (42)

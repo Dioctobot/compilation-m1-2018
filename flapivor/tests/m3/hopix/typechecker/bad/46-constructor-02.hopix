@@ -1,0 +1,5 @@
+type T = A
+
+val main : Int = A<> (1)
+
+

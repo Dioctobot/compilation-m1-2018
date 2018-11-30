@@ -1,1 +1,1 @@
-val double = ! (! x)
+/bin/sh: 2: ../../../../../: Permission denied

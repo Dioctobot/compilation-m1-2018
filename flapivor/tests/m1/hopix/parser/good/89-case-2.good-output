@@ -1,1 +1,1 @@
-val what_is_in_the_box = case box { | {box = box}  => box }
+/bin/sh: 2: ../../../../../: Permission denied

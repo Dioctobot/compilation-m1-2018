@@ -1,2 +1,1 @@
-val nest =
-  case bird { | Nest(Some(bird)) => bird | Nest(None) => nothing }
+/bin/sh: 2: ../../../../../: Permission denied

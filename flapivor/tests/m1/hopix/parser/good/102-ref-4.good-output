@@ -1,1 +1,1 @@
-val main = val y = (ref (fun (x) => x)) ; y
+/bin/sh: 2: ../../../../../: Permission denied

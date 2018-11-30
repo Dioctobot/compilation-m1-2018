@@ -1,2 +1,1 @@
-Line 3, characters 5-8: Error (parsing)
-  Syntax error.
+/bin/sh: 2: ../../../../../: Permission denied

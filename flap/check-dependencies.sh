@@ -18,5 +18,3 @@ echo '---------------------'
 check pprint
 check sexplib
 check ppx_sexp_conv
-check ppx_deriving
-check lambda-term

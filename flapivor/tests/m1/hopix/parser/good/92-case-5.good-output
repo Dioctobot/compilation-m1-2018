@@ -1,5 +1,1 @@
-val main =
-  case some_value {
-  | Some({box = _; other_box = (Some(_) & got_you)} ) => got_you
-  | None => None
-  }
+/bin/sh: 2: ../../../../../: Permission denied

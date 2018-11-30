@@ -1,1 +1,1 @@
-val x = ref 0
+/bin/sh: 2: ../../../../../: Permission denied

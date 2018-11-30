@@ -1,2 +1,1 @@
-val main =
-  def ping () = (pong ()) and pong () = (ping ()) ; ping ()
+/bin/sh: 2: ../../../../../: Permission denied

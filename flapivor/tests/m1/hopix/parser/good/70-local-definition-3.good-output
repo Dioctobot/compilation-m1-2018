@@ -1,1 +1,1 @@
-val main = def f (x) = x  ; f (0)
+/bin/sh: 2: ../../../../../: Permission denied

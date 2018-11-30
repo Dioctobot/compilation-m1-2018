@@ -1,1 +1,1 @@
-val x = ((foo ()); (bar ())); (baz ())
+/bin/sh: 2: ../../../../../: Permission denied

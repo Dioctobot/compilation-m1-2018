@@ -1,1 +1,1 @@
-val mono = case x { | Pair < Int, Int >(x, y) => (`+` (x, y)) }
+/bin/sh: 2: ../../../../../: Permission denied

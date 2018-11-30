@@ -8,35 +8,38 @@
 %token EOF
 
 %token<char> CHAR
-%token<string> TYPE_VAR TYPE_CON VAR_ID ALL_VAR_ID CONSTR_ID STRING BINOP
+%token<string> STRING
 %token<Int32.t> INT
+
+%token<string> ALIEN_INFIX_ID ALIEN_PREFIX_ID CONSTR_ID TYPE_CON SHARE_ID 
 
 %token PLUS MINUS STAR SLASH EQUAL AND_OP OR_OP NOT_EQUAL LOWEREQUAL GREATEREQUAL LOWER GREATER
 
 %token TYPE EXTERN VAL DEF AND FORALL FUN CASE
 %token IF THEN ELSE REF WHILE FOR TO BY
-%token DOT COMMA COLON SEMICOLON
 
+%token DOT COMMA COLON SEMICOLON
 %token LPAREN RPAREN LCHEVRON RCHEVRON LCBRACK RCBRACK
 %token ASSIGN RARROW RARROWEQUAL EXCLMARK PIPE AMP UNDERSCORE
 
 %start<HopixAST.t> program
 
-%right PIPE AMP 
-%right RARROWEQUAL
+%right SEMICOLON DOT
 %right THEN ELSE
-%right COLON SEMICOLON DOT
-%right LPAREN
-%right EXCLMARK
-%right REF EQUAL
+%right RARROWEQUAL LPAREN
+%right PIPE COLON AMP
+%right EXCLMARK REF 
+%right EQUAL
 
 %left ASSIGN
-%left BINOP
 %left PLUS, MINUS
-%left SLASH, STAR
-
-
-
+%left STAR, SLASH
+%left AND_OP
+%left OR_OP, NOT_EQUAL
+%left LOWEREQUAL, GREATEREQUAL
+%left LOWER, GREATER
+%left ALIEN_INFIX_ID
+  
 %%
 
 program: ds=list(located(definition)) EOF
@@ -45,9 +48,28 @@ program: ds=list(located(definition)) EOF
 }
 
 definition:
-  vd=value_definition
+  TYPE type_cons=located(type_constructor) oplvar=loption(delimited(LCHEVRON, type_arguments, RCHEVRON)) tdef=option(preceded(EQUAL, type_definition))
+{
+  begin match tdef with
+    | None -> DefineType (type_cons, oplvar, Abstract)
+    | Some t -> DefineType (type_cons, oplvar, t)
+  end
+}
+| EXTERN avi=located(all_identifier) COLON typed=located(type_scheme)
+  {DeclareExtern (avi, typed)}
+| vd=value_definition
 {
   DefineValue vd
+}
+
+type_definition:
+  option(PIPE) lconsty=separated_nonempty_list(PIPE, tdef_sum)
+{
+  DefineSumType (lconsty)
+}
+| labty=delimited(LCBRACK, separated_nonempty_list(SEMICOLON, lab_ty), RCBRACK)
+{
+  DefineRecordType (labty)
 }
 
 expression:
@@ -59,9 +81,76 @@ expression:
 {
   Variable (var_id, tc)
 }
+| constr_id=located(constructor) tc=ty_chevron lexpr=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN))
+{
+  Tagged (constr_id, tc, lexpr)
+}
+| labexpr=delimited(LCBRACK, separated_nonempty_list(SEMICOLON, lab_expression), RCBRACK) tc=ty_chevron
+{
+  Record (labexpr, tc)
+} 
+| e=located(expression) DOT lab=located(label)
+  {Field (e,lab)}
+| e1=located(expression) SEMICOLON e2=located(expression)
+{
+  Sequence ([e1;e2])
+}
+| vdef=value_definition SEMICOLON e=located(expression)
+  {Define (vdef,e)}
+| FUN lvar_id=delimited(LPAREN, separated_list(COMMA, located(identifier)), RPAREN) RARROWEQUAL expr=located(expression)
+{
+  Fun (FunctionDefinition(lvar_id, expr))
+}
+| func=located(expression) lexpr=delimited(LPAREN, separated_list(COMMA, located(expression)), RPAREN)
+{
+  Apply (func, lexpr)
+}
+| expr1=located(expression) b=binop expr2=located(expression)
+{
+  let id = match b with
+    | "+" -> Id "`+`"
+    | "-" -> Id "`-`"
+    | "*" -> Id "`*`"
+    | "/" -> Id "`/`"
+    | "&&" -> Id "`&&`"
+    | "||" -> Id "`||`"
+    | "=?" -> Id "`=?`"
+    | "<=?" -> Id "`<=?`"
+    | ">=?" -> Id "`>=?`"
+    | "<?" -> Id "`<?`"
+    | ">?" -> Id "`>?`"
+    | _ -> Id b
+  in
+  let op = Position.with_poss $startpos $endpos (Variable ((Position.with_poss $startpos $endpos id), None)) in
+  Apply(op, [expr1; expr2])
+}
+| CASE expr=located(expression) br=delimited(LCBRACK, branches, RCBRACK)
+  { Case (expr, br)}
+| IF e1=located(expression) THEN e2=located(expression) op=ioption(preceded(ELSE, located(expression)))
+  { IfThenElse (e1,e2,op)}
+| REF e=located(expression)
+  {Ref (e)}
+| e1=located(expression) ASSIGN e2=located(expression)
+  {Assign (e1,e2)}
+| EXCLMARK e=located(expression)
+  {Read (e)}
+| WHILE e1=located(expression) e2=delimited(LCBRACK, located(expression), RCBRACK)
+  {While(e1,e2)}
+| FOR var_id=located(identifier) EQUAL e1=located(expression) TO e2=located(expression) opt=option(preceded(BY, located(expression))) e3=delimited(LCBRACK, located(expression), RCBRACK)
+{
+  For (var_id, e1, e2, opt, e3)
+}
+| expr=delimited(LPAREN, expression, RPAREN)
+{
+ expr
+}
+| LPAREN expr=located(expression) COLON t=located(ty) RPAREN
+{
+  TypeAnnotation(expr, t)
+}
 
 %inline value_definition:
-  VAL var_id=located(identifier) oty=option(preceded(COLON, located(type_scheme))) EQUAL expr=located(expression)
+  VAL var_id=located(identifier) oty=ioption(preceded(COLON, located(type_scheme))) EQUAL expr=located(expression)
 {
   SimpleValue (var_id, oty, expr)
 }
@@ -85,6 +174,55 @@ type_arguments:
 {
   targs
 }
+
+pattern:
+  var_id=located(identifier)
+{
+  PVariable var_id
+}
+| UNDERSCORE
+{
+  PWildcard
+}
+| pat=delimited(LPAREN, pattern, RPAREN)
+{
+  pat
+}
+| pat=located(pattern) COLON typed=located(ty)
+{
+  PTypeAnnotation (pat, typed)
+}
+| lit=located(literal)
+{
+  PLiteral lit
+}/**/
+| constr_id=located(constructor) tc=ty_chevron lopat=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(pattern)), RPAREN))
+{
+  PTaggedValue (constr_id, tc, lopat)
+}
+|  labpat=delimited(LCBRACK, separated_nonempty_list(SEMICOLON, record_pattern), RCBRACK)  tc=ty_chevron
+{
+  PRecord (labpat, tc)
+}
+| pat1=located(pattern) PIPE pat2=located(pattern)
+{
+  POr ([pat1;pat2])
+}
+| pat1=located(pattern) AMP pat2=located(pattern)
+{
+  PAnd ([pat1;pat2])
+}
+
+branches:
+  PIPE br=separated_nonempty_list(PIPE, located(branch))
+  {br}
+| br=separated_nonempty_list(PIPE, located(branch))
+  {br}
+
+
+branch:
+  pat=located(pattern) RARROWEQUAL expr=located(expression)
+  {Branch (pat, expr)}
 
 type_scheme:
   ltvar=loption(delimited(FORALL, type_arguments, DOT)) typed=located(ty)
@@ -110,9 +248,59 @@ ty:
   t
 }
 
-%inline constructor: 
+ty_term:
+  type_cons=type_constructor opty=loption(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
+{
+  TyCon (type_cons, opty)
+}
+| tvar=type_variable
+{
+  TyVar tvar
+}
+| t=delimited(LPAREN, ty, RPAREN)
+{
+  t
+}
+
+tdef_sum:
+  cons=located(constructor) lty=option(delimited(LPAREN, separated_nonempty_list(COMMA, located(ty)), RPAREN))
+{
+  begin match lty with
+    | None -> (cons, [])
+    | Some l -> (cons, l)
+  end
+}
+
+lab_ty:
+  lt=separated_pair(located(label), COLON, located(ty))
+{
+  lt
+}
+
+ty_chevron:
+  lty=option(delimited(LCHEVRON, option(separated_nonempty_list(COMMA, located(ty))), RCHEVRON))
+{
+  begin match lty with
+    | None -> None
+    | Some t -> t
+  end
+}
+
+lab_expression:
+  lep=separated_pair(located(label), EQUAL, located(expression))
+{
+  lep
+}
+
+record_pattern:
+  lp=separated_pair(located(label), EQUAL, located(pattern))
+{
+  lp
+}
+
+%inline constructor:
   x=TYPE_CON
-{ 
+{
   KId x
 }
 | x=CONSTR_ID
@@ -120,13 +308,27 @@ ty:
   KId x
 }
 
+
+    
+%inline label:
+  x=SHARE_ID
+{
+  LId x
+}
+
+%inline type_constructor:
+  x=TYPE_CON
+{
+  TCon x
+}
+
 %inline identifier:
-  x=TYPE_VAR 
-{ 
+  x=SHARE_ID
+{
   Id x
 }
-| x=VAR_ID 
-{ 
+| x=ALIEN_PREFIX_ID
+{
   Id x
 }
 
@@ -135,25 +337,65 @@ ty:
 { 
   id
 }
-| x=ALL_VAR_ID 
-{ 
-  Id x
-}
-| x=BINOP
+| x=binop
 {
   Id x
 }
 
-%inline type_variable: 
-  x=TYPE_VAR
+%inline binop:
+  PLUS
+{
+  "+"
+}
+| MINUS
+{
+  "-"
+}
+| STAR
+{
+  "*"
+}
+| SLASH
+{
+  "/"
+}
+| AND_OP
+{
+  "&&"
+}
+| OR_OP
+{
+  "||"
+}
+| NOT_EQUAL
+{
+  "=?"
+}
+| LOWEREQUAL
+{
+  "<=?"
+}
+| GREATEREQUAL
+{
+  ">=?"
+}
+| LOWER
+{
+  "<?"
+}
+| GREATER
+{
+  ">?"
+}
+| x=ALIEN_INFIX_ID
+{
+  x
+}
+
+%inline type_variable:
+  x=SHARE_ID
 {
   TId x
-}
-
-%inline type_constructor: 
-  x=TYPE_CON
-{
-  TCon x
 }
 
 %inline literal:
@@ -169,32 +411,6 @@ ty:
 {
   LString x
 }
-
-/*** REDUCTION ***/
-
-
-ty_chevron:
-  lty=option(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
-{
-  lty
-}
-
-ty_term:
-  type_cons=type_constructor opty=loption(delimited(LCHEVRON, separated_nonempty_list(COMMA, located(ty)), RCHEVRON))
-{
-  TyCon (type_cons, opty)
-}
-| tvar=type_variable
-{
-  TyVar tvar
-}
-| t=delimited(LPAREN, ty, RPAREN)
-{
-  t
-}
-
-/***** END *****/
-
 
 %inline located(X): x=X {
   Position.with_poss $startpos $endpos x

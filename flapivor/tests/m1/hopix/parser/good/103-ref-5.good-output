@@ -1,1 +1,1 @@
-val main = val y = (ref "foo") ; ref "bar"
+/bin/sh: 2: ../../../../../: Permission denied

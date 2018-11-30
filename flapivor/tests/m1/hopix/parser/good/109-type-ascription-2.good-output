@@ -1,1 +1,1 @@
-val main = (0 : Int)
+/bin/sh: 2: ../../../../../: Permission denied

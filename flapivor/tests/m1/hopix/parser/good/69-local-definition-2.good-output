@@ -1,2 +1,1 @@
-val main =
-  val me = 0 ; val you = 0 ; (play (me)); ((play (you)); you)
+/bin/sh: 2: ../../../../../: Permission denied

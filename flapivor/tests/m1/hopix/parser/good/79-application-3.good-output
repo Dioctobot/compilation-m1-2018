@@ -1,1 +1,1 @@
-val beta = (fun (x) => x) (0)
+/bin/sh: 2: ../../../../../: Permission denied

@@ -1,2 +1,1 @@
-Line 1, characters 8-14: Error (during lexing)
-  
+/bin/sh: 2: ../../../../../: Permission denied

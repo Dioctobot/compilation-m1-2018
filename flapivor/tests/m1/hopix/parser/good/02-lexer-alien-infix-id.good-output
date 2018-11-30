@@ -1,1 +1,1 @@
-val drama = `eats` (cat, mouse)
+/bin/sh: 2: ../../../../../: Permission denied

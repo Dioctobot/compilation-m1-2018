@@ -1,2 +1,1 @@
-val omg =
-  case some_value { | "Some string" => 0 | 0 => 1 | 'a' => 2 }
+/bin/sh: 2: ../../../../../: Permission denied

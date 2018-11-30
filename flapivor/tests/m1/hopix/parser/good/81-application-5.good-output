@@ -1,1 +1,1 @@
-val omega = fun (x) => (x (x))
+/bin/sh: 2: ../../../../../: Permission denied

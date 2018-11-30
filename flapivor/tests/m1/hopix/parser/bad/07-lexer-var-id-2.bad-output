@@ -1,2 +1,1 @@
-Line 1, characters 61-62: Error (during lexing)
-  unexpected character.
+/bin/sh: 2: ../../../../../: Permission denied

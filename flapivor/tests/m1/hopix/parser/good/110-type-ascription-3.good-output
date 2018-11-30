@@ -1,1 +1,1 @@
-val main = (fun (x) => x : Int -> Int)
+/bin/sh: 2: ../../../../../: Permission denied

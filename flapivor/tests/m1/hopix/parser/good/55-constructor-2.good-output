@@ -1,1 +1,1 @@
-val y = Cons < Int >(0, Nil < Int >)
+/bin/sh: 2: ../../../../../: Permission denied

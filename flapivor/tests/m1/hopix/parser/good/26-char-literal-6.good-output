@@ -1,2 +1,1 @@
-val x = '\r'
-val y = '\b'
+/bin/sh: 2: ../../../../../: Permission denied

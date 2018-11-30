@@ -1,1 +1,1 @@
-val k3 = fun (x, y, z) => x
+/bin/sh: 2: ../../../../../: Permission denied

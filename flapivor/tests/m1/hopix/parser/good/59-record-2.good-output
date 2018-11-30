@@ -1,1 +1,1 @@
-val name = {fst = "My"; snd = "Precious"} < String, String >
+/bin/sh: 2: ../../../../../: Permission denied

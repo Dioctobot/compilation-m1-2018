@@ -1,2 +1,1 @@
-val cycle_of_life =
-  `eats` (`eats` (`eats` (lion, giraffe), grass), lion)
+/bin/sh: 2: ../../../../../: Permission denied

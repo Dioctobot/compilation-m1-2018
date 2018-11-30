@@ -1,4 +1,1 @@
-val inner =
-  if (`=?` (x, 0)) then(if (`=?` (y, 1)) then(0) else (1))
-  else
-  (2)
+/bin/sh: 2: ../../../../../: Permission denied

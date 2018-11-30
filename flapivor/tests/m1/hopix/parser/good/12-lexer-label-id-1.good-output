@@ -1,1 +1,1 @@
-val x = t.some_label
+/bin/sh: 2: ../../../../../: Permission denied

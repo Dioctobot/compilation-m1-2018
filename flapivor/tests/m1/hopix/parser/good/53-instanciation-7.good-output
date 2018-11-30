@@ -1,1 +1,1 @@
-val x = map < List<Int>, Pair<Int, Pair<Int, Int>> >
+/bin/sh: 2: ../../../../../: Permission denied

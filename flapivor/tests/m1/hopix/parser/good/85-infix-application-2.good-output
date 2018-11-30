@@ -1,2 +1,1 @@
-val harder_than_you_think =
-  `+` (`+` (`*` (a, a), `*` (b, b)), `*` (c, c))
+/bin/sh: 2: ../../../../../: Permission denied

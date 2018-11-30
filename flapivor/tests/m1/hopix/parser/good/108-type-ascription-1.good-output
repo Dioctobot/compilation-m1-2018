@@ -1,1 +1,1 @@
-val main = case you { | (me : Int) => me }
+/bin/sh: 2: ../../../../../: Permission denied

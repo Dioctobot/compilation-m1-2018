@@ -1,2 +1,1 @@
-Line 1, characters 38-40: Error (during lexing)
-  Bad escape sequence in string '\0'
+/bin/sh: 2: ../../../../../: Permission denied

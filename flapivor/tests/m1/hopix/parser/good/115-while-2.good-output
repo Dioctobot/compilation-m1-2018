@@ -1,2 +1,1 @@
-val main =
-  while (True) { while (`>?` (! x, 0)) { x := `-` (! x, 1) } }
+/bin/sh: 2: ../../../../../: Permission denied

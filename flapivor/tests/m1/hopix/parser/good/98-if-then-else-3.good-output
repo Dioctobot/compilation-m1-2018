@@ -1,8 +1,1 @@
-val sequence =
-  if (`=?` (x, 0)) then(foo ())
-  else
-  (if (`<?` (x, 0)) then(bar ())
-  else
-  (if (`>?` (x, 0)) then(baz ())
-  else
-  (live ())))
+/bin/sh: 2: ../../../../../: Permission denied

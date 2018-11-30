@@ -1,1 +1,1 @@
-val main = if (True) then(0) else (1)
+/bin/sh: 2: ../../../../../: Permission denied

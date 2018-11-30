@@ -1,3 +1,1 @@
-val main =
-  (if (failure ()) then(print (error_message)));
-  (exit (EXIT_FAILURE))
+/bin/sh: 2: ../../../../../: Permission denied

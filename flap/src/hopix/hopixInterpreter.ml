@@ -315,13 +315,32 @@ let rec evaluate runtime ast =
 
 *)
 and definition runtime d = match d.value with
-  | DefineValue (SimpleValue (id, _, expr)) -> 
-    let evalue, memory' = expression' runtime.environment runtime.memory expr in
+  | DefineValue vd -> value_definition runtime.environment runtime.memory vd
+  | _ -> runtime
+
+and value_definition environment memory vd = match vd with
+  | SimpleValue (id, _, expr) ->
+    let evalue, memory' = expression' environment memory expr in
     {
       memory = memory';
-      environment = Environment.bind runtime.environment id.value evalue;
+      environment = Environment.bind environment id.value evalue;
     }
-  | _ -> runtime
+  | RecFunctions (polfd) -> 
+    let rec f env = function
+      | [] -> env
+      | hd::tl -> 
+        let (id, fd) = match hd with
+          | (i, _, f) -> (i, f)
+        in
+        let closure newenv = function_definition newenv fd in
+        let e = Environment.bind env id.value (closure Environment.empty) in
+        Environment.update id.position id.value e (closure e);
+        f e tl 
+    in
+    {
+      memory = memory;
+      environment = f environment polfd;
+    }
 
 and expression' environment memory e =
   expression (position e) environment memory (value e)
@@ -395,14 +414,14 @@ and expression position environment memory = function
       | VLocation loc -> 
         let eval', memory'' = expression' environment memory' e' in
         let block = Memory.dereference memory'' loc in
-        Memory.write block (Memory.size block) eval';
+        Memory.write block Int32.zero eval';
         VUnit, memory''
       | _ ->  error [position] "Assign fail")
   | Read expr -> let eval, memory' = expression' environment memory expr in
     (match eval with
       | VLocation loc ->
         let block = Memory.dereference memory' loc in
-        Memory.read block (Memory.size block), memory'
+        Memory.read block Int32.zero, memory'
       | _ ->  error [position] "Read fail")
   | IfThenElse (e1, e2, oe3) -> let eval, memory' = expression' environment memory e1 in
     if eval = ptrue then (* value_as_bool eval *)
@@ -420,31 +439,6 @@ and expression position environment memory = function
       else
         VUnit, memory'
     in aux (expression' environment memory e1)
-  | For (id, e1, e2, oe3, e4) ->
-    let forinit, memory1 = expression' environment memory e1 in
-    let forend, memory2 = expression' environment memory1 e2 in
-    let environment' = Environment.bind environment id.value forinit in
-    let forstep, memory3 = (match oe3 with
-      | None -> int_as_value Int32.one, memory2
-      | Some st -> expression' environment memory2 st)
-    in
-    let (finit, fstep, fend) = 
-      to_int32_opt (value_as_int forinit), 
-      to_int32_opt (value_as_int forstep), 
-      to_int32_opt (value_as_int forend) 
-    in
-
-    let rec exec mem i s e =
-      if i <= e then
-        begin
-          let i' = to_int32_opt (value_as_int (Environment.lookup id.position id.value environment')) in
-          let newinit = Int32.add i' s in
-          Environment.update id.position id.value environment' (VInt newinit);
-          exec mem newinit s e;
-        end
-      else
-        VUnit, mem
-    in exec memory finit fstep fend
   | TypeAnnotation (expr, _) -> expression' environment memory expr
   | _ -> error [position] "Pattern-matching is not exhaustive."
 
@@ -456,23 +450,12 @@ and literal lit = match lit with
 and function_definition environment fd = match fd with
   | FunctionDefinition (lid, expr) -> VClosure (environment, lid, expr)
 
-and runtime_function environment memory lid evalue =
-  let rec aux env = function
-    | [] -> env
-    | hd::tl -> aux (Environment.bind env hd.value evalue) tl
-  in
-  {
-    memory = memory;
-    environment = aux environment lid;
-  }
-
-and to_int32_opt = function None -> Int32.zero | Some n -> n
-
 and eval_memory func memory rslt = function
   [] -> List.rev rslt, memory
   | hd::tl ->
     let ev, mem' = func memory hd in
     eval_memory func mem' (ev::rslt) tl
+
 
 (** This function returns the difference between two runtimes. *)
 and extract_observable runtime runtime' =

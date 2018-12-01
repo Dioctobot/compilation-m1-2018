@@ -26,9 +26,9 @@ let printable = '\032' | '\033' | ['\035' - '\091'] | ['\093' - '\126']
 
 let share_id = (['a'-'z']['A'-'Z''a'-'z''0'-'9''_']*)
 
-let alien_infix_id = '`'['a'-'z' 'A'-'Z''0'-'9''+''-''*''/''=''_''!''?']+'`'
+let alien_infix_id = '`'['a'-'z' 'A'-'Z' '0'-'9' '+' '-' '*' '/' '=' '_' '!' '?']+'`'
 
-let alien_prefix_id = ('`'['a'-'z' '0'-'9''+''-''*''/''=''_''!''?']+)
+let alien_prefix_id = ('`'['a'-'z' '0'-'9' '+' '-' '*' '/' '=' '_' '!' '?']+)
 
 (*let var_id = share_id | alien_prefix_id
 
@@ -49,6 +49,8 @@ let atom = (set_num
   | "\\\\" | "\\\'" | "\\n" | "\\t" | "\\b" | "\\r")
 
 let char = ('\'' atom '\'')
+
+let binop = ("&&" | "||" | "=?" | "<=?" | ">=?" | "<?" | ">?")
 
 rule token = parse
 
@@ -98,25 +100,18 @@ rule token = parse
   | "*"             { STAR          }
   | "="             { EQUAL         }
   | "/"             { SLASH         }
-  | "&&"            { AND_OP        }
-  | "||"            { OR_OP         }
-  | "=?"            { NOT_EQUAL     }
-  | "<=?"           { LOWEREQUAL    }
-  | ">=?"           { GREATEREQUAL  }
-  | "<?"            { LOWER         }
-  | ">?"            { GREATER       }
+  | binop as b      { BINOP b       }
   
-
   (** Literals *)
   | int as i        { INT (Int32.of_string i) }
-  | '\''            { read_char (Buffer.create 1) lexbuf }
   | '"'             { read_string (Buffer.create 1024) lexbuf }
+  | '\''            { read_char (Buffer.create 1) lexbuf }
+  
 
   (** Identifiers *)
   | share_id as share       { SHARE_ID share      }
   | alien_infix_id as aii   { ALIEN_INFIX_ID aii  }
   | alien_prefix_id as api  { ALIEN_PREFIX_ID api }
-
   | type_con as tcons       { TYPE_CON tcons      }
   | constr_id as cons       { CONSTR_ID cons      }
   

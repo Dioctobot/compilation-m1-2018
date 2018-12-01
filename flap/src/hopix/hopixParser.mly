@@ -7,13 +7,14 @@
 
 %token EOF
 
+%token EQUAL
+
+%token<string> BINOP
 %token<char> CHAR
 %token<string> STRING
 %token<Int32.t> INT
 
 %token<string> ALIEN_INFIX_ID ALIEN_PREFIX_ID CONSTR_ID TYPE_CON SHARE_ID 
-
-%token PLUS MINUS STAR SLASH EQUAL AND_OP OR_OP NOT_EQUAL LOWEREQUAL GREATEREQUAL LOWER GREATER
 
 %token TYPE EXTERN VAL DEF AND FORALL FUN CASE
 %token IF THEN ELSE REF WHILE FOR TO BY
@@ -21,24 +22,23 @@
 %token DOT COMMA COLON SEMICOLON
 %token LPAREN RPAREN LCHEVRON RCHEVRON LCBRACK RCBRACK
 %token ASSIGN RARROW RARROWEQUAL EXCLMARK PIPE AMP UNDERSCORE
+%token STAR SLASH PLUS MINUS
 
 %start<HopixAST.t> program
 
-%right SEMICOLON DOT
+%right AMP PIPE
+%right SEMICOLON RARROWEQUAL
+%left ASSIGN
 %right THEN ELSE
-%right RARROWEQUAL LPAREN
-%right PIPE COLON AMP
-%right EXCLMARK REF 
+%left BINOP
+%left PLUS, MINUS
+%left SLASH, STAR
+%left ALIEN_INFIX_ID
+%right LPAREN
+%right COLON DOT
+%right EXCLMARK REF
 %right EQUAL
 
-%left ASSIGN
-%left PLUS, MINUS
-%left STAR, SLASH
-%left AND_OP
-%left OR_OP, NOT_EQUAL
-%left LOWEREQUAL, GREATEREQUAL
-%left LOWER, GREATER
-%left ALIEN_INFIX_ID
   
 %%
 
@@ -77,7 +77,7 @@ expression:
 {
   Literal (lit)
 }
-| var_id=located(all_identifier) tc=ty_chevron
+| var_id=located(identifier_var) tc=ty_chevron
 {
   Variable (var_id, tc)
 }
@@ -107,21 +107,21 @@ expression:
 }
 | expr1=located(expression) b=binop expr2=located(expression)
 {
-  let id = match b with
-    | "+" -> Id "`+`"
-    | "-" -> Id "`-`"
-    | "*" -> Id "`*`"
-    | "/" -> Id "`/`"
-    | "&&" -> Id "`&&`"
-    | "||" -> Id "`||`"
-    | "=?" -> Id "`=?`"
-    | "<=?" -> Id "`<=?`"
-    | ">=?" -> Id "`>=?`"
-    | "<?" -> Id "`<?`"
-    | ">?" -> Id "`>?`"
-    | _ -> Id b
+  let bin = match b with
+    | "+" | "`+" -> "`+`"
+    | "-" | "`-" -> "`-`"
+    | "*" | "`*" -> "`*`"
+    | "/" | "`/" -> "`/`"
+    | "&&" -> "`&&`"
+    | "||" -> "`||`"
+    | "=?" -> "`=?`"
+    | "<=?" -> "`<=?`"
+    | ">=?" -> "`>=?`"
+    | "<?" -> "`<?`"
+    | ">?" -> "`>?`"
+    | _ -> b
   in
-  let op = Position.with_poss $startpos $endpos (Variable ((Position.with_poss $startpos $endpos id), None)) in
+  let op = Position.with_poss $startpos $endpos (Variable ((Position.with_poss $startpos $endpos (Id bin)), None)) in
   Apply(op, [expr1; expr2])
 }
 | CASE expr=located(expression) br=delimited(LCBRACK, branches, RCBRACK)
@@ -195,7 +195,7 @@ pattern:
 | lit=located(literal)
 {
   PLiteral lit
-}/**/
+}
 | constr_id=located(constructor) tc=ty_chevron lopat=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(pattern)), RPAREN))
 {
   PTaggedValue (constr_id, tc, lopat)
@@ -307,8 +307,6 @@ record_pattern:
 {
   KId x
 }
-
-
     
 %inline label:
   x=SHARE_ID
@@ -332,12 +330,26 @@ record_pattern:
   Id x
 }
 
-%inline all_identifier:
+%inline identifier_var:
   id=identifier 
 { 
   id
 }
-| x=binop
+| x=ALIEN_INFIX_ID
+{
+  Id x
+}
+
+%inline all_identifier:
+  x=SHARE_ID
+{
+  Id x
+}
+| x=ALIEN_PREFIX_ID
+{
+  Id x
+}
+| x=ALIEN_INFIX_ID
 {
   Id x
 }
@@ -359,33 +371,9 @@ record_pattern:
 {
   "/"
 }
-| AND_OP
+| x=BINOP
 {
-  "&&"
-}
-| OR_OP
-{
-  "||"
-}
-| NOT_EQUAL
-{
-  "=?"
-}
-| LOWEREQUAL
-{
-  "<=?"
-}
-| GREATEREQUAL
-{
-  ">=?"
-}
-| LOWER
-{
-  "<?"
-}
-| GREATER
-{
-  ">?"
+  x
 }
 | x=ALIEN_INFIX_ID
 {

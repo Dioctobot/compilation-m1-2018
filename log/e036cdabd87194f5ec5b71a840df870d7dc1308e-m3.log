@@ -1,0 +1,1503 @@
+make: Entering directory '/home/opam/source/flap/tests/m3'
+make[1]: Entering directory '/home/opam/source/flap/tests/m3/hopix/typechecker/bad'
+========================================================
+In typechecker/bad
+GOOD: 0/0
+[ KO ]   -->  01-unbound-variable.hopix  should have failed !
+
+INPUT: 
+val main : Int = x
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  02-variable-in-another-scope.hopix  should have failed !
+
+INPUT: 
+val y : Int =
+    val x : Int = 0;
+    x
+val main : Int = x
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  03-variable-with-another-type.hopix  should have failed !
+
+INPUT: 
+val y : Int =
+    val x : Int = 0;
+    x
+
+val main : String = y
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  04-invalid-arithmetic-operation.hopix  should have failed !
+
+INPUT: 
+val main : Int = "" + 0
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  05-invalid-arithmetic-operation-02.hopix  should have failed !
+
+INPUT: 
+val main : Int = "" * 0
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  06-invalid-arithmetic-operation-03.hopix  should have failed !
+
+INPUT: 
+val main : Int = "" / 0
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  07-invalid-arithmetic-operation-04.hopix  should have failed !
+
+INPUT: 
+val main : Int = "" - 0
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  08-invalid-arithmetic-operation-05.hopix  should have failed !
+
+INPUT: 
+val main : Int = 0 - 0 + ""
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  09-invalid-arithmetic-comparison.hopix  should have failed !
+
+INPUT: 
+val main : Int = 0 >? ""
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  10-invalid-arithmetic-comparison-02.hopix  should have failed !
+
+INPUT: 
+val main : Int = 0 <? ""
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  11-invalid-arithmetic-comparison-03.hopix  should have failed !
+
+INPUT: 
+val main : Int = 0 <=? ""
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  12-invalid-arithmetic-comparison-04.hopix  should have failed !
+
+INPUT: 
+val main : Int = 0 >=? ""
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  13-invalid-arithmetic-comparison-05.hopix  should have failed !
+
+INPUT: 
+val main : Int = 0 =? ""
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  14-invalid-arithmetic-comparison-06.hopix  should have failed !
+
+INPUT: 
+val main : Int = 0 <? (1 <? 2)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  15-invalid-function-call.hopix  should have failed !
+
+INPUT: 
+def f : Int -> Int (x) = x
+
+val main : Int = f (0, 1)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  16-invalid-function-call-02.hopix  should have failed !
+
+INPUT: 
+def f : Int * Int -> Int (x) = x
+
+val main : Int = f (0)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  17-invalid-function-call-03.hopix  should have failed !
+
+INPUT: 
+def f : String -> Int (x) = x
+
+val main : Int = f (0)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  18-invalid-function-call-04.hopix  should have failed !
+
+INPUT: 
+def f : String -> Int (x) = x
+
+val main : String = f ("The Master")
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  19-invalid-function-call-05.hopix  should have failed !
+
+INPUT: 
+def f : (String -> String) -> Int (x) = x
+
+val main : String = f (((fun (x) => 0) : String -> Int))
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  20-invalid-function-call-06.hopix  should have failed !
+
+INPUT: 
+def f : Int -> Int (x) = f("This is wrong!")
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  21-invalid-function-call-07.hopix  should have failed !
+
+INPUT: 
+def f : Int -> String (x) = f (31) + 0
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  22-invalid-function-call-08.hopix  should have failed !
+
+INPUT: 
+def f : forall a. a -> a (x) = f<Int> (x)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  23-invalid-function-call-09.hopix  should have failed !
+
+INPUT: 
+def f : forall a. Int -> a (x) = f<Int> (x)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  24-invalid-function-call-10.hopix  should have failed !
+
+INPUT: 
+def g : Int -> Int (x) = f(x)
+and f : String -> Int (x) = g(x)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  25-invalid-function-call-11.hopix  should have failed !
+
+INPUT: 
+def g : Int -> Int (x) = f(x)
+and f : Int -> String (x) = g(x)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  26-invalid-function-call-12.hopix  should have failed !
+
+INPUT: 
+def apply : forall a, b. (a -> b) * b -> b (f, x) = f (x)
+
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  27-record-01.hopix  should have failed !
+
+INPUT: 
+val x : T = { l = 0 }<>
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  28-record-02.hopix  should have failed !
+
+INPUT: 
+type T = { k : Int }
+
+val x : T = { l = 0 }<>
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  29-record-03.hopix  should have failed !
+
+INPUT: 
+type T = { l : String }
+
+val x : T = { l = 0 }<>
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  30-record-04.hopix  should have failed !
+
+INPUT: 
+type T<a> = { l : a }
+
+val x : T<String> = { l = 0 }<String>
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  31-record-05.hopix  should have failed !
+
+INPUT: 
+type T = { l : Int }
+
+val r : T = { l = 0; l = 1 }<>
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  32-record-06.hopix  should have failed !
+
+INPUT: 
+type T = { l : Int; x : Int }
+
+val r : T = { l = 0 }<>
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  33-record-07.hopix  should have failed !
+
+INPUT: 
+type T = { l : Int }
+
+val r : T = { l = 0; x = 0 }<>
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  34-record-matching-01.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+
+val main : String = case { x = 0 }<> { { x = (y : Int) }<> => y }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  35-record-matching-02.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+
+val main : String = case { x = 0 }<> { { x = (y : String) }<> => y }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  36-record-matching-03.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+
+val main : String = case { x = 0 }<> { { z = (y : String) }<> => y }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  37-record-matching-04.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+type U = { z : Int }
+
+val main : Int = case { x = 0 }<> { { z = (y : Int) }<> => y }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  38-record-matching-05.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+
+val main : Int = case { x = 0 }<> { { x = (_ : Int); y = (z : Int) }<> => z }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  39-record-matching-06.hopix  should have failed !
+
+INPUT: 
+type T<a> = { x : a }
+
+val main : Int = case { x = 0 }<Int> { { x = (_ : String) }<String> => 0 }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  40-record-matching-07.hopix  should have failed !
+
+INPUT: 
+type T<a> = { x : a }
+
+val main : Int = case { x = 0 }<Int> { { x = (_ : String) }<Int> => 0 }
+OUTPUT: 
+
+--------------------------------------------------------
+[XFAIL]  41-record-matching-08.hopix
+
+INPUT: 
+type T<> = { x : Int }
+
+val main : Int = case { x = 0 }<Int> { { x = (_ : String) }<Int> => 0 }
+OUTPUT: 
+Global Error (during parsing)
+  Syntax error.
+--------------------------------------------------------
+[ KO ]   -->  42-record-field-01.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+
+val r : T = { x = 0 }<>
+
+val ry : Int = r.y
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  43-record-field-02.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+
+val r : T = { x = 0 }<>
+
+val ry : String = r.x
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  44-record-field-03.hopix  should have failed !
+
+INPUT: 
+type T = { x : Int }
+
+type U = { y : Int }
+
+val r : T = { x = 0 }<>
+
+val ry : Int = r.y
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  45-constructor-01.hopix  should have failed !
+
+INPUT: 
+val main : Int = A<>
+
+
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  46-constructor-02.hopix  should have failed !
+
+INPUT: 
+type T = A
+
+val main : Int = A<> (1)
+
+
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  47-constructor-03.hopix  should have failed !
+
+INPUT: 
+type T = A (Int)
+
+val main : Int = A<>
+
+
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  48-constructor-04.hopix  should have failed !
+
+INPUT: 
+type T<a> = A (a)
+
+val main : T<Int> = A<> (0)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  49-constructor-05.hopix  should have failed !
+
+INPUT: 
+type T = A (Int)
+
+val main : T = A<Int> (0)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  50-constructor-06.hopix  should have failed !
+
+INPUT: 
+type T<a> = A(a)
+
+val main : T<Int> = A<Int>("Wrong!")
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  51-constructor-07.hopix  should have failed !
+
+INPUT: 
+type T<a> = A(a, a)
+
+val main : T<Int> = A<Int>(0, "String")
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  52-constructor-08.hopix  should have failed !
+
+INPUT: 
+type L = N | C (Int, L)
+
+val main : L = C<> (1, C<> (2, "N"))
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  53-constructor-matching-01.hopix  should have failed !
+
+INPUT: 
+type T = A
+
+val main : Int = case A<> { B<> => 0 }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  54-constructor-matching-02.hopix  should have failed !
+
+INPUT: 
+type T = A
+
+type U = B
+
+val main : Int = case A<> { B<> => 0 }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  55-constructor-matching-03.hopix  should have failed !
+
+INPUT: 
+type T = A | B (Int)
+
+val main : Int = case A<> { B<> => 0 }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  56-constructor-matching-04.hopix  should have failed !
+
+INPUT: 
+type T = A (Int, Int)
+
+val main : Int = case A<>(1, 2) { A<>(x : Int, x : Int) => x }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  57-constructor-matching-05.hopix  should have failed !
+
+INPUT: 
+type T = A (Int, Int)
+
+val main : Int = case A<>(1, 2) { A<>(x : Int) => x }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  58-reference.hopix  should have failed !
+
+INPUT: 
+val r : Ref<Int> = ref "Wrong"
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  59-assignment.hopix  should have failed !
+
+INPUT: 
+val r : Ref<Int> = ref 0
+
+val main : Unit = r := "Wrong"
+
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  60-assignment-is-unit.hopix  should have failed !
+
+INPUT: 
+val r : Ref<Int> = ref 0
+
+val main : Int = r := 33
+
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  61-read.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val y : String = !x
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  62-sequence.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val y : Int =
+    "Right here";
+    "Not what I expected here."
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  63-for-01.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val main : String =
+    for i = 0 to 10 {
+      x := !x + 1
+    }
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  64-for-02.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val main : Unit =
+    for i = 0 to 10 {
+      "Do that!?"
+    }
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  65-for-03.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val main : Unit =
+    for i = 0 to "10" {
+      nothing
+    }
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  66-for-04.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val main : Unit =
+    for i = "0" to 10 {
+      nothing
+    }
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  67-for-05.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val main : Unit =
+    for i = 0 to 10 by "1" {
+      nothing
+    }
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  68-for-06.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val main : Unit =
+    for i = 0 to 10 by 1 {
+      nothing
+    };
+    x := i
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  69-for-07.hopix  should have failed !
+
+INPUT: 
+val x : Ref<Int> = ref 0
+
+val main : Unit =
+    for i = 0 to 10 by 1 {
+      nothing
+    };
+    x := i
+
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  70-type-annotation.hopix  should have failed !
+
+INPUT: 
+val main : Int = (0 : String)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  71-anonymous-function.hopix  should have failed !
+
+INPUT: 
+val id : Int -> Int = (fun (x) => "Bar" : Int -> Int)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  72-anonymous-function-02.hopix  should have failed !
+
+INPUT: 
+val id : Int -> Int = (fun (x) => 0 : String -> Int)
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  73-while-01.hopix  should have failed !
+
+INPUT: 
+val main : Int = while (true) { nothing }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  74-while-02.hopix  should have failed !
+
+INPUT: 
+val main : Unit = while (0) { nothing }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  75-while-03.hopix  should have failed !
+
+INPUT: 
+val main : Unit = while (true) { "Bong!" }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  76-if-then-else-01.hopix  should have failed !
+
+INPUT: 
+val main : Unit =
+    if true then 0 else 1
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  77-if-then-else-02.hopix  should have failed !
+
+INPUT: 
+val main : Int =
+    if true then 0 else "String"
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  78-if-then-else-03.hopix  should have failed !
+
+INPUT: 
+val main : Int =
+    if true then "String" else 1
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  79-if-then-else-04.hopix  should have failed !
+
+INPUT: 
+val main : Int =
+    if "String" then 0 else 1
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  80-pattern-01.hopix  should have failed !
+
+INPUT: 
+val main : Int =
+    case 0 { (x : Int) & (x : String) => x }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  81-pattern-02.hopix  should have failed !
+
+INPUT: 
+val main : Int =
+    case 0 { (x : Int) & (y : String) => x }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  82-pattern-03.hopix  should have failed !
+
+INPUT: 
+val main : Int =
+    case 0 { (x : Int) | (y : String) => x }
+OUTPUT: 
+
+--------------------------------------------------------
+[ KO ]   -->  83-pattern-04.hopix  should have failed !
+
+INPUT: 
+val main : Int =
+    case 0 { (x : Int) | (x : String) => x }
+OUTPUT: 
+
+--------------------------------------------------------
+./01-unbound-variable.hopix ./02-variable-in-another-scope.hopix ./03-variable-with-another-type.hopix ./04-invalid-arithmetic-operation.hopix ./05-invalid-arithmetic-operation-02.hopix ./06-invalid-arithmetic-operation-03.hopix ./07-invalid-arithmetic-operation-04.hopix ./08-invalid-arithmetic-operation-05.hopix ./09-invalid-arithmetic-comparison.hopix ./10-invalid-arithmetic-comparison-02.hopix ./11-invalid-arithmetic-comparison-03.hopix ./12-invalid-arithmetic-comparison-04.hopix ./13-invalid-arithmetic-comparison-05.hopix ./14-invalid-arithmetic-comparison-06.hopix ./15-invalid-function-call.hopix ./16-invalid-function-call-02.hopix ./17-invalid-function-call-03.hopix ./18-invalid-function-call-04.hopix ./19-invalid-function-call-05.hopix ./20-invalid-function-call-06.hopix ./21-invalid-function-call-07.hopix ./22-invalid-function-call-08.hopix ./23-invalid-function-call-09.hopix ./24-invalid-function-call-10.hopix ./25-invalid-function-call-11.hopix ./26-invalid-function-call-12.hopix ./27-record-01.hopix ./28-record-02.hopix ./29-record-03.hopix ./30-record-04.hopix ./31-record-05.hopix ./32-record-06.hopix ./33-record-07.hopix ./34-record-matching-01.hopix ./35-record-matching-02.hopix ./36-record-matching-03.hopix ./37-record-matching-04.hopix ./38-record-matching-05.hopix ./39-record-matching-06.hopix ./40-record-matching-07.hopix ./41-record-matching-08.hopix ./42-record-field-01.hopix ./43-record-field-02.hopix ./44-record-field-03.hopix ./45-constructor-01.hopix ./46-constructor-02.hopix ./47-constructor-03.hopix ./48-constructor-04.hopix ./49-constructor-05.hopix ./50-constructor-06.hopix ./51-constructor-07.hopix ./52-constructor-08.hopix ./53-constructor-matching-01.hopix ./54-constructor-matching-02.hopix ./55-constructor-matching-03.hopix ./56-constructor-matching-04.hopix ./57-constructor-matching-05.hopix ./58-reference.hopix ./59-assignment.hopix ./60-assignment-is-unit.hopix ./61-read.hopix ./62-sequence.hopix ./63-for-01.hopix ./64-for-02.hopix ./65-for-03.hopix ./66-for-04.hopix ./67-for-05.hopix ./68-for-06.hopix ./69-for-07.hopix ./70-type-annotation.hopix ./71-anonymous-function.hopix ./72-anonymous-function-02.hopix ./73-while-01.hopix ./74-while-02.hopix ./75-while-03.hopix ./76-if-then-else-01.hopix ./77-if-then-else-02.hopix ./78-if-then-else-03.hopix ./79-if-then-else-04.hopix ./80-pattern-01.hopix ./81-pattern-02.hopix ./82-pattern-03.hopix ./83-pattern-04.hopix
+BAD: 1/83
+SCORE: 1%
+make[1]: Leaving directory '/home/opam/source/flap/tests/m3/hopix/typechecker/bad'
+make[1]: Entering directory '/home/opam/source/flap/tests/m3/hopix/typechecker/good'
+========================================================
+In typechecker/good
+[ KO ]   -->  01-int-literal.hopix
+
+INPUT:
+val x : Int = 42
+val y : Int = -42
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+y : Int
+--------------------------------------------------------
+[ KO ]   -->  02-arith-01.hopix
+
+INPUT:
+val x : Int = 1 + 1
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  03-arith-02.hopix
+
+INPUT:
+val x : Int = 1 * 2
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  04-arith-03.hopix
+
+INPUT:
+val x : Int = 1 - 2
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  06-arith-04.hopix
+
+INPUT:
+val x : Int = 1 / 2
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  07-arith-05.hopix
+
+INPUT:
+val x : Int = 1 / 2 + 3 * 5 - 6
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  08-char-literal.hopix
+
+INPUT:
+val c : Char = 'a'
+OUTPUT: 
+
+EXPECTED: 
+c : Char
+--------------------------------------------------------
+[ KO ]   -->  09-char-string.hopix
+
+INPUT:
+val c : String = "Luke, I may be your father!"
+OUTPUT: 
+
+EXPECTED: 
+c : String
+--------------------------------------------------------
+[ KO ]   -->  10-local-definition.hopix
+
+INPUT:
+val main : Int =
+    val x : Int = 1;
+    x
+OUTPUT: 
+
+EXPECTED: 
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  11-function-definition.hopix
+
+INPUT:
+def id : Int -> Int (x) = x
+
+val main : Int =
+    id (42)
+OUTPUT: 
+
+EXPECTED: 
+id : Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  12-rec-function-definition.hopix
+
+INPUT:
+def id : Int -> Int (x) = id (x)
+
+val main : Int =
+    id (42)
+OUTPUT: 
+
+EXPECTED: 
+id : Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  13-mutually-rec-fun-definitions.hopix
+
+INPUT:
+def double_omega : Int -> Int (x) =
+    omega (x)
+and omega : Int -> Int (x) =
+    double_omega (x)
+
+val main : Int = double_omega (73)
+OUTPUT: 
+
+EXPECTED: 
+double_omega : Int -> Int
+omega : Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  14-binary-function.hopix
+
+INPUT:
+def fst : Int * Int -> Int (x, y) = x
+
+val main : Int = fst (3, 4)
+OUTPUT: 
+
+EXPECTED: 
+fst : Int * Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  14-binary-rec-function.hopix
+
+INPUT:
+def fst : Int * Int -> Int (x, y) = fst (y, x)
+
+val main : Int = fst (3, 4)
+OUTPUT: 
+
+EXPECTED: 
+fst : Int * Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  15-binary-mutually-rec-function.hopix
+
+INPUT:
+def fst : Int * Int -> Int (x, y) = snd (y, x)
+
+and snd : Int * Int -> Int (x, y) = fst (x, y)
+
+val main : Int = fst (3, 4)
+OUTPUT: 
+
+EXPECTED: 
+fst : Int * Int -> Int
+snd : Int * Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  16-polymorphic-function.hopix
+
+INPUT:
+def id : forall a. a -> a (x) = x
+
+val main : Int = id<Int> (37)
+OUTPUT: 
+
+EXPECTED: 
+id : forall a. a -> a
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  17-polymorphic-binary-function.hopix
+
+INPUT:
+def fst : forall a, b. a * b -> a (x, y) = x
+
+val main : Int = fst<Int, Char> (37, 'a')
+OUTPUT: 
+
+EXPECTED: 
+fst : forall a, b. a * b -> a
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  18-polymorphic-recursive-function.hopix
+
+INPUT:
+def false_rec : forall a, b. a -> b (x) = false_rec<a, b> (x)
+
+val main : String = false_rec<Int, String>(33)
+OUTPUT: 
+
+EXPECTED: 
+false_rec : forall a, b. a -> b
+main : String
+--------------------------------------------------------
+[ KO ]   -->  19-polymorphic-mutually-recursive-functions.hopix
+
+INPUT:
+def false_rec : forall a, b. a -> b (x) = false_rec2<b, a> (x)
+
+and false_rec2 : forall a, b. b -> a (x) = false_rec<b, a> (x)
+
+val main : String = false_rec<Int, String> (43)
+
+OUTPUT: 
+
+EXPECTED: 
+false_rec : forall a, b. a -> b
+false_rec2 : forall b, a. a -> b
+main : String
+--------------------------------------------------------
+[ KO ]   -->  20-polymorphic-binary-function.hopix
+
+INPUT:
+def apply : forall a, b. (a -> b) * a -> b (f, x) = f (x)
+
+def curry : forall a, b, c. (a -> b -> c) -> (a * b -> c) (f) =
+    def fc : a * b -> c (x, y) = (f (x)) (y);
+    fc
+
+def uncurry : forall a, b, c. (a * b -> c) -> (a -> b -> c) (f) =
+    def fu : a -> b -> c (x) =
+      (def g : b -> c (y) = f (x, y);
+      g);
+    fu
+
+def id_int : Int -> Int (x) = x
+
+val main : Int =
+   (curry<Int -> Int, Int, Int> (uncurry<Int -> Int, Int, Int> (apply<Int, Int>))) (id_int, 37)
+OUTPUT: 
+
+EXPECTED: 
+apply : forall a, b. (a -> b) * a -> b
+curry : forall a, b, c. (a -> (b -> c)) -> (a * b -> c)
+uncurry : forall a, b, c. (a * b -> c) -> (a -> (b -> c))
+id_int : Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  21-record-01.hopix
+
+INPUT:
+type P = { x : Int; y : Int }
+val x : P = { x = 0; y = 1 }<>
+OUTPUT: 
+
+EXPECTED: 
+x : P
+--------------------------------------------------------
+[ KO ]   -->  22-polymorphic-record.hopix
+
+INPUT:
+type P <a> = { x : a; y : a }
+val x : P <Int> = { x = 0; y = 1 }<Int>
+OUTPUT: 
+
+EXPECTED: 
+x : P<Int>
+--------------------------------------------------------
+[ KO ]   -->  23-polymorphic-record-02.hopix
+
+INPUT:
+type P <a, b> = { x : a; y : b }
+val x : P <Int, String> = { x = 0; y = "River Song" }<Int, String>
+OUTPUT: 
+
+EXPECTED: 
+x : P<Int, String>
+--------------------------------------------------------
+[ KO ]   -->  24-record-proj.hopix
+
+INPUT:
+type P = { x : Int; y : String }
+
+val p : P = { x = 42; y = "Dalek" }<>
+
+val px : Int = p.x
+
+val py : String = p.y
+OUTPUT: 
+
+EXPECTED: 
+p : P
+px : Int
+py : String
+--------------------------------------------------------
+[ KO ]   -->  25-polymorphic-record-proj.hopix
+
+INPUT:
+type P<a, b> = { x : a; y : b }
+
+val p : P<Int, String> = { x = 0; y = "Rose Tyler" }<Int, String>
+
+val x : Int = p.x
+
+val y : String = p.y
+OUTPUT: 
+
+EXPECTED: 
+p : P<Int, String>
+x : Int
+y : String
+--------------------------------------------------------
+[ KO ]   -->  26-function-over-polymorphic-record.hopix
+
+INPUT:
+type P<a, b> = { x : a; y : b }
+
+def get_x : forall a, b. P<a, b> -> a (p) = p.x
+
+def get_y : forall a, b. P<a, b> -> b (p) = p.y
+
+val p : P<Int, String> = { x = 37; y = "Rory Williams" }<Int, String>
+
+val x : Int = get_x<Int, String>(p)
+
+val y : String = get_y<Int, String>(p)
+OUTPUT: 
+
+EXPECTED: 
+get_x : forall a, b. P<a, b> -> a
+get_y : forall a, b. P<a, b> -> b
+p : P<Int, String>
+x : Int
+y : String
+--------------------------------------------------------
+[ KO ]   -->  27-function-in-record.hopix
+
+INPUT:
+type F<a, b> = { apply : a -> b }
+
+def f : Int -> Int (x) = x + 1
+
+val boxed_f : F<Int, Int> = { apply = f }<Int, Int>
+
+def apply_boxed_f : forall a, b. F<a, b> * a -> b (boxed_f, a) = boxed_f.apply (a)
+
+val main : Int = apply_boxed_f<Int, Int>(boxed_f, 42)
+OUTPUT: 
+
+EXPECTED: 
+f : Int -> Int
+boxed_f : F<Int, Int>
+apply_boxed_f : forall a, b. F<a, b> * a -> b
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  28-anonymous-function.hopix
+
+INPUT:
+val succ : Int -> Int = (fun (x) => x + 1 : Int -> Int)
+
+val main : Int = succ (0)
+OUTPUT: 
+
+EXPECTED: 
+succ : Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  29-anonymous-nary-functions.hopix
+
+INPUT:
+val apply : (Int -> Int) * Int -> Int =
+    (fun (f, x) => f (x) : (Int -> Int) * Int -> Int)
+
+def succ : Int -> Int (x) = x + 1
+
+val apply2 : (Int * Int -> Int) * Int * Int -> Int =
+    (fun (f, x, y) => f (x, y) : (Int * Int -> Int) * Int * Int -> Int)
+
+def addmul : Int * Int -> Int (x, y) = x * y + y * x
+
+val apply3 : (Int * Int * Int -> Int) * Int * Int * Int -> Int =
+    (fun (f, x, y, z) => f (x, y, z) : (Int * Int * Int -> Int) * Int * Int * Int -> Int)
+
+def conj : Int * Int * Int -> Int (x, y, z) = x * y * z
+
+val main : Int =
+    apply (succ, -1) +
+    apply2 (addmul, 3, 7) +
+    apply3 (conj, 0, 1, 2)
+
+
+
+
+OUTPUT: 
+
+EXPECTED: 
+apply : (Int -> Int) * Int -> Int
+succ : Int -> Int
+apply2 : (Int * Int -> Int) * Int * Int -> Int
+addmul : Int * Int -> Int
+apply3 : (Int * Int * Int -> Int) * Int * Int * Int -> Int
+conj : Int * Int * Int -> Int
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  30-anonymous-third-order.hopix
+
+INPUT:
+val fix0 : forall a, b. ((a -> b) -> (a -> b)) * a * b -> b =
+    ((fun (f, a, b) => (f (((fun (x) => b) : a -> b))) (a))
+     : ((a -> b) -> (a -> b)) * a * b -> b)
+OUTPUT: 
+
+EXPECTED: 
+fix0 : forall a, b. ((a -> b) -> (a -> b)) * a * b -> b
+--------------------------------------------------------
+[ KO ]   -->  31-constructor.hopix
+
+INPUT:
+type Color = Red | Blue | Green
+
+val red   : Color = Red<>
+val blue  : Color = Blue<>
+val green : Color = Green<>
+OUTPUT: 
+
+EXPECTED: 
+red : Color
+blue : Color
+green : Color
+--------------------------------------------------------
+[ KO ]   -->  32-constructor-with-data.hopix
+
+INPUT:
+type Option = Some (Int) | None
+
+val none : Option = None<>
+
+val some42 : Option = Some<> (42)
+OUTPUT: 
+
+EXPECTED: 
+none : Option
+some42 : Option
+--------------------------------------------------------
+[ KO ]   -->  33-constructor-with-multiple-data.hopix
+
+INPUT:
+type IPair = `(Int, Int)
+
+val a_pair_of_int : IPair = `<>(0, 1)
+OUTPUT: 
+
+EXPECTED: 
+a_pair_of_int : IPair
+--------------------------------------------------------
+[ KO ]   -->  34-recursive-datatype.hopix
+
+INPUT:
+type L = N | C (Int, L)
+
+val a_list : L = C<> (1, C<> (2, C<> (3, N<>)))
+OUTPUT: 
+
+EXPECTED: 
+a_list : L
+--------------------------------------------------------
+[ KO ]   -->  35-recursive-datatype-02.hopix
+
+INPUT:
+type T = N | `(T, T)
+
+val leaf : T = N<>
+
+val a_tree : T = `<> (`<> (`<> (leaf, leaf), `<>(leaf, `<>(leaf, leaf))), leaf)
+OUTPUT: 
+
+EXPECTED: 
+leaf : T
+a_tree : T
+--------------------------------------------------------
+[ KO ]   -->  36-recurse-datatype-embedding-functions.hopix
+
+INPUT:
+type S = C (Int, Unit -> S)
+
+def from : Int -> S (n) = C<> (n, (fun (u) => from (n + 1) : Unit -> S))
+OUTPUT: 
+
+EXPECTED: 
+from : Int -> S
+--------------------------------------------------------
+[ KO ]   -->  37-pattern-matching-01.hopix
+
+INPUT:
+type T = T
+
+val t : T = case T<> { T<> => T<> }
+
+OUTPUT: 
+
+EXPECTED: 
+t : T
+--------------------------------------------------------
+[ KO ]   -->  38-pattern-matching-02.hopix
+
+INPUT:
+type T = T
+
+val t : T = case T<> { (x : T) => x }
+
+OUTPUT: 
+
+EXPECTED: 
+t : T
+--------------------------------------------------------
+[ KO ]   -->  39-pattern-matching-03.hopix
+
+INPUT:
+type C = A | B
+
+val main : Int = case A<> { A<> => 0 | B<> => 1 }
+OUTPUT: 
+
+EXPECTED: 
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  40-pattern-matching-04.hopix
+
+INPUT:
+type Option = None | Some (Int)
+
+val x : Int = case Some<>(42) { Some<>(x : Int) => x | None<> => 0 }
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  41-pattern-matching-05.hopix
+
+INPUT:
+type Option<a> = None | Some (a)
+
+val x : Int = case Some<Int>(42) { Some<Int>(x : Int) => x | None<Int> => 0 }
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  42-pattern-matching-06.hopix
+
+INPUT:
+type Option<a> = None | Some (a)
+
+val x : Int = case Some<Int>(42) { Some<Int>(_ : Int) | None<Int> => 0 }
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  43-pattern-matching-07.hopix
+
+INPUT:
+type Or<a, b> = Left(a) | Right(b)
+
+val x : Int = case Left<Int, Int>(22) {
+  Left<Int, Int>(x : Int) | Right<Int, Int>(x : Int) => x
+}
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  44-pattern-matching-08.hopix
+
+INPUT:
+type `<a, b> = `(a, b)
+
+val x : Int = case `<Int, Int>(22, 33) {
+  `<Int, Int>(x : Int, y : Int) => x + y
+}
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  45-pattern-matching-09.hopix
+
+INPUT:
+type `<a, b> = `(a, b)
+
+val x : Int = case `<`<Int, Int>, Int>(`<Int, Int>(22, 44), 33) {
+  `<`<Int, Int>, Int>(`<Int, Int>(x : Int, y : Int), _ : Int) => x + y
+}
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  46-pattern-matching-10.hopix
+
+INPUT:
+type `<a, b> = `(a, b)
+
+val x : Int = case `<Int, Int>(22, 33) {
+  `<Int, Int>(x : Int, _ : Int) & `<Int, Int>(_ : Int, y : Int) => x + y
+}
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  47-pattern-matching-11.hopix
+
+INPUT:
+type `<a, b> = `(a, b)
+type P = { l : Int }
+
+val x : Int = case `<P, Int>({ l = 22 }<>, 33) {
+  `<P, Int>( { l = x : Int }<>, (y : Int)) => x + y
+}
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  48-pattern-matching-12.hopix
+
+INPUT:
+val x : Int = case 3 { 0 => 1 | (_ : Int) => 0 }
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  49-pattern-matching-13.hopix
+
+INPUT:
+val x : Int = case "Doctor" { "Doctor" => 1 | (_ : String) => 0 }
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  50-pattern-matching-14.hopix
+
+INPUT:
+val x : Int = case 'x' { 'x' => 1 | (_ : Char) => 0 }
+OUTPUT: 
+
+EXPECTED: 
+x : Int
+--------------------------------------------------------
+[ KO ]   -->  51-ref.hopix
+
+INPUT:
+val x : Ref<Int> = ref (0)
+OUTPUT: 
+
+EXPECTED: 
+x : Ref<Int>
+--------------------------------------------------------
+[ KO ]   -->  52-assign.hopix
+
+INPUT:
+val x : Ref<Int> = ref (0)
+
+val main : Unit =
+    x := 1
+OUTPUT: 
+
+EXPECTED: 
+x : Ref<Int>
+main : Unit
+--------------------------------------------------------
+[ KO ]   -->  53-read.hopix
+
+INPUT:
+val x : Ref<Int> = ref (0)
+
+val main : Int =
+    !x
+OUTPUT: 
+
+EXPECTED: 
+x : Ref<Int>
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  54-sequence.hopix
+
+INPUT:
+val x : Ref<Int> = ref (0)
+
+val main : Int =
+    x := 1;
+    !x
+OUTPUT: 
+
+EXPECTED: 
+x : Ref<Int>
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  55-while.hopix
+
+INPUT:
+val x : Ref<Int> = ref (4)
+
+val main : Int =
+    while (!x >? 0) {
+      x := !x - 1
+    };
+    !x
+OUTPUT: 
+
+EXPECTED: 
+x : Ref<Int>
+main : Int
+--------------------------------------------------------
+[ KO ]   -->  56-for.hopix
+
+INPUT:
+val x : Ref<Int> = ref (4)
+
+val main : Int =
+    for i = 0 to 30 by 3 {
+      x := !x + 1
+    };
+    !x
+OUTPUT: 
+
+EXPECTED: 
+x : Ref<Int>
+main : Int
+--------------------------------------------------------
+GOOD: 0/56
+SCORE: 0%
+
+BAD: 0/0
+make[1]: Leaving directory '/home/opam/source/flap/tests/m3/hopix/typechecker/good'
+--------------------------------------------------------
+Global results:
+BAD:   1 / 83
+GOOD:  0 / 56
+SCORE: 0%
+--------------------------------------------------------
+make: Leaving directory '/home/opam/source/flap/tests/m3'

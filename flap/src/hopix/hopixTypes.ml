@@ -170,32 +170,29 @@ and type_information =
 
 exception UnboundTypeConstructor of Position.position * type_constructor
 
-let is_type_variable_defined pos env tv =
+let is_type_variable_defined env tv =
   List.mem tv env.type_variables
 
-let rec is_type_constructor_defined pos env cons = 
-  let rec aux = function
+let rec is_type_constructor_defined cons tcons = match tcons with
   | [] -> false
-  | hd::tl -> 
-    let (tc, dummy) = hd in
-    if tc = cons then
+  | (hd, _)::tl ->
+    if hd = cons then
       true
     else
-      aux tl
-  in aux env.type_constructors
+      is_type_constructor_defined cons tl  
 
 exception UnboundTypeVariable of Position.position * type_variable
 
 let rec check_well_formed_type pos env ty = match ty with
-  | ATyVar tvar -> if is_type_variable_defined pos env tvar then () else raise (UnboundTypeVariable (pos, tvar))
+  | ATyVar tvar -> if is_type_variable_defined env tvar then () else raise (UnboundTypeVariable (pos, tvar))
   | ATyCon (tcons, lat) -> 
-    if (is_type_constructor_defined pos env tcons) then
+    if (is_type_constructor_defined tcons env.type_constructors) then
       List.iter (check_well_formed_type pos env) lat
     else
       raise (UnboundTypeConstructor (pos, tcons))
   | ATyArrow (lat, at) -> List.iter (check_well_formed_type pos env) (at::lat)
 
-   
+
 let internalize_ty env ty =
   let pos = Position.position ty in
   let ty = Position.value ty in
@@ -227,6 +224,9 @@ let bind_type_variables pos env ts =
   List.fold_left (fun env t ->
       bind_type_variable pos env t
     ) env ts
+
+let is_type_variable_defined pos env tv =
+  List.mem tv env.type_variables
 
 let bind_value x scheme env = {
   env with values = (x, scheme) :: env.values

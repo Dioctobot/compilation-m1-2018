@@ -1,0 +1,1370 @@
+make: Entering directory '/home/opam/source/flap/tests/m2'
+make[1]: Entering directory '/home/opam/source/flap/tests/m2/hopix/interpreter/bad'
+========================================================
+In interpreter/bad
+GOOD: 0/0
+
+BAD: 0/0
+make[1]: Leaving directory '/home/opam/source/flap/tests/m2/hopix/interpreter/bad'
+make[1]: Entering directory '/home/opam/source/flap/tests/m2/hopix/interpreter/good'
+========================================================
+In interpreter/good
+[ OK ]   01-arithmetic-01.hopix
+
+INPUT:
+val main = print_int (999)
+OUTPUT: 
+999EXPECTED: 
+999--------------------------------------------------------
+[ OK ]   02-arithmetic-02.hopix
+
+INPUT:
+val x = 72 + 1
+val test = print_int (x)
+OUTPUT: 
+73EXPECTED: 
+73--------------------------------------------------------
+[ OK ]   03-arithmetic-03.hopix
+
+INPUT:
+val x = 72 - 1
+val test = print_int (x)
+OUTPUT: 
+71EXPECTED: 
+71--------------------------------------------------------
+[ OK ]   04-arithmetic-04.hopix
+
+INPUT:
+val x = 37 * 2
+val test = print_int (x)
+OUTPUT: 
+74EXPECTED: 
+74--------------------------------------------------------
+[ OK ]   05-arithmetic-05.hopix
+
+INPUT:
+val x = 73 / 2
+val test = print_int (x)
+OUTPUT: 
+36EXPECTED: 
+36--------------------------------------------------------
+[ OK ]   06-arithmetic-06.hopix
+
+INPUT:
+val wow = 1 + 2 * 3 - 4 / 5 * 6 - 7 * 8 + 9
+val test = print_int (wow)
+
+OUTPUT: 
+-40EXPECTED: 
+-40--------------------------------------------------------
+[ OK ]   07-arithmetic-07.hopix
+
+INPUT:
+val overflow = 65536 * 65536 + 1
+val main = print_int (overflow)
+OUTPUT: 
+1EXPECTED: 
+1--------------------------------------------------------
+[ OK ]   08-arithmetic-08.hopix
+
+INPUT:
+val overflow = 65536 * (65536 / 2) + (65536 * (65536 / 2) - 1)
+val main = print_int (overflow)
+OUTPUT: 
+-1EXPECTED: 
+-1--------------------------------------------------------
+[ OK ]   09-boolean-01.hopix
+
+INPUT:
+val btrue = true
+val bfalse = false
+val test = print_string ("OK\n")
+OUTPUT: 
+OK
+EXPECTED: 
+OK
+--------------------------------------------------------
+[ OK ]   10-boolean-02.hopix
+
+INPUT:
+val b = true
+val test = if b then print_string ("OK\n") else print_string ("KO\n")
+OUTPUT: 
+OK
+EXPECTED: 
+OK
+--------------------------------------------------------
+[ OK ]   11-boolean-03.hopix
+
+INPUT:
+val b = (0 =? 0)
+val test = if b then print_string ("TOTO\n") else print_string ("KO\n")
+OUTPUT: 
+TOTO
+EXPECTED: 
+TOTO
+--------------------------------------------------------
+[ OK ]   12-boolean-04.hopix
+
+INPUT:
+val b = (0 <? 0)
+val test = if b then print_string ("TOTO\n") else print_string ("BIRD\n")
+OUTPUT: 
+BIRD
+EXPECTED: 
+BIRD
+--------------------------------------------------------
+[ OK ]   13-boolean-05.hopix
+
+INPUT:
+val b = (0 <? 0) && true
+val test = if b then print_string ("TOTO\n") else print_string ("BIRD\n")
+OUTPUT: 
+BIRD
+EXPECTED: 
+BIRD
+--------------------------------------------------------
+[ OK ]   14-string-01.hopix
+
+INPUT:
+val some_string = "Easy as a pie!\n"
+val test = print_string (some_string)
+OUTPUT: 
+Easy as a pie!
+EXPECTED: 
+Easy as a pie!
+--------------------------------------------------------
+[ OK ]   15-constructor-01.hopix
+
+INPUT:
+val s = S
+val test = print_string ("Construction succeeds.\n")
+OUTPUT: 
+Construction succeeds.
+EXPECTED: 
+Construction succeeds.
+--------------------------------------------------------
+[ OK ]   16-constructor-02.hopix
+
+INPUT:
+val s = S (0)
+val test = print_string ("Construction succeeds.\n")
+OUTPUT: 
+Construction succeeds.
+EXPECTED: 
+Construction succeeds.
+--------------------------------------------------------
+[ OK ]   17-constructor-03.hopix
+
+INPUT:
+val s = S (0, "FooBaR")
+val test = print_string ("Construction succeeds.\n")
+OUTPUT: 
+Construction succeeds.
+EXPECTED: 
+Construction succeeds.
+--------------------------------------------------------
+[ OK ]   18-constructor-04.hopix
+
+INPUT:
+val nil = Nil
+val l1 = Cons (0, nil)
+val l2 = Cons (1, l1)
+val test = print_string ("Construction succeeds.\n")
+OUTPUT: 
+Construction succeeds.
+EXPECTED: 
+Construction succeeds.
+--------------------------------------------------------
+[ OK ]   19-record-01.hopix
+
+INPUT:
+val t = { x = 1 }
+val test = print_string ("Recording succeeds.\n")
+OUTPUT: 
+Recording succeeds.
+EXPECTED: 
+Recording succeeds.
+--------------------------------------------------------
+[ OK ]   20-record-02.hopix
+
+INPUT:
+val t = { x = 1 ; y = "FooBaR" }
+val test = print_string ("Recording succeeds.\n")
+OUTPUT: 
+Recording succeeds.
+EXPECTED: 
+Recording succeeds.
+--------------------------------------------------------
+[ OK ]   21-record-03.hopix
+
+INPUT:
+val t = { x = 1 ; y = "FooBaR" }
+val u = { z = t; some_more = t }
+val test = print_string ("Recording succeeds.\n")
+OUTPUT: 
+Recording succeeds.
+EXPECTED: 
+Recording succeeds.
+--------------------------------------------------------
+[ OK ]   22-field-01.hopix
+
+INPUT:
+val t = { x = "Field extraction is a success!\n" }
+val z = t.x
+val test = print_string (z)
+
+OUTPUT: 
+Field extraction is a success!
+EXPECTED: 
+Field extraction is a success!
+--------------------------------------------------------
+[ OK ]   23-field-02.hopix
+
+INPUT:
+val t = { a = "0"; x = "Field extraction is still a success!\n"; y = 31 }
+val z = t.x
+val test = print_string (z)
+OUTPUT: 
+Field extraction is still a success!
+EXPECTED: 
+Field extraction is still a success!
+--------------------------------------------------------
+[ OK ]   24-field-03.hopix
+
+INPUT:
+val t = { a = "0"; x = "Field extraction is still a success!\n"; y = 31 }
+val u = { a = { a = { a = t } }; b = 42 }
+val z = u.a.a.a.x
+val test = print_string (z)
+OUTPUT: 
+Field extraction is still a success!
+EXPECTED: 
+Field extraction is still a success!
+--------------------------------------------------------
+[ OK ]   25-sequence-01.hopix
+
+INPUT:
+val test =
+  print_string ("Two actions...");
+  print_string ("...are separated by a semicolon!\n")
+OUTPUT: 
+Two actions......are separated by a semicolon!
+EXPECTED: 
+Two actions......are separated by a semicolon!
+--------------------------------------------------------
+[ OK ]   26-sequence-02.hopix
+
+INPUT:
+val test =
+    print_string ("This actually should");
+    print_string (" work with");
+    print_string (" any number of");
+    print_string (" actions!\n")
+OUTPUT: 
+This actually should work with any number of actions!
+EXPECTED: 
+This actually should work with any number of actions!
+--------------------------------------------------------
+[ OK ]   27-local-definition-01.hopix
+
+INPUT:
+val test =
+  val x = "This test is OK.\n";
+  print_string (x)
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   28-local-definition-02.hopix
+
+INPUT:
+val test =
+  val x = "This test is KO.\n";
+  val x = "This test is OK.\n";
+  print_string (x)
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   29-local-definition-03.hopix
+
+INPUT:
+val test =
+  val x = "This test is KO.\n";
+  val x = "This test is KO.\n";
+  val x = "This test is OK.\n";
+  print_string (x)
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   30-local-definition-04.hopix
+
+INPUT:
+val test =
+  val x = "This test is KO.\n";
+  val x = (
+    val x = "This test is";
+    print_string (x)
+  );
+  print_string (" OK!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   31-local-definition-05.hopix
+
+INPUT:
+val test =
+  val x = "This test is KO.\n";
+  val x = (
+    val x = "This test is";
+    print_string (x)
+  );
+  print_string (" OK!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   32-application.hopix
+
+INPUT:
+val id = fun (x) => x
+val test = print_string (id ("This test is OK.\n"))
+
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   33-application-02.hopix
+
+INPUT:
+val first = fun (x, y) => x
+val test =
+  print_string ("This test is ");
+  print_string (first ("OK", "KO"));
+  print_string (".\n")
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   34-application-03.hopix
+
+INPUT:
+val apply = fun (f, x) => f (x)
+val id = fun (x) => x
+val test = print_string (apply (id, "This test is OK.\n"))
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   35-application-04.hopix
+
+INPUT:
+val test =
+    val msg = "This test is OK.\n";
+    val cst = (fun (x) => msg);
+    print_string (cst ("This test is KO.\n"))
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   36-allocate-01.hopix
+
+INPUT:
+val r = ref 0
+val test = print_string ("Allocate went well.\n")
+
+OUTPUT: 
+Allocate went well.
+EXPECTED: 
+Allocate went well.
+--------------------------------------------------------
+[ OK ]   37-allocate-02.hopix
+
+INPUT:
+val r = ref "This test is OK.\n"
+val test = print_string (!r)
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   38-allocate-03.hopix
+
+INPUT:
+val r = ref "This test is KO.\n"
+val test =
+    r := "This test is OK.\n";
+    print_string (!r)
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   39-allocate-04.hopix
+
+INPUT:
+val r = ref "KO"
+val alias = r
+val test =
+    alias := "OK";
+    print_string ("This test is ");
+    print_string (!r);
+    print_string (".\n")
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   40-allocate-05.hopix
+
+INPUT:
+val r1 = ref (ref "KO")
+val r2 = ref "KO"
+val test =
+    r1 := r2;
+    r2 := "OK";
+    print_string ("This test is ");
+    print_string (!!r1);
+    print_string (".\n")
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   41-allocate-06.hopix
+
+INPUT:
+val f = ref (fun (x) => x)
+val test =
+    f := (fun (x) => "This test is OK.\n");
+    print_string (!f ("This test is KO.\n"))
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   42-match-01.hopix
+
+INPUT:
+val test =
+    case Here {
+    | Here    => print_string ("This test is OK.\n")
+    | NotHere => print_string ("This test is KO.\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   43-match-02.hopix
+
+INPUT:
+val test =
+    case Here ("OK") {
+    | Here (x) => print_string ("This test is "); print_string (x); print_string (".\n")
+    | NotHere  => print_string ("This test is KO.\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   44-match-03.hopix
+
+INPUT:
+val test =
+    case Here ("O", "K") {
+    | Here (x, y) =>
+      print_string ("This test is ");
+      print_string (x);
+      print_string (y);
+      print_string (".\n")
+    | NotHere  => print_string ("This test is KO.\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   45-match-04.hopix
+
+INPUT:
+val test =
+    case Here ("O", "K", ".\n") {
+    | Here (x, y, z) =>
+      print_string ("This test is ");
+      print_string (x);
+      print_string (y);
+      print_string (z)
+    | NotHere  => print_string ("This test is KO.\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   46-match-05.hopix
+
+INPUT:
+val test =
+    case Deep (Deep (Deep (Inside ("OK")))) {
+    | Deep (Deep (Deep (Inside (you_find_me)))) =>
+      print_string ("This test is ");
+      print_string (you_find_me);
+      print_string (".\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   47-match-06.hopix
+
+INPUT:
+val test =
+    case Deep (Deep (Deep (Inside ("KO", "KO", "OK")))) {
+    | Deep (Deep (Deep (Inside (not_here, neither_here, you_found_me)))) =>
+      print_string ("This test is ");
+      print_string (you_found_me);
+      print_string (".\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   48-match-07.hopix
+
+INPUT:
+val test =
+    case Deep (Deep (Deep (Inside ("KO", "KO", "OK")))) {
+    | Deep (Deep (Deep (NotHere | Inside (not_here, neither_here, you_found_me)))) =>
+      print_string ("This test is ");
+      print_string (you_found_me);
+      print_string (".\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   49-match-08.hopix
+
+INPUT:
+val test =
+    case Deep (Deep (Deep (Inside ("KO", "KO", "OK")))) {
+    | Deep (NotHere | Deep (Deep (NotHere | Inside (not_here, neither_here, you_found_me)))) =>
+      print_string ("This test is ");
+      print_string (you_found_me);
+      print_string (".\n")
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   50-match-09.hopix
+
+INPUT:
+val test =
+    case K ("OK") {
+    | K (x & y) =>
+      print_string ("This test is ");
+      print_string (x);
+      print_string (" and ");
+      print_string (y);
+      print_string (".\n")
+    }
+OUTPUT: 
+This test is OK and OK.
+EXPECTED: 
+This test is OK and OK.
+--------------------------------------------------------
+[ OK ]   51-match-10.hopix
+
+INPUT:
+val test =
+    case K (K ("OK")) {
+    | K (x & K (y)) =>
+      case x {
+      | K (z) =>
+         print_string ("This test is ");
+         print_string (y);
+         print_string (".\n")
+      }
+    }
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   52-match-11.hopix
+
+INPUT:
+val test =
+    case K (K ("OK")) {
+    | _ =>
+         print_string ("This test is too easy.\n")
+    }
+OUTPUT: 
+This test is too easy.
+EXPECTED: 
+This test is too easy.
+--------------------------------------------------------
+[ KO ]   -->  53-match-12.hopix
+
+INPUT:
+val write = fun (x) =>
+  case x {
+  | O => print_string ("O")
+  | K => print_string ("K")
+  | D => print_string (".")
+  | N => print_string ("\n")
+  }
+
+val test =
+  print_string ("This test is ");
+  write (O);
+  write (K);
+  write (D);
+  write (N)
+OUTPUT: 
+This test is OOK.
+
+(Failure "Pattern-matching is not exhaustive")
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ KO ]   -->  54-match-13.hopix
+
+INPUT:
+def show (l) =
+  case l { N => nothing | C (x, xs) => print_string (x); show (xs) }
+
+val test =
+  show (C ("This", C (" test is ", C ("OK", C (".\n.", N)))))
+OUTPUT: 
+Line 2, characters 53-54: Error (interpretation)
+  `x' is unbound.
+EXPECTED: 
+This test is OK.
+.--------------------------------------------------------
+[ OK ]   55-if-01.hopix
+
+INPUT:
+def f (x) =
+  if x >? 0 then "OK" else "KO"
+
+val test =
+  print_string ("This test is ");
+  print_string (f (33));
+  print_string (".\n")
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   56-if-02.hopix
+
+INPUT:
+def f (x) =
+  if x >? 0 then
+    if x >? 1 then "OK"
+    else "KO"
+  else "KO"
+
+val test =
+  print_string ("This test is ");
+  print_string (f (33));
+  print_string (".\n")
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   57-if-03.hopix
+
+INPUT:
+def f (x) =
+  if x >? 0 then "KO"
+  else if x <? 0 then "KO"
+  else "OK"
+
+val test =
+  print_string ("This test is ");
+  print_string (f (0));
+  print_string (".\n")
+OUTPUT: 
+This test is OK.
+EXPECTED: 
+This test is OK.
+--------------------------------------------------------
+[ OK ]   58-while-01.hopix
+
+INPUT:
+val test =
+    val x = ref 5;
+    val y = ref 0;
+    while (!x >? 0) {
+      x := !x - 1;
+      y := !y + 1
+    };
+    if !y =? 5 then
+      print_string ("This test is OK!\n")
+    else
+      print_string ("This is KO!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   59-while-02.hopix
+
+INPUT:
+val test =
+    val x = ref 5;
+    val y = ref 0;
+    val z = ref 5;
+    while (!x >? 0) {
+      x := !x - 1;
+      while (!z >? 0) {
+        y := !y + 1;
+	z := !z - 1
+      };
+      y := !y + 1
+    };
+    if !y =? 10 then
+      print_string ("This test is OK!\n")
+    else
+      print_string ("This is KO!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   60-while-03.hopix
+
+INPUT:
+val test =
+    val x = ref 5;
+    val y = ref 0;
+    val z = ref 5;
+    while (!x <? 0) {
+      x := !x - 1;
+      y := !y + 1
+    };
+    if !x =? 5 then
+      print_string ("This test is OK!\n")
+    else
+      print_string ("This is KO!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   61-while-04.hopix
+
+INPUT:
+val test =
+    val r = ref 1;
+    val n = ref 5;
+    while !n >? 0 {
+      r := !r * !n;
+      n := !n - 1
+    };
+    print_string ("This test is ");
+    print_string (if !r =? 120 then "OK!\n" else "KO!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   62-for-01.hopix
+
+INPUT:
+val test =
+    val r = ref 1;
+    for i = 1 to 5 {
+      r := !r * i
+    };
+    print_string ("This test is ");
+    print_string (if !r =? 120 then "OK!\n" else "KO!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   63-for-02.hopix
+
+INPUT:
+val test =
+    val r = ref 1;
+    for i = 1 to 5 {
+      for j = 1 to 5 {
+        r := !r * j
+      };
+      r := !r * i;
+      for j = 1 to 5 {
+        r := !r / j
+      }
+    };
+    print_string ("This test is ");
+    print_string (if !r =? 120 then "OK!\n" else "KO!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ OK ]   64-for-03.hopix
+
+INPUT:
+val test =
+    val r = ref 1;
+    for i = 1 to 5 {
+      for i = 1 to 5 by 3 {
+        r := !r * i
+      };
+      r := !r * i;
+      for i = 1 to 5 by 3{
+        r := !r / i
+      }
+    };
+    print_string ("This test is ");
+    print_string (if !r =? 120 then "OK!\n" else "KO!\n")
+OUTPUT: 
+This test is OK!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ KO ]   -->  65-for-04.hopix
+
+INPUT:
+val test =
+    val r = ref 1;
+    for i = 1 to 50 by 10 {
+      for i = 1 to 5 by 3 {
+        r := !r * i
+      };
+      r := !r * (1 + i / 10);
+      for i = 1 to 5 by 3{
+        r := !r / i
+      }
+    };
+    print_string ("This test is ");
+    print_string (if !r =? 120 then "OK!\n" else "KO!\n")
+OUTPUT: 
+This test is KO!
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ KO ]   -->  66-concat.hopix
+
+INPUT:
+def concat (l1, l2) =
+  case l1 {
+  | N => l2
+  | C (x, xs) => C (x, concat (xs, l2))
+  }
+
+val l = C (1, C (2, N))
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+
+def len (l) =
+  case l {
+  | N => 0
+  | C (x, xs) => 1 + len (xs)
+  }
+
+val test =
+  print_int (len (l));
+  print_string ("\n")
+
+
+
+OUTPUT: 
+
+Stack overflow
+EXPECTED: 
+128
+--------------------------------------------------------
+[ KO ]   -->  67-sorted.hopix
+
+INPUT:
+def concat (l1, l2) =
+  case l1 {
+  | N => l2
+  | C (x, xs) => C (x, concat (xs, l2))
+  }
+
+val l = C (1, C (2, N))
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+
+def len (l) =
+  case l {
+  | N => 0
+  | C (x, xs) => 1 + len (xs)
+  }
+
+def sorted (l) =
+  case l {
+  | N | C (_, N) => true
+  | C (x, C (y, _) & l) => x <=? y && sorted (l)
+  }
+
+val l2 = C (1, C (2, C (6, C (7, N))))
+
+val l3 = C (-1, C (2, C (6, C (70, N))))
+
+val l4 = C (-1, C (20, C (6, C (70, N))))
+
+def not (b) = if b then false else true
+
+val r =
+  not (sorted (l)) &&
+  sorted (l2) &&
+  sorted (l3) &&
+  not (sorted (l4))
+
+val test =
+  print_string ("This test is ");
+  print_string (if r then "OK!\n" else "KO!\n")
+
+
+
+OUTPUT: 
+
+Stack overflow
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ KO ]   -->  68-sort.hopix
+
+INPUT:
+def concat (l1, l2) =
+  case l1 {
+  | N => l2
+  | C (x, xs) => C (x, concat (xs, l2))
+  }
+
+val l = C (1, C (2, N))
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+
+def len (l) =
+  case l {
+  | N => 0
+  | C (x, xs) => 1 + len (xs)
+  }
+
+def sorted (l) =
+  case l {
+  | N | C (_, N) => true
+  | C (x, C (y, _) & l) => x <=? y && sorted (l)
+  }
+
+val l2 = C (1, C (2, C (6, C (7, N))))
+
+val l3 = C (-1, C (2, C (6, C (70, N))))
+
+val l4 = C (-1, C (20, C (6, C (70, N))))
+
+def not (b) = if b then false else true
+
+def sort (l) =
+    case l {
+    | N => N
+    | C (x, xs) => case pivot (x, xs) {
+      | `(l1, l2) =>
+        val l1 = sort (l1);
+	val l2 = sort (l2);
+        concat (l1, C (x, l2))
+      }
+    }
+and pivot (x, l) =
+    case l {
+    | N =>
+      `(N, N)
+    | C (y, ys) =>
+      case pivot (x, ys) {
+      | `(l1, l2) =>
+         if y >? x then `(l1,  C (y, l2)) else `(C (y, l1), l2)
+      }
+    }
+
+def print (l) =
+    case l {
+    | N => print_string ("\n")
+    | C (x, xs) => print_int (x); print_string (" "); print (xs)
+    }
+
+def show (l) =
+    print (l);
+    l
+
+val r =
+  sorted (show (sort (l))) &&
+  sorted (show (sort (l2))) &&
+  sorted (show (sort (l3))) &&
+  sorted (show (sort (l4)))
+
+val test =
+  print_string ("This test is ");
+  print_string (if r then "OK!\n" else "KO!\n")
+OUTPUT: 
+Global Error (during parsing)
+  Syntax error.
+EXPECTED: 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 
+1 2 6 7 
+-1 2 6 70 
+-1 6 20 70 
+This test is OK!
+--------------------------------------------------------
+[ KO ]   -->  69-sort-big.hopix
+
+INPUT:
+def concat (l1, l2) =
+  case l1 {
+  | N => l2
+  | C (x, xs) => C (x, concat (xs, l2))
+  }
+
+val l = C (1, C (2, N))
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+
+def len (l) =
+  case l {
+  | N => 0
+  | C (x, xs) => 1 + len (xs)
+  }
+
+def sorted (l) =
+  case l {
+  | N | C (_, N) => true
+  | C (x, C (y, _) & l) => x <=? y && sorted (l)
+  }
+
+val l2 = C (1, C (2, C (6, C (7, N))))
+
+val l3 = C (-1, C (2, C (6, C (70, N))))
+
+val l4 = C (-1, C (20, C (6, C (70, N))))
+
+def not (b) = if b then false else true
+
+def sort (l) =
+    case l {
+    | N => N
+    | C (x, xs) => case pivot (x, xs) {
+      | `(l1, l2) =>
+        val l1 = sort (l1);
+	val l2 = sort (l2);
+        concat (l1, C (x, l2))
+      }
+    }
+and pivot (x, l) =
+    case l {
+    | N =>
+      `(N, N)
+    | C (y, ys) =>
+      case pivot (x, ys) {
+      | `(l1, l2) =>
+         if y >? x then `(l1,  C (y, l2)) else `(C (y, l1), l2)
+      }
+    }
+
+def print (l) =
+    case l {
+    | N => print_string ("\n")
+    | C (x, xs) => print_int (x); print_string (" "); print (xs)
+    }
+
+def show (l) =
+    print (l);
+    l
+
+def generate (accu, n) =
+    if n =? 0 then accu else generate (C (n, accu), n - 1)
+
+val r =
+  sorted (sort (generate (N, 500)))
+
+val test =
+  print_string ("This test is ");
+  print_string (if r then "OK!\n" else "KO!\n")
+OUTPUT: 
+Global Error (during parsing)
+  Syntax error.
+EXPECTED: 
+This test is OK!
+--------------------------------------------------------
+[ KO ]   -->  70-tree.hopix
+
+INPUT:
+def make (n) =
+    if n =? 0 then Leaf else Node (make (n - 1), make (n - 1))
+
+def count (accu, t) =
+    case t {
+    | Leaf => 1 + accu
+    | Node (l, r) => count (count (accu, l), r)
+    }
+
+val test =
+    for i = 0 to 14 {
+        print_int (count (0, make (i)));
+    	print_string ("\n")
+    }
+OUTPUT: 
+Line 7, characters 41-42: Error (interpretation)
+  `l' is unbound.
+EXPECTED: 
+1
+2
+4
+8
+16
+32
+64
+128
+256
+512
+1024
+2048
+4096
+8192
+16384
+--------------------------------------------------------
+[ KO ]   -->  71-list-monad.hopix
+
+INPUT:
+def map (f, l) =
+    case l { N => N | C (x, xs) => C (f (x), map (f, xs)) }
+
+def concat (l1, l2) =
+    case l1 { N => l2 | C (x, xs) => C (x, concat (xs, l2)) }
+
+def flatten (l) =
+    case l { N => N | C (l, ls) => concat (l, flatten (ls)) }
+
+def return (x) = C (x, N)
+
+def bind (x, f) = flatten (map (f, x))
+
+val fail = N
+
+def range (start, stop) = if start >? stop then N else C (start, range (start + 1, stop))
+
+def all_sums (start, stop, n) =
+    bind (range (start, stop), fun (x) =>
+    bind (range (start, stop), fun (y) =>
+    if x + y =? n then return (`(x, y, n)) else fail
+    ))
+
+def show_sum (s) =
+    case s { `(x, y, n) =>
+      print_int (x);
+      print_string (" + ");
+      print_int (y);
+      print_string (" = ");
+      print_int (n);
+      print_string ("\n")
+    }
+
+def iter (f, l) =
+    case l { N => nothing | C (x, xs) => f (x); iter (f, xs) }
+
+val test =
+    iter (show_sum, all_sums (13, 73, 73))
+
+OUTPUT: 
+Line 2, characters 41-42: Error (interpretation)
+  `x' is unbound.
+EXPECTED: 
+13 + 60 = 73
+14 + 59 = 73
+15 + 58 = 73
+16 + 57 = 73
+17 + 56 = 73
+18 + 55 = 73
+19 + 54 = 73
+20 + 53 = 73
+21 + 52 = 73
+22 + 51 = 73
+23 + 50 = 73
+24 + 49 = 73
+25 + 48 = 73
+26 + 47 = 73
+27 + 46 = 73
+28 + 45 = 73
+29 + 44 = 73
+30 + 43 = 73
+31 + 42 = 73
+32 + 41 = 73
+33 + 40 = 73
+34 + 39 = 73
+35 + 38 = 73
+36 + 37 = 73
+37 + 36 = 73
+38 + 35 = 73
+39 + 34 = 73
+40 + 33 = 73
+41 + 32 = 73
+42 + 31 = 73
+43 + 30 = 73
+44 + 29 = 73
+45 + 28 = 73
+46 + 27 = 73
+47 + 26 = 73
+48 + 25 = 73
+49 + 24 = 73
+50 + 23 = 73
+51 + 22 = 73
+52 + 21 = 73
+53 + 20 = 73
+54 + 19 = 73
+55 + 18 = 73
+56 + 17 = 73
+57 + 16 = 73
+58 + 15 = 73
+59 + 14 = 73
+60 + 13 = 73
+--------------------------------------------------------
+[ KO ]   -->  72-list-monad-3.hopix
+
+INPUT:
+def map (f, l) =
+    case l { N => N | C (x, xs) => C (f (x), map (f, xs)) }
+
+def concat (l1, l2) =
+    case l1 { N => l2 | C (x, xs) => C (x, concat (xs, l2)) }
+
+def flatten (l) =
+    case l { N => N | C (l, ls) => concat (l, flatten (ls)) }
+
+def return (x) = C (x, N)
+
+def bind (x, f) = flatten (map (f, x))
+
+val fail = N
+
+def range (start, stop) = if start >? stop then N else C (start, range (start + 1, stop))
+
+def all_sums (start, stop, n) =
+    bind (range (start, stop), fun (x) =>
+    bind (range (start, stop), fun (y) =>
+    if x + y =? n then return (`(x, y, n)) else fail
+    ))
+
+def show_sum (s) =
+    case s { `(x, y, n) =>
+      print_int (x);
+      print_string (" + ");
+      print_int (y);
+      print_string (" = ");
+      print_int (n);
+      print_string ("\n")
+    }
+
+def iter (f, l) =
+    case l { N => nothing | C (x, xs) => f (x); iter (f, xs) }
+
+val test =
+    iter (show_sum, all_sums (13, 73, 73))
+
+OUTPUT: 
+Line 2, characters 41-42: Error (interpretation)
+  `x' is unbound.
+EXPECTED: 
+13 + 60 = 73
+14 + 59 = 73
+15 + 58 = 73
+16 + 57 = 73
+17 + 56 = 73
+18 + 55 = 73
+19 + 54 = 73
+20 + 53 = 73
+21 + 52 = 73
+22 + 51 = 73
+23 + 50 = 73
+24 + 49 = 73
+25 + 48 = 73
+26 + 47 = 73
+27 + 46 = 73
+28 + 45 = 73
+29 + 44 = 73
+30 + 43 = 73
+31 + 42 = 73
+32 + 41 = 73
+33 + 40 = 73
+34 + 39 = 73
+35 + 38 = 73
+36 + 37 = 73
+37 + 36 = 73
+38 + 35 = 73
+39 + 34 = 73
+40 + 33 = 73
+41 + 32 = 73
+42 + 31 = 73
+43 + 30 = 73
+44 + 29 = 73
+45 + 28 = 73
+46 + 27 = 73
+47 + 26 = 73
+48 + 25 = 73
+49 + 24 = 73
+50 + 23 = 73
+51 + 22 = 73
+52 + 21 = 73
+53 + 20 = 73
+54 + 19 = 73
+55 + 18 = 73
+56 + 17 = 73
+57 + 16 = 73
+58 + 15 = 73
+59 + 14 = 73
+60 + 13 = 73
+--------------------------------------------------------
+GOOD: 62/72
+SCORE: 86%
+
+BAD: 0/0
+make[1]: Leaving directory '/home/opam/source/flap/tests/m2/hopix/interpreter/good'
+--------------------------------------------------------
+Global results:
+BAD:   0 / 0
+GOOD:  62 / 72
+SCORE: 86%
+--------------------------------------------------------
+make: Leaving directory '/home/opam/source/flap/tests/m2'

@@ -34,53 +34,66 @@ let binop = let open HopixTypes in
 ]
 
 let rec check_definition_is_fully_annotated position = function
-  | DefineValue vd -> check_value_definition_is_fully_annotated position vd
+  | DefineValue vd -> 
+    Printf.printf "%s\n" HopixPrettyPrinter.(to_string (value_definition false) vd);
+    check_value_definition_is_fully_annotated position vd
   | _ -> ()
 
-and check_expression_is_fully_annotated x t pos = function
-  | Literal lit ->( x, located check_literal_is_fully_annotated lit)
-  | _ -> type_error pos "TODO"
+
+and check_expression_is_fully_annotated position = function
+  | Literal lit -> located check_literal_is_fully_annotated lit
+  | Variable (id, lty) -> 
+    begin match lty with
+      | None -> Printf.printf "None\n"
+      | Some t ->  Printf.printf "var lty = %d\n" (List.length t)
+    end;
+    located check_apply_identifier id
+  | Define (vd, expr) -> 
+    Printf.printf "local def= %s\n" HopixPrettyPrinter.(to_string (value_definition true) vd);
+    Printf.printf "expr= %s\n" HopixPrettyPrinter.(to_string expression expr.value);
+    located check expr
+  | Apply (expr, lexpr) ->
+    let rec aux l = function
+          | [] -> (List.rev l)
+          | hd::tl -> aux ((located check hd)::l) tl
+    in
+    begin match located check expr with
+      | ATyArrow (tys, ty) -> 
+        if tys = (aux [] lexpr) then
+          ty
+        else
+          type_error expr.position "Apply : Not fully annoted"
+      | _ -> type_error expr.position "Apply : Wrong type"
+    end
+  | Field (expr, _) | Ref expr | Read expr ->
+    located check expr
+  | _ -> type_error position "TODO"
 
 and check position = check_expression_is_fully_annotated position
-
-and check_function_definition_is_fully_annotated x t pos = function
-  | FunctionDefinition (lid, expr) -> (x, t)
 
 and check_value_definition_is_fully_annotated position = function
   | SimpleValue (id, tscheme, expr) -> 
     begin match tscheme with
       | None -> type_error id.position "SimpleValue : expected type scheme"
       | Some scheme ->
-        let x = id.value in
-        let typ = aty_of_ty (ty_of_scheme scheme.value) in
-        if (x, typ) = check_expression_is_fully_annotated x typ expr.position expr.value then
-          ()
-        else
-          type_error id.position "SimpleValue : not fully"
+      let open HopixTypes in
+      let typ = ty_of_scheme scheme.value in
+      let t = located check_expression_is_fully_annotated expr in
+      if aty_of_ty typ = t then
+        ()
+      else
+        type_error id.position "SimpleValue : not fully"
     end
-  | RecFunctions lfd ->
-    let [@warning "-10"] aux = List.map (fun (id, tscheme, fd) -> let pos = (Position.position id) in
-    begin match tscheme with
-      | None -> type_error pos "RecFunctions : expected type scheme"
-      | Some scheme ->
-        let x = (Position.value id) in
-        let typ = aty_of_ty (ty_of_scheme (Position.value scheme)) in
-        if (x, typ) =  (check_function_definition_is_fully_annotated x typ pos fd) then
-          ()
-        else
-          type_error pos "RecFunctions : not fully"
-    end) lfd; ()
-    in aux
-    
-  
+  | RecFunctions _ -> type_error position "RecFunctions"
+
 and ty_of_scheme = function
   | ForallTy (_, t) -> 
     t.value
 
 and check_literal_is_fully_annotated position = function
-  | LInt _ -> HopixTypes.hint
-  | LString _ -> HopixTypes.hstring
-  | LChar _ -> HopixTypes.hchar
+  | LInt _ -> hint
+  | LString _ -> hstring
+  | LChar _ -> hchar
 
 and check_apply_identifier position = function
   | _ as id -> 

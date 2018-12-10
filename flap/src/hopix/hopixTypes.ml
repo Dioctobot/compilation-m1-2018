@@ -170,6 +170,7 @@ and type_information =
 
 exception UnboundTypeConstructor of Position.position * type_constructor
 
+
 let is_type_variable_defined env tv =
   List.mem tv env.type_variables
 

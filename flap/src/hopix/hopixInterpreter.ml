@@ -354,37 +354,27 @@ and expression' environment memory e =
 and expression position environment memory = function
   | Literal lit -> literal lit.value, memory
   | Variable (id, _) -> Environment.lookup id.position id.value environment, memory
-  | Tagged (cons, olty, lexpr) ->
-    let rec evalue_memory evalue mem = function
-    | [] -> List.rev evalue, mem
-    | hd::tl -> 
-      let (eval, memory') = expression' environment memory hd in
-      evalue_memory (eval::evalue) memory' tl
-    in
-    let lv, memory' = evalue_memory [] memory lexpr  in
-    VTagged (cons.value, lv), memory'
-  | Record (llexpr, olty) -> 
+  | Tagged (cons, _, lexpr) -> 
+    let (values, memory') = eval_memory (expression' environment) memory [] lexpr in
+    VTagged (cons.value, values), memory'
+  | Record (llexpr, _) -> 
     let rec evalue_memory evalue mem = function
       | [] -> List.rev evalue, mem
       | hd::tl -> 
         let label = (fst hd).value in
-        let eval, memory' = expression' environment memory (snd hd) in
-        evalue_memory ((label, eval)::evalue) memory' tl
+        let eval, mem' = expression' environment mem (snd hd) in
+        evalue_memory ((label, eval)::evalue) mem' tl
     in
     let leval, memory' = evalue_memory [] memory llexpr in
     VRecord leval, memory'
   | Field (expr, lab) -> 
     (match (expression' environment memory expr) with
-      | VRecord record, memory' -> (List.assoc lab.value record), memory'
+      | VRecord record, memory' -> 
+        (try
+          List.assoc lab.value record, memory'
+        with Not_found -> error [position] "Expected VRecord : label not found")
       | _ -> error [position] "Expected VRecord")
-  | Sequence lexpr ->
-    (match lexpr with
-      | [] -> error [position] "Sequence cannot be empty"
-      | hd1::hd2::tl -> 
-        let eval, memory' = expression' environment memory hd1 in
-        let eval', memory'' = expression' environment memory' hd2 in
-        eval', memory''
-      | _ -> error [position] "Expected Sequence")
+  | Sequence lexpr -> eval_memory' (expression' environment) memory lexpr
   | Define (vd, expr) -> 
     let runtime = { memory = memory; environment = environment } in
     let d = { value = (DefineValue vd); position = position } in
@@ -395,23 +385,28 @@ and expression position environment memory = function
   let eval, memory' = expression' environment memory expr in
   let evalues, memory'' = eval_memory (expression' environment) memory' [] lexpr in
     (match eval with
+      | VLocation loc ->
+        let block = Memory.dereference memory'' loc in
+        let read = Memory.read block Int32.zero in
+        (match read with
+          | VClosure (env, lid, e) ->
+            let environment' = bind_ids environment lid evalues in
+            expression' environment' memory'' e
+          | _ -> error [position] "Apply fail")
       | VClosure (env, lid, e) -> 
-        let rec aux run_env ids evs = match ids, evs with
-          | i::tli, ev::tle -> aux (Environment.bind run_env i.value ev) tli tle
-          | _, _ -> run_env
-        in
-        let environment' = aux env lid evalues in
-        expression' environment' memory e
+        let environment' = bind_ids env lid evalues in
+        expression' environment' memory'' e
       | VPrimitive (str, f) -> f memory'' evalues, memory''
       | _ -> error [position] "Apply fail")
   | Ref expr ->
     let eval, memory' = expression' environment memory expr in
     let loc = Memory.allocate memory' Int32.one eval in
     VLocation loc, memory'
-  | Assign (e, e') -> let eval, memory' = expression' environment memory e in
+  | Assign (e, e') -> 
+    let eval, memory' = expression' environment memory e in
+    let eval', memory'' = expression' environment memory' e' in
     (match eval with
       | VLocation loc -> 
-        let eval', memory'' = expression' environment memory' e' in
         let block = Memory.dereference memory'' loc in
         Memory.write block Int32.zero eval';
         VUnit, memory''
@@ -425,16 +420,15 @@ and expression position environment memory = function
   | Case (expr, lbr) -> 
     let eval, memory' = expression' environment memory expr in
     let branchs = List.map value lbr in
-    let rec aux pos env mem ev e = function
+    let rec aux env mem ev = function
       | [] -> failwith "Pattern-matching is not exhaustive"
       | hd::tl -> 
         (match hd with
-          | Branch (pat, ex) -> let o, mem' = pattern pos env mem ev pat.value in
-            (match o with
-              | None -> let eval', memory'' = expression' env mem' ex in
-                aux pos env memory'' eval' ex tl
-              | Some env'-> expression' env' mem' ex))
-    in aux position environment memory' eval expr branchs
+          | Branch (pat, ex) ->
+            (match pattern env ev pat.value with
+              | None -> aux env mem ev tl
+              | Some env'-> expression' env' mem ex))
+    in aux environment memory' eval branchs
   | IfThenElse (e1, e2, oe3) -> let eval, memory' = expression' environment memory e1 in
     if eval = ptrue then (* value_as_bool eval *)
       expression' environment memory' e2
@@ -477,6 +471,10 @@ and expression position environment memory = function
       | _, _, _ -> error [position] "For fail")
   | TypeAnnotation (expr, _) -> expression' environment memory expr
 
+and bind_ids run_env ids evs = match ids, evs with
+  | i::tli, ev::tle -> bind_ids (Environment.bind run_env i.value ev) tli tle
+  | _, _ -> run_env
+
 and literal lit = match lit with
   | LInt x -> VInt x
   | LString str -> VString str
@@ -485,67 +483,64 @@ and literal lit = match lit with
 and function_definition environment fd = match fd with
   | FunctionDefinition (lid, expr) -> VClosure (environment, lid, expr)
 
-and eval_memory func memory rslt = function
-  [] -> List.rev rslt, memory
-  | hd::tl ->
-    let ev, mem' = func memory hd in
-    eval_memory func mem' (ev::rslt) tl
+and eval_memory f memory rslt = function
+  | [] -> List.rev rslt, memory
+  | hd::tl -> let ev, mem' = f memory hd in
+    eval_memory f mem' (ev::rslt) tl
+
+and eval_memory' f memory = function
+  | [] -> assert false
+  | [hd] -> f memory hd
+  | hd::tl -> let ev, mem' = f memory hd in
+    eval_memory' f mem' tl
 
 and to_int32_opt = function None -> Int32.zero | Some n -> n
 
-and pattern position environment memory evalue = function
-  | PVariable id -> Some (Environment.bind environment id.value evalue), memory
-  | PWildcard -> Some environment, memory
-  | PTypeAnnotation (p, t) -> pattern p.position environment memory evalue p.value
-  | PLiteral lit -> 
+and pattern environment evalue = function
+  | PVariable id -> Some (Environment.bind environment id.value evalue)
+  | PWildcard -> Some environment
+  | PTypeAnnotation (p, t) -> pattern environment evalue p.value
+  | PLiteral lit ->
     (match literal lit.value, evalue with
-      | VInt x1, VInt x2 when x1 = x2 -> Some environment, memory
-      | VString str1, VString str2 when str1 = str2 -> Some environment, memory
-      | VChar c1, VChar c2 when c1 = c2 -> Some environment, memory
-      | _, _ -> None, memory
-    )
+      | VInt x1, VInt x2 when x1 = x2 -> Some environment
+      | VString str1, VString str2 when String.equal str1 str2 -> Some environment
+      | VChar c1, VChar c2 when c1 = c2 -> Some environment
+      | _, _ -> None)
   | PTaggedValue (cons, _, lp) ->
     (match evalue with
-      | VTagged (c, l) when (constructor_string cons.value) = (constructor_string c) && List.length lp = List.length l ->
-        let rec aux pos env mem = function
-          | [], [] -> Some env, mem
+      | VTagged (c, l) when cons.value = c && List.length lp = List.length l ->
+        let rec aux env = function
+          | [], [] -> Some env
           | p::tl1, ev::tl2 ->
-            let opt, mem' = pattern p.position env mem ev p.value in
-            (match opt with
-              | None -> None, mem'
-              | Some e -> aux p.position e mem' (tl1, tl2))
-          | _, _ -> error [pos] "pattern fail : under PTaggedValue"
-        in aux cons.position environment memory (lp, l)
-      | _ -> None, memory)
+            (match pattern env ev p.value with
+              | None -> None
+              | Some e -> aux e (tl1, tl2))
+          | _, _ -> None
+        in aux environment (lp, l)
+      | _ -> None)
   | PRecord (llp, _) ->
     (match evalue with
       | VRecord lv when List.length llp = List.length lv ->
-        let rec aux pos env mem = function
-          | [], [] -> Some env, mem
-          | (lab1, p)::tl1, (lab2, ev)::tl2 when (label_string lab1.value) = (label_string lab2) ->
-            let opt, mem' = pattern p.position env mem ev p.value in
-            (match opt with
-              | None -> None, mem'
-              | Some e -> aux p.position e mem' (tl1, tl2))
-          | _, _ -> error [pos] "pattern fail : under PRecord"
-        in aux position environment memory (llp, lv)
-      | _ -> None, memory)
-  | POr lp -> 
-    let rec aux pos env mem = function
-      | [] -> None, mem
-      | hd::tl ->
-        (match pattern hd.position env mem evalue hd.value with
-          | None, mem' -> aux hd.position env mem' tl
-          | s -> s)
-    in aux position environment memory lp
-  | PAnd lp -> 
-    let rec aux pos env mem = function
-      | [] -> Some env, mem
-      | hd::tl ->
-        (match pattern hd.position env mem evalue hd.value with
-          | None, mem' -> None, mem'
-          | Some e, mem' -> aux hd.position e mem' tl)
-    in aux position environment memory lp
+        let rec aux env = function
+          | [], [] -> Some env
+          | (lab1, p)::tl1, (lab2, ev)::tl2 when lab1.value = lab2 ->
+            (match pattern env ev p.value with
+              | None-> None
+              | Some e -> aux e (tl1, tl2))
+          | _, _ -> None
+        in aux environment (llp, lv)
+      | _ -> None)
+  | POr (p::lp) -> 
+    (match pattern environment evalue p.value with
+      | Some env -> Some env
+      | None -> pattern environment evalue (POr lp))
+  | PAnd (p::lp) -> 
+    (match pattern environment evalue p.value, lp with
+      | Some env, [] -> Some env
+      | Some env, _ -> pattern env evalue (PAnd lp)
+      | _ -> None)
+  | _ -> Some environment
+
 
 and constructor_string = function
   | KId id -> id

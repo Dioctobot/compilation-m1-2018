@@ -81,6 +81,10 @@ let output_type_of_function = function
   | ATyArrow (_, ty) -> ty
   | _ -> raise NotAFunction
 
+let input_type_of_function = function
+  | ATyArrow (tys, _) -> tys
+  | _ -> raise NotAFunction
+
 let constant x = TCon x, ATyCon (TCon x, [])
 let tcunit,   hunit    = constant "Unit"
 let tcbool,   hbool    = constant "Bool"
@@ -240,6 +244,18 @@ let lookup_type_scheme_of_value pos x env =
     List.assoc x env.values
   with Not_found ->
     raise (UnboundIdentifier (pos, x))
+
+let remove_type_scheme_of_value x env =
+  if List.mem_assoc x env.values then
+    {
+      values = List.remove_assoc x env.values;
+      constructors = env.constructors;
+      type_constructors = env.type_constructors;
+      destructors = env.destructors;
+      type_variables = env.type_variables
+    }
+  else
+    env
 
 let make_pre_type_environment env ts x arity tdef =
   let env = bind_type_variables Position.dummy env ts in

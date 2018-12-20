@@ -317,6 +317,14 @@ let lookup_type_scheme_of_record x env =
   with Not_found ->
     raise UnboundRecord
 
+let clean_type_variables env = { 
+  values = env.values;
+  constructors = env.constructors;
+  type_constructors = env.type_constructors;
+  destructors = env.destructors;
+  type_variables = []
+ }
+
 let initial_typing_environment () =
   empty_typing_environment |>
   List.fold_right (fun ti env -> bind_abstract_type ti [] env) [

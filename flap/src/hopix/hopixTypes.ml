@@ -83,7 +83,7 @@ let output_type_of_function = function
 
 let input_type_of_function = function
   | ATyArrow (tys, _) -> tys
-  | _ -> raise NotAFunction
+  | _ -> []
 
 let constant x = TCon x, ATyCon (TCon x, [])
 let tcunit,   hunit    = constant "Unit"
@@ -308,6 +308,14 @@ let lookup_type_scheme_of_constructor x env =
     List.assoc x env.constructors
   with Not_found ->
     raise UnboundConstructor
+
+exception UnboundRecord
+
+let lookup_type_scheme_of_record x env =
+  try
+    List.assoc x env.destructors
+  with Not_found ->
+    raise UnboundRecord
 
 let initial_typing_environment () =
   empty_typing_environment |>

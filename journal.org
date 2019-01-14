@@ -501,8 +501,164 @@ Bienvenue en Master 1!
     ———————————————————–———————————————————————————————————————————————————————————————————–
     Γ ⊢ t : ∀ α₁...αₙ. τ
 
-
 ** Présentation du cours du second semestre
-
-
    Hopix -> Hobix -> Fopix -> Retrolix -> MIPS|AMD64
+* Cours 9 "Présentation du cours du second semestre et introduction à la programmation x86-64" <2019-01-14>
+** Objectifs
+   - Vous emmener de Hopix jusqu'au langage machine!
+   - Programmer en assembleur et générer de l'assembleur pour votre propre machine.
+   - Comprendre les conventions qui rendent possibles l'interopérabilité entre
+     les composants logiciels.
+   - Prendre conscience des différences de performances entre le code interprété,
+     le code compilé naïvement et le code optimisé.
+   - Découvrir de premières analyses statiques qui sont plus précises que le typage.
+   - Raffiner votre connaissance du "coût de l'abstraction" dans les langages de
+     haut-niveau, typiquement ceux d'ordre supérieur.
+   - Implémenter des algorithmes variés (des transformations de programmes bien
+     sûr mais aussi des algorithmes de calcul de point fixe ou de coloriages de graphes).
+   - Gagner la flapicup.
+** Fonctionnement du cours
+   - Toujours le même principe : un jalon toutes les deux semaines pour un
+     projet qui sert de fil directeur et de motivation au cours.
+   - Des batteries de tests pour chaque jalon.
+   - Au début de chaque séance de cours, 30 minutes de travaux dirigés pour
+     corriger un exercice à faire à la maison.
+   - Les TPs servent à débuter les jalons (sauf le premier TP qui s'intéresse
+     à la programmation assembleur) : travailler au fur et à mesure!
+   - Pas ou peu de séances de cours magistraux avec des transparents, plutôt
+     des cours/TD où vous travaillerez autant que nous!
+** Contenu du cours
+   - Le projet se décompose en deux étapes :
+     1. Implémenter un compilateur naïf de Hopix vers x86-64.
+     2. Implémenter des optimisations de haut niveau et de bas niveau.
+** Vue d'ensemble du compilateur
+
+    - La chaîne de compilation :
+
+                  Hopix → Hobix → Fopix → Retrolix → x86-64
+
+    - Nous allons construire le compilateur à l'envers, de l'assembleur vers Hopix.
+
+*** Hopix vers Hobix
+
+def len (l) =
+   case l {
+   | Nil => 0
+   | Cons (_, xs) => 1 + len (xs)
+   }
+
+devient
+
+def len (l) =
+   if l[0] = 0 then
+     0
+   else
+     let xs = l[2] in
+     1 + len (xs)
+
+*** Hobix vers Fopix
+
+def add (x) =
+    let z = 2 * x in
+    fun (y) -> x + y * z
+
+devient
+
+def anomymous (y, env) =
+    env[2] + y * env[1]
+
+def add (x) =
+    let z = 2 * x in
+    [ ptr_code(anonymous) ; z ; x ]
+
+*** Fopix vers Retrolix
+
+def fact (n) =
+    if n = 0 then 1 else n * fact (n - 1)
+
+devient
+
+def fact ()
+    locals tmp
+    l0: cmp %rdi, 0 -> l1, l2
+    l1: mov %rax, 1 -> l3
+    l3: ret
+    l2: tmp <- %rdi -> l4
+    l4: %rdi <- %rdi - 1 -> l5
+    l5: call fact -> l6
+    l6: %rax <- mul tmp, %rax -> l7
+    l7: ret
+** x86-64
+*** Les instructions
+   - Instruction Set Architecture (ISA) = abstraction
+   - Micro-architecture = techniques d'implémentations d'une ISA
+   - Deux styles d'ISA : RISC vs CISC.
+     RISC: petit nombre d'instruction orthogonales / distinction instructions arith., logique et mémoire.
+   - Frise historique
+
+		       8086 (16bits)    x86 (32bits)    AMD64 (64bits)
+	     |—————————————|——————————————|———————————————|—————————————|————————–→
+	    1970          1980           1990           2000          2010
+
+   - Avantages : répandu, rétrocompatible, performant
+   - Inconvénients : complexe et baroque
+   - Références : notes de Jean-Christophe Filliâtre, ISA réduit, spécifications d'Intel
+*** État du processeur
+    - registres:
+      %rax, %rbx, %rcx, %rdx, %rbp, %rsp, %rdi, %rsi, %r8, %r9, %r10, %r11, ..., %r15
+    - mémoires (dont la pile)
+    - little-endian/petit-boutien: https://fr.wikipedia.org/wiki/Endianness
+    - %ax ⊂ %eax ⊂ %rax
+    - %rip : compteur de programme
+    - %rflags : champ de bits, information sur les résultats arithmétiques
+    - OFFSET(BASE, INDEX, SCALE)
+      OFFSET est une valeur immédiate
+      BASE est un registre
+      INDEX est un registre, optionnel
+      SCALE est une valeur dans { 1, 2, 4, 8 }, optionnel
+      = OFFSET + BASE + INDEX * SCALE
+    - mov SRC, DST
+      attention: on ne peut pas aller de la mémoire à la mémoire.
+      variantes: movq, movl, movw, movb  (b = 8, w = 16, l = 32, q = 64)
+    - NB: Il y a deux syntaxes pour écrire du code ASM x86-64: Intel et GNU. Nous
+      suivons la syntaxe GNU. En Intel, SRC et DST sont inversés.
+    - exemples:
+      - movq $42, %rax         # %rax <- 42
+      - movq %rbx, -8(%rsp)    # MEM[%rsp - 8] <- %rbx
+    - Pile en x86-64 // System V
+      - %rsp: pointeur de pile
+      - La pile croît vers le bas
+      - %rsp doit être un multiple de 8
+      - %rbp pointeur de cadre (frame-pointeur)
+      - Pour travailler sur la pile, on utilise push/pop.
+      - pushq %rax est équivalent à
+	  subq $8, %rsp
+	  movq $rax, (%rsp)
+	ou
+	  movq $rax, -8(%rsp)
+	  subq %8, %rsp
+     - rflags, à quoi ça sert?
+
+       |-----+-----------------+------------|
+       | bit | signification   | mnémonique |
+       |-----+-----------------+------------|
+       |   0 | Retenue         | CF         |
+       |   1 | Parité          | PF         |
+       |   6 | Zéro            | ZF         |
+       |   7 | Signe (1 = neg) | SF         |
+       |  11 | Overflow        | OF         |
+       |-----+-----------------+------------|
+
+     - cmpq SRC1, SRC2
+       -> calcule SRC2 - SRC1, ignore le résultat mais met à jour rflags.
+
+     - je foo
+       -> sauter à "foo" si ZF est allumé
+
+     - j foo
+       -> saut inconditionnel à foo
+
+     - j *%rax
+       -> saut à l'adresse de code contenu par rax
+
+     - Il faut que $rsp+8 soit aligné sur 16 octets

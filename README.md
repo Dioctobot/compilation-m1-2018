@@ -7,7 +7,7 @@ de l'Université Paris Diderot. Il contient:
   les devoirs des étudiants.
 
 - Des resources pédagogiques proposées aux étudiants dans le répertoire
-  `resources`.
+  `doc`.
 
 - Le code source du projet dans le répertoire `flap`.
 

@@ -589,7 +589,7 @@ def fact ()
     l6: %rax <- mul tmp, %rax -> l7
     l7: ret
 ** x86-64
-*** Les instructions
+*** Quelques éléments de contexte
    - Instruction Set Architecture (ISA) = abstraction
    - Micro-architecture = techniques d'implémentations d'une ISA
    - Deux styles d'ISA : RISC vs CISC.

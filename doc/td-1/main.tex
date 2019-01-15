@@ -1,0 +1,175 @@
+\documentclass{article}
+\usepackage{packages}
+\usepackage{macros}
+\usepackage{options}
+
+\title{Interprétation des programmes -- TP 1 ~: \\ Découverte de x86-64}
+
+\author{Université Paris Diderot -- Master 1}
+
+\date{(2018-2019)}
+
+\begin{document}
+
+\maketitle
+
+Cette feuille de TP vous donne les étapes à suivre pour découvrir
+l’architecture x86-64/System V. Voici les ressources documentaires que
+nous vous conseillons (en suivant les recommandations Jean-Christophe
+Filliâtre):
+
+\begin{itemize}
+\item Les notes d'Andrew Tolmach sur x86-64:
+\begin{flushright}
+\url{https://www.lri.fr/~filliatr/ens/compil/x86-64.pdf}
+\end{flushright}
+\item Les notes de Bryant et O'HallaronM
+\begin{flushright}
+\url{https://www.cs.cmu.edu/~fp/courses/15213-s07/misc/asm64-handout.pdf}
+\end{flushright}
+\item La spécification d'Intel des instructions x86-64:
+\begin{flushright}
+\url{https://software.intel.com/en-us/articles/intel-sdm}
+\end{flushright}
+\item La spécification des conventions d'appel System V:
+\begin{flushright}
+\url{https://wiki.osdev.org/System_V_ABI}
+\end{flushright}
+\end{itemize}
+
+\medskip
+
+Les objectifs de cette séance de travaux pratiques sont:
+\begin{itemize}
+\item[\faSignIn]
+  De vous familiariser avec quelques rudiments de programmation
+  assembleur x86-64: quel est le format d'un programme assembleur pour
+  x86-64 en syntaxe GNU, comment assembler un tel programme, quelles
+  sont les instructions qu'il faut connaître pour lire et écrire des
+  programmes basiques, etc.
+
+\item[\faSignIn]
+  De vous apprendre à utiliser un débogueur pour exécuter un programme
+  assembleur pas-à-pas.
+
+\item[\faSignIn]
+  De vous faire programmer en assembleur et de saisir les difficultés
+  d'une telle programmation de bas niveau.
+\end{itemize}
+
+\medskip
+
+Les fichiers sources utilisés pour ces travaux pratiques sont sur le dépôt GIT à
+l'emplacement \verb!doc/td-1/code!.
+
+\begin{exercise}[Compiler, assembler, exécuter]
+  \-
+  \begin{enumerate}
+  \item Avant de commencer à programmer, partez à la recherche des informations suivantes dans les
+    ressources documentaires données plus haut :
+    \begin{enumerate}
+    \item Combien l’architecture x86-64 a-t-elle de registres ?
+    \item Quel est le format d’adressage sur cette architecture ?
+    \item Quelle est la sémantique des instructions \verb!movq!, \verb!leaq!, \verb!pushq!, \verb!popq!,
+      \verb!call!, \verb!ret!, \verb!subq!, \verb!j!, \verb!je!, \verb!leave! et \verb!cmp!?
+    \item Est-ce qu’il s’agit d’une architecture little endian ou big endian ?
+    \item Quelles sont les conventions d'appel de l'architecture x86-64/System V
+    \end{enumerate}
+  \item
+    Après avoir lu et compris le fichier \verb!exo1.s!, utilisez
+    \verb!gcc! pour le traduire en exécutable et
+    exécutez-le.
+
+\item Observez le code compilé produit par la compilation de \verb!exo1-2.c! par la commande:
+\begin{verbatim}
+gcc -fno-PIC -fno-asynchronous-unwind-tables -S exo1-2.c
+\end{verbatim}
+et mettez-le en correspondance avec le programme source.
+
+\item
+  Donnez l'évolution de la forme de la pile lorsque l'on exécute le programme \verb!exo1-2!
+  pour calculer factorielle 2.
+
+\item
+Comparez le code compilé précédent avec celui obtenu par
+\begin{verbatim}
+gcc -fno-PIC -fno-asynchronous-unwind-tables -O2 -S exo1-2.c
+\end{verbatim}
+Mettez en correspondance les instructions de ce nouveau programme avec
+les instructions du précédent code compilé. D'après vous, pourquoi le
+code produit par \verb!-O2! s'exécutera plus rapidement que celui
+produit sans cette option?
+
+\item
+  Observez le code compilé du programme \verb!exo1-3.c!. Qu'en déduire
+  sur les conventions de passage des arguments aux fonctions?
+
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}[Débogage de code assembleur]
+  \-
+  Dans cet exercice, vous devez utiliser \verb!gdb! pour déboguer
+  des programmes écrits en assembleur. Pour pouvoir déboguer un
+  exécutable issu d'un assemblage, il faut l'avoir compilé avec des
+  informations de débogage en passant l'option \verb!-ggdb! à \verb!gcc!,
+  typiquement:
+\begin{verbatim}
+gcc -o executable-name -ggdb source.s
+\end{verbatim}
+
+Nous vous recommandons de lancer \verb!gdb! avec l'option \verb!--tui! qui
+permet d'afficher des informations sur le code source et sur l'état de la
+machine. Ainsi:
+\begin{verbatim}
+gdb --tui -ex 'layout regs' ./executable-name [options]
+\end{verbatim}
+ouvrira une interface textuelle équipée d'une zone d'affichage du
+source au milieu de l'écran, d'une zone d'affichage des registres en
+haut et d'une invite de commande en bas. Vous pourrez alors utiliser
+les commandes de base suivantes:
+\begin{itemize}
+\item \verb!b label! : insère un point d'arrêt sur l'étiquette \verb!label!.
+\item \verb!r! : exécute le programme.
+\item \verb!n! : passe à l'instruction suivante.
+\item \verb!n! : continue jusqu'au prochain point d'arrêt.
+\item \verb!s! : entre dans le corps d'une fonction appelée par un \verb!call!.
+\end{itemize}
+
+\medskip
+
+Vous pouvez compléter ces commandes en lisant la documentation de \verb!gdb!,
+spécialement les pages suivantes:
+\begin{itemize}
+\item \url{https://sourceware.org/gdb/current/onlinedocs/gdb/Stack.html#Stack} \\ pour apprendre à observer la pile.
+\item \url{https://sourceware.org/gdb/current/onlinedocs/gdb/TUI.html#TUI} \\ pour apprendre à utiliser l'interface textuelle.
+\end{itemize}
+
+\begin{enumerate}
+\item
+  Le programme \verb!min.s! devrait calculer et afficher la valeur minimale du tableau
+\begin{center}
+  \verb!{ 1, 5, 5, 6, 3, -1, 4, 37, -73, 0 }!
+\end{center}
+ mais il est faux. Corrigez-le!
+
+\item
+  Le programme \verb!segfault.s! produit une erreur à l'exécution. Corrigez-le!
+\end{enumerate}
+
+\end{exercise}
+
+\begin{exercise}[Crible d'Eratosthène]
+  \-
+  \begin{enumerate}
+  \item
+    Complétez le fichier \verb!erato.s! pour qu'il affiche le nombre de nombres premiers entre
+    2 et $2^{28} - 1$ en utilisant l'algorithme d'Eratosthène.
+
+  \item
+    Essayez d'optimiser votre programme, par exemple en utilisant des bits pour représenter les
+    cases du crible.
+  \end{enumerate}
+\end{exercise}
+
+\end{document}

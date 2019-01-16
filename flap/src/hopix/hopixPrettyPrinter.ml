@@ -5,7 +5,7 @@ open ExtPPrint
 open HopixAST
 open Position
 
-let int i = string (Int32.to_string i)
+let int i = string (Mint.to_string i)
 
 let colon = string ","
 

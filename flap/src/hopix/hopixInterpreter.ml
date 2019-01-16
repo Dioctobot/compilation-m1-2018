@@ -17,7 +17,7 @@ let error positions msg =
 
 *)
 type 'e gvalue =
-  | VInt       of Int32.t
+  | VInt       of Mint.t
   | VChar      of char
   | VString    of string
   | VUnit
@@ -78,7 +78,7 @@ let print_value m v =
     if d >= max_depth then "..." else
       match v with
         | VInt x ->
-          Int32.to_string x
+          Mint.to_string x
         | VChar c ->
           "'" ^ Char.escaped c ^ "'"
         | VString s ->
@@ -104,9 +104,9 @@ let print_value m v =
           Printf.sprintf "<primitive: %s>" s
   and print_array_value d block =
     let r = Memory.read block in
-    let n = Int32.to_int (Memory.size block) in
+    let n = Mint.to_int (Memory.size block) in
     "[ " ^ String.concat ", " (
-      List.(map (fun i -> print_value (d + 1) (r (Int32.of_int i)))
+      List.(map (fun i -> print_value (d + 1) (r (Mint.of_int i)))
               (ExtStd.List.range 0 (n - 1))
       )) ^ " ]"
   in
@@ -236,7 +236,7 @@ let primitives =
   (* Define arithmetic binary operators. *)
   let binarith name =
     intbin name (fun x -> VInt x) in
-  let binarithops = Int32.(
+  let binarithops = Mint.(
     [ ("`+`", add); ("`-`", sub); ("`*`", mul); ("`/`", div) ]
   ) in
   (* Define arithmetic comparison operators. *)
@@ -273,7 +273,7 @@ let primitives =
   in
   let print_int =
     VPrimitive  ("print_int", fun m -> function
-      | [ VInt x ] -> print (Int32.to_string x)
+      | [ VInt x ] -> print (Mint.to_string x)
       | _ -> assert false (* By typing. *)
     )
   in

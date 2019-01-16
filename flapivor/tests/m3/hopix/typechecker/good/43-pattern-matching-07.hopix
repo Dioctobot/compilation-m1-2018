@@ -1,0 +1,5 @@
+type Or<a, b> = Left(a) | Right(b)
+
+val x : Int = case Left<Int, Int>(22) {
+  Left<Int, Int>(x : Int) | Right<Int, Int>(x : Int) => x
+}

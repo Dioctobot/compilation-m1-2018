@@ -1,0 +1,3 @@
+def fst : forall a, b. a * b -> a (x, y) = x
+
+val main : Int = fst<Int, Char> (37, 'a')

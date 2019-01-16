@@ -1,0 +1,2 @@
+x : Ref<Int>
+main : Int

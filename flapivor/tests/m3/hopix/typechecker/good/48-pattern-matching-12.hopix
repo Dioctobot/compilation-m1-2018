@@ -1,0 +1,1 @@
+val x : Int = case 3 { 0 => 1 | (_ : Int) => 0 }

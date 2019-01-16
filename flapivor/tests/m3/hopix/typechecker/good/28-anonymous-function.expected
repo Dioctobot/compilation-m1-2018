@@ -1,0 +1,2 @@
+succ : Int -> Int
+main : Int

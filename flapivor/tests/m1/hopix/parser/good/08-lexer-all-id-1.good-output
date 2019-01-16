@@ -1,3 +1,0 @@
-def `fine` (x, y) = 0 
-val `fine = 0
-val fine = 0

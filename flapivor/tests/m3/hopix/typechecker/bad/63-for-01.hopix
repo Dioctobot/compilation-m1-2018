@@ -1,0 +1,6 @@
+val x : Ref<Int> = ref 0
+
+val main : String =
+    for i = 0 to 10 {
+      x := !x + 1
+    }

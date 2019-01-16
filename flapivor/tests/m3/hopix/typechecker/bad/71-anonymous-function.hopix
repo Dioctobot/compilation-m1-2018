@@ -1,0 +1,1 @@
+val id : Int -> Int = (fun (x) => "Bar" : Int -> Int)

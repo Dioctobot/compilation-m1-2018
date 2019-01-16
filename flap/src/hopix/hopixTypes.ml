@@ -14,32 +14,63 @@ type aty =
   | ATyCon   of type_constructor * aty list
   | ATyArrow of aty list * aty
 
+let make_fresh_name_generator () =
+  let r = ref (-1) in
+  let mangle () =
+    if !r > 26 then
+      "a" ^ string_of_int !r
+    else
+      String.make 1 (Char.(chr (code 'a' + !r)))
+  in
+  fun () ->
+  incr r; TId (mangle ())
+
+let fresh = make_fresh_name_generator ()
+
 let rec aty_of_ty = function
   | TyVar x            -> ATyVar x
   | TyCon (t, ts)      -> ATyCon (t, List.map aty_of_ty' ts)
   | TyArrow (ins, out) -> ATyArrow (List.map aty_of_ty' ins, aty_of_ty' out)
+
 and aty_of_ty' x = aty_of_ty (Position.value x)
 
-let rec print_aty = function
-  | ATyVar (TId x) ->
-    x
-  | ATyArrow (ins, out) ->
-    String.concat " * " (List.map print_aty' ins)
-    ^ " -> " ^ print_aty' out
-  | ATyCon (TCon x, []) ->
-    x
-  | ATyCon (TCon x, ts) ->
-    x ^ "(" ^ String.concat ", " (List.map print_aty' ts) ^ ")"
-and print_aty' = function
-  | (ATyArrow (_, _)) as t -> "(" ^ print_aty t ^ ")"
-  | x -> print_aty x
+let pretty_print_aty bound_vars aty =
+  let fresh = make_fresh_name_generator () in
+  let r = ref [] in
+  let print_var =
+    fun x ->
+    (if not (List.mem x bound_vars) then
+       x
+     else try
+         List.assoc x !r
+       with Not_found ->
+         let y = fresh () in
+         r := (x, y) :: !r;
+         y
+    ) |> function (TId x) -> x
+  in
+  let rec print_aty = function
+    | ATyVar x ->
+       print_var x
+    | ATyArrow (ins, out) ->
+       let ins = String.concat " * " (List.map print_aty' ins) in
+       let out = print_aty' out in
+       ins ^ " -> " ^ out
+    | ATyCon (TCon x, []) ->
+       x
+    | ATyCon (TCon x, ts) ->
+       x ^ "<" ^ String.concat ", " (List.map print_aty' ts) ^ ">"
+  and print_aty' = function
+    | (ATyArrow (_, _)) as t -> "(" ^ print_aty t ^ ")"
+    | x -> print_aty x
+  in
+  let s = print_aty aty in
+  (s, !r)
+
+let print_aty aty = fst (pretty_print_aty [] aty)
 
 let tvar x =
   ATyVar (TId x)
-
-let fresh =
-  let r = ref 0 in
-  fun () -> incr r; TId ("'a" ^ string_of_int !r)
 
 let ( --> ) tys ty =
   ATyArrow (tys, ty)
@@ -51,13 +82,13 @@ let output_type_of_function = function
   | _ -> raise NotAFunction
 
 let constant x = TCon x, ATyCon (TCon x, [])
-let tcunit,   hunit    = constant "unit"
-let tcbool,   hbool    = constant "bool"
-let tcint,    hint     = constant "int"
-let tcstring, hstring  = constant "string"
-let tcchar,   hchar    = constant "char"
+let tcunit,   hunit    = constant "Unit"
+let tcbool,   hbool    = constant "Bool"
+let tcint,    hint     = constant "Int"
+let tcstring, hstring  = constant "String"
+let tcchar,   hchar    = constant "Char"
 
-let tcref = TCon "cell"
+let tcref = TCon "Ref"
 let href ty = ATyCon (tcref, [ty])
 
 exception NotAReference
@@ -123,8 +154,6 @@ let refresh_type_scheme (Scheme (ts, ty)) =
   let ts' = List.map (fun _ -> fresh ()) ts in
   let phi = List.(map (fun (x, y) -> (x, ATyVar y)) (combine ts ts')) in
   Scheme (ts', substitute phi ty)
-
-exception UnificationFailed of aty * aty
 
 type typing_environment = {
   values            : (identifier * aty_scheme) list;
@@ -248,7 +277,7 @@ let initial_typing_environment () =
   List.fold_right (fun ti env -> bind_abstract_type ti [] env) [
     tcunit; tcstring; tcchar; tcint; tcbool
   ] |>
-  bind_abstract_type (TCon "ref") [TId "'a"]
+  bind_abstract_type (TCon "Ref") [TId "'a"]
   |> List.fold_right (fun (x, s) env ->
          bind_value (Id x) (mk_type_scheme s) env
   ) [
@@ -271,8 +300,19 @@ let initial_typing_environment () =
     "`/`",          [hint; hint] --> hint;
   ]
 
-let print_binding (Id x, Scheme (_, s)) =
-  x ^ " : " ^ print_aty s
+let print_type_scheme (Scheme (ts, aty)) =
+  let sty, subst = pretty_print_aty ts aty in
+  let ts = List.(map (fun x -> assoc x subst) ts) in
+  let forall =
+    let type_variable (TId s) = s in
+    match ts with
+    | [] -> ""
+    | ts -> "forall " ^ String.concat ", " (List.map type_variable ts) ^ ". "
+  in
+  forall ^ sty
+
+let print_binding (Id x, s) =
+  x ^ " : " ^ print_type_scheme s
 
 let print_typing_environment tenv =
   let excluded = initial_typing_environment () in

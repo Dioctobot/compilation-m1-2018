@@ -1,0 +1,11 @@
+type P<a, b> = { x : a; y : b }
+
+def get_x : forall a, b. P<a, b> -> a (p) = p.x
+
+def get_y : forall a, b. P<a, b> -> b (p) = p.y
+
+val p : P<Int, String> = { x = 37; y = "Rory Williams" }<Int, String>
+
+val x : Int = get_x<Int, String>(p)
+
+val y : String = get_y<Int, String>(p)

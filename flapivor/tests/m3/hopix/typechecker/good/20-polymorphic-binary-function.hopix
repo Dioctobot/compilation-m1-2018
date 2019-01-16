@@ -1,0 +1,16 @@
+def apply : forall a, b. (a -> b) * a -> b (f, x) = f (x)
+
+def curry : forall a, b, c. (a -> b -> c) -> (a * b -> c) (f) =
+    def fc : a * b -> c (x, y) = (f (x)) (y);
+    fc
+
+def uncurry : forall a, b, c. (a * b -> c) -> (a -> b -> c) (f) =
+    def fu : a -> b -> c (x) =
+      (def g : b -> c (y) = f (x, y);
+      g);
+    fu
+
+def id_int : Int -> Int (x) = x
+
+val main : Int =
+   (curry<Int -> Int, Int, Int> (uncurry<Int -> Int, Int, Int> (apply<Int, Int>))) (id_int, 37)

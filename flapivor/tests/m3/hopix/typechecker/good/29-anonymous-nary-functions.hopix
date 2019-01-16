@@ -1,0 +1,22 @@
+val apply : (Int -> Int) * Int -> Int =
+    (fun (f, x) => f (x) : (Int -> Int) * Int -> Int)
+
+def succ : Int -> Int (x) = x + 1
+
+val apply2 : (Int * Int -> Int) * Int * Int -> Int =
+    (fun (f, x, y) => f (x, y) : (Int * Int -> Int) * Int * Int -> Int)
+
+def addmul : Int * Int -> Int (x, y) = x * y + y * x
+
+val apply3 : (Int * Int * Int -> Int) * Int * Int * Int -> Int =
+    (fun (f, x, y, z) => f (x, y, z) : (Int * Int * Int -> Int) * Int * Int * Int -> Int)
+
+def conj : Int * Int * Int -> Int (x, y, z) = x * y * z
+
+val main : Int =
+    apply (succ, -1) +
+    apply2 (addmul, 3, 7) +
+    apply3 (conj, 0, 1, 2)
+
+
+

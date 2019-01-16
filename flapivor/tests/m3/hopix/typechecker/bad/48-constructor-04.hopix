@@ -1,0 +1,3 @@
+type T<a> = A (a)
+
+val main : T<Int> = A<> (0)

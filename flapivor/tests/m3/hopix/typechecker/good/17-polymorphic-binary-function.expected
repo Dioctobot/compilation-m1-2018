@@ -1,0 +1,2 @@
+fst : forall a, b. a * b -> a
+main : Int

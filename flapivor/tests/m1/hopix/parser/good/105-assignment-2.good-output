@@ -1,1 +1,0 @@
-val main = (ref 0) := 1

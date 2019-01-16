@@ -1,0 +1,5 @@
+type T = N | `(T, T)
+
+val leaf : T = N<>
+
+val a_tree : T = `<> (`<> (`<> (leaf, leaf), `<>(leaf, `<>(leaf, leaf))), leaf)

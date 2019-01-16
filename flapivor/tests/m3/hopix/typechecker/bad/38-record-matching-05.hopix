@@ -1,0 +1,3 @@
+type T = { x : Int }
+
+val main : Int = case { x = 0 }<> { { x = (_ : Int); y = (z : Int) }<> => z }

@@ -1,1 +1,0 @@
-val name = {fst = "My"; snd = "Precious"} < String, String >

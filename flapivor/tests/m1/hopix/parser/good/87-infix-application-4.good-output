@@ -1,2 +1,0 @@
-val cycle_of_life =
-  `eats` (`eats` (`eats` (lion, giraffe), grass), lion)

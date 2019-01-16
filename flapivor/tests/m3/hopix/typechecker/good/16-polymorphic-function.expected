@@ -1,0 +1,2 @@
+id : forall a. a -> a
+main : Int

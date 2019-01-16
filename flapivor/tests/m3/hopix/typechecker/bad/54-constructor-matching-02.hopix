@@ -1,0 +1,5 @@
+type T = A
+
+type U = B
+
+val main : Int = case A<> { B<> => 0 }

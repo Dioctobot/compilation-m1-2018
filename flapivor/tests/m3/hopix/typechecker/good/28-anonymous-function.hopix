@@ -1,0 +1,3 @@
+val succ : Int -> Int = (fun (x) => x + 1 : Int -> Int)
+
+val main : Int = succ (0)

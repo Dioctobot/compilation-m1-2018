@@ -1,0 +1,3 @@
+def id : forall a. a -> a (x) = x
+
+val main : Int = id<Int> (37)

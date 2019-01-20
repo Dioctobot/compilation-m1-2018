@@ -11,6 +11,27 @@ let type_error = HopixTypes.type_error
 
 let located f x = f (Position.position x) (Position.value x)
 
+let identifier_of_expression expr =
+  Id HopixPrettyPrinter.(to_string expression (Position.value expr))
+
+let rec string_pattern pat =
+  HopixPrettyPrinter.(to_string pattern pat)
+
+and string_pattern' pat =
+  HopixPrettyPrinter.(to_string pattern (Position.value pat))
+
+let rec string_of_identifier id =
+  HopixPrettyPrinter.(to_string identifier id)
+
+and string_of_identifier' id =
+  HopixPrettyPrinter.(to_string identifier (Position.value id))
+
+let rec string_of_expression expr =
+  HopixPrettyPrinter.(to_string expression expr)
+
+and string_of_expression' expr =
+  HopixPrettyPrinter.(to_string expression (Position.value expr))
+
 let binop = ref
   (List.map (fun (x, s) -> Id x, s)
 [
@@ -33,6 +54,20 @@ let binop = ref
   "`/`",          [hint; hint] --> hint;
 ])
 
+
+let parameters = ref []
+
+let replace_params x aty =
+  parameters := List.map (fun (id, ty) -> if id = x then (x, aty) else (id, ty)) !parameters
+
+let bind_parameters x aty =
+  if List.mem_assoc x !parameters then
+    replace_params x aty
+  else
+    parameters := !parameters @ [(x,aty)]
+
+let mem_parameter x = List.mem_assoc x !parameters
+
 let remove_binop x = 
   if List.mem_assoc x !binop then
     binop := List.remove_assoc x !binop
@@ -51,92 +86,70 @@ let rec aty_of_literal = function
 and aty_of_literal' lit = 
   aty_of_literal (Position.value lit)
 
-let identifier_of_expression expr =
-  Id HopixPrettyPrinter.(to_string expression (Position.value expr))
-
-let string_of_identifier id =
-  HopixPrettyPrinter.(to_string identifier id)
-
-let string_of_expression expr =
-  HopixPrettyPrinter.(to_string expression (Position.value expr))
-
 let rec check_definition_is_fully_annotated position = function
-  | DefineValue vd -> 
-    begin match check_value_definition_is_fully_annotated position vd with
-      | _ -> ()
-    end
+  | DefineValue vd -> check_value_definition_is_fully_annotated position vd
   | _ -> ()
 
-and check_expression_is_fully_annotated' expr =
-  located check_expression_is_fully_annotated expr
+and check_expression_is_fully_annotated' annotated expr =
+  located (check_expression_is_fully_annotated annotated) expr
 
-and check_expression_is_fully_annotated pos = function
-  | Literal lit -> aty_of_literal' lit
-  | Variable (id, olty) -> check_variable_is_fully_annotated id olty
-  | Apply (expr, lexpr) ->
-    let type_app = check_expression_is_fully_annotated' expr in
-    
-    type_app
-  | TypeAnnotation (expr, ty) ->
-    let expected = aty_of_ty' ty in
-    let checked = check_expression_is_fully_annotated' expr in
-    if expected <> checked then
-      (type_error expr.position
-      ((string_of_expression expr) ^ 
-      " has type " ^ (print_aty checked) ^ 
-      " but an expression was expected of type " ^ (print_aty expected));
-      assert false)
-    else
-      checked
-  | _ -> type_error pos "Not exhaustive pattern"
+and check annotated expr = check_expression_is_fully_annotated' annotated expr
 
-and check_variable_is_fully_annotated id optional_types =
-  begin match optional_types with
+and check_expression_is_fully_annotated annotated pos expression = match expression with
+  | Literal _ | Variable _ -> ()
+  | Tagged (_, _, lexpr) -> List.iter (check annotated) lexpr
+  | Record (llexpr, _) -> List.iter (fun (_, expr) -> check annotated expr) llexpr
+  | Sequence lexpr -> List.iter (check annotated) lexpr
+  | Define (vd, expr) -> 
+    check_value_definition_is_fully_annotated pos vd;
+    check annotated expr
+  | Fun fd -> check_function_is_fully_annotated annotated fd
+  | Field (expr, _) | Ref expr | Read expr -> check annotated expr;
+  | Case (expr, lbr) -> 
+    check annotated expr;
+    List.iter (fun br -> located (check_branch_is_fully_annotated annotated) br) lbr
+  | Apply (expr, lexpr) -> 
+    List.iter (check annotated) lexpr;
+    check annotated expr
+  | Assign (e1, e2) | While (e1, e2) -> check annotated e1; check annotated e2
+  | IfThenElse (e1, e2, oe3) -> check_tertiary annotated e1 e2 oe3
+  | For (_, e1, e2, oe3, e4) -> 
+    check_tertiary annotated e1 e2 oe3;
+    check annotated e4
+  | TypeAnnotation (expr, _) -> check true expr
+
+and check_tertiary annotated e1 e2 oe3 =
+  check annotated e1;
+  check annotated e2;
+  begin match oe3 with
     | None -> ()
-    | Some lty -> List.iter (fun t ->
-    Printf.printf "id = %s ty = %s\n"
-    (string_of_identifier (Position.value id))
-    HopixPrettyPrinter.(to_string ty t)
-  ) (List.map Position.value lty)
-  end;
-  hunit
+    | Some e3 -> check annotated e3
+  end
+
+and check_branch_is_fully_annotated annotated pos = function
+  | Branch (pat, expr) ->
+    located check_pattern_is_fully_annotated pat;
+    check annotated expr
+
+and check_pattern_is_fully_annotated pos = function
+  | PVariable _ | PWildcard -> ()
+  | PTypeAnnotation (pat, _) -> located check_pattern_is_fully_annotated pat
+  | PLiteral _ -> ()
+  | PRecord (llpat, _) -> 
+    List.iter (fun (_, pat) -> located check_pattern_is_fully_annotated pat) llpat
+  | PTaggedValue (_, _, lpat) | POr lpat | PAnd lpat -> 
+    List.iter (located check_pattern_is_fully_annotated) lpat
 
 and check_value_definition_is_fully_annotated position = function
-  | SimpleValue (id, tscheme, expr) ->
-    check_simple_value_is_fully_annotated id tscheme expr
-  | RecFunctions lfd ->
-      List.fold_left (fun () (id, tscheme, fd) ->
-        check_recursive_functions_is_fully_annotated id tscheme fd
-    ) () lfd
+  | SimpleValue (_, _, expr) -> check_expression_is_fully_annotated' false expr
+  | RecFunctions lfd -> List.iter (fun (_, _, fd) -> check_function_is_fully_annotated true fd) lfd
 
-and [@warning "-21"] check_simple_value_is_fully_annotated id optional_type_scheme expr =
-  (*let (x, pos) = Position.value id, Position.position id in*)
-  begin match optional_type_scheme with
-    | None -> ()
-    | Some type_scheme -> 
-      let ForallTy (ltvar, ty) = Position.value type_scheme in
-      let aty = aty_of_ty' ty in
-      let aty_sheme = Scheme (List.map Position.value ltvar, aty) in
-      check_expression_is_fully_annotated' expr;
-    ()
-  end
-
-and [@warning "-21"] check_recursive_functions_is_fully_annotated id optional_type_scheme fd = 
-  (*let (x, pos) = Position.value id, Position.position id in*)
-  begin match optional_type_scheme with
-    | None -> check_function_is_fully_annotated fd; ()
-    | Some type_scheme -> 
-      let ForallTy (ltvar, ty) = Position.value type_scheme in
-      let aty = aty_of_ty' ty in
-      let aty_sheme = Scheme (List.map Position.value ltvar, aty) in
-      check_function_is_fully_annotated fd; ()
-  end
-
-and check_function_is_fully_annotated = function
-  | FunctionDefinition (lid, expr) ->
-
-  check_expression_is_fully_annotated' expr
-
+and check_function_is_fully_annotated annotated = function
+  | FunctionDefinition (_, expr) -> let pos = Position.position expr in
+    if annotated then
+      check_expression_is_fully_annotated' annotated expr
+    else
+      type_error pos ("Missing type annotation of " ^ (string_of_expression' expr)) 
 
 (** [check_program_is_fully_annotated ast] performs a syntactic check
  that the programmer wrote sufficient type annotations for [typecheck]
@@ -147,23 +160,17 @@ let check_program_is_fully_annotated ast =
 (** [typecheck tenv ast] checks that [ast] is a well-formed program
     under the typing environment [tenv]. *)
 let rec typecheck tenv ast : typing_environment =
-  (*
-  check_program_is_fully_annotated ast;*)
+  check_program_is_fully_annotated ast;
   let env = typecheck_program tenv ast in
-  (*
-  Printf.printf "%s\n" (print_typing_environment env);*)
+
+  (* *)
+  Printf.printf "%s\n" (print_typing_environment env);
 
   env
 
-and typecheck_program tenv ast = 
-  List.fold_left (fun env def ->
-    (*
-    Printf.printf "%s\n"
-    HopixPrettyPrinter.(to_string definition (Position.value def));
-    Printf.printf "%s\n----------------------------------------------------\n" 
-    (print_typing_environment env);*)
-    typecheck_definition env (Position.value def)
-  ) tenv ast
+and typecheck_program tenv = function
+  | [] -> tenv
+  | hd::tl -> typecheck_program (typecheck_definition tenv (Position.value hd)) tl
 
 and typecheck_definition tenv = function
   | DefineType (tcons, ltvar, td) ->
@@ -188,54 +195,150 @@ and typecheck_extern_definition x scheme env = bind_value x scheme env
 and typecheck_value_definition env = function
   | SimpleValue (id, tscheme, expr) ->
     typecheck_simple_value id tscheme expr env
-  | RecFunctions lfd -> 
-    List.fold_left (fun new_env (id, tscheme, fd) ->
-      typecheck_recfunctions id tscheme fd new_env
-    ) env lfd
-    
+  | RecFunctions lfd ->
+    let new_env = List.fold_left (fun local_env (id, tscheme, fd) ->
+      parameters := [];
+      typecheck_recfunctions id tscheme fd local_env
+    ) env lfd in
+
+    List.fold_left (fun local_env (id, _, fd) ->
+      parameters := [];
+      check_recfunctions id fd local_env
+    ) new_env lfd
+
 and typecheck_simple_value id scheme expr env =
-  let x = Position.value id in
+  let (x, pos) = Position.value id, Position.position id in
+
   begin match scheme with
-    | None -> env
+    | None -> 
+      let aty_expr = typecheck_expression' None env expr in
+      let aty_scheme_expr = mk_type_scheme aty_expr in
+      bind_value x aty_scheme_expr (remove_type_scheme_of_value x env)
     | Some scheme ->
       let (new_env, aty_scheme) = located (typecheck_type_scheme env) scheme in
+      let aty_expr = typecheck_expression' None new_env expr in
+      let Scheme (_, aty) = aty_scheme in
+      check_expected_type_expr None expr aty aty_expr;
       bind_value x aty_scheme (remove_type_scheme_of_value x new_env)
   end
-
+  
+  
 and typecheck_recfunctions id scheme fd env =
-  let x = Position.value id in
+  let (x, pos) = Position.value id, Position.position id in
+
   begin match scheme with
-    | None -> env
+    | None -> 
+      let aty_fun = typecheck_function [] env fd in
+      let aty_scheme_fun = mk_type_scheme aty_fun in
+      bind_value x aty_scheme_fun (remove_type_scheme_of_value x env)
     | Some scheme ->
-      (*
-      Printf.printf "scheme = %s\n"
-      HopixPrettyPrinter.(to_string type_scheme (Position.value scheme));*)
       let (new_env, aty_scheme) = located (typecheck_type_scheme env) scheme in
       bind_value x aty_scheme (remove_type_scheme_of_value x new_env)
   end
 
-and typecheck_expression' env e =
-  located (typecheck_expression env) e
+and check_recfunctions id fd env =
+  let (x, pos) = Position.value id, Position.position id in
+  let Scheme (_, aty) = lookup_type_scheme_of_value pos x env in
 
-and typecheck_expression env pos = function
+  let aty_fun = match aty with
+    | ATyArrow(tys, _) -> typecheck_function tys env fd
+    | _ -> type_error pos "Expected ATyArrow type for recfunctions"
+  in
+  check_expected_type_function x pos aty aty_fun;
+  env
+
+and typecheck_function assigned env = function
+  | FunctionDefinition (lid, expr) 
+  when List.(length assigned > 0 && (length assigned = length lid)) -> 
+    let lx = List.map Position.value lid in
+    List.iter2 (fun x aty -> 
+      bind_parameters x aty
+    ) lx assigned;
+    let aty = typecheck_expression' None env expr in
+    let tys = List.map (fun (id, ty) -> ty) !parameters in
+    begin match tys with
+      | [] -> aty
+      | _ -> ATyArrow (tys, aty)
+    end
+  | FunctionDefinition (lid, expr) -> 
+    let lx = List.map Position.value lid in
+    List.iter (fun x -> 
+      let tv = fresh () in
+      let tvar = ATyVar tv in
+      bind_parameters x tvar
+    ) lx;
+    let aty = typecheck_expression' None env expr in
+    let tys = List.map (fun (id, ty) -> ty) !parameters in
+    begin match tys with
+      | [] -> aty
+      | _ -> ATyArrow (tys, aty)
+    end
+
+and typecheck_expression' assigned env e =
+  located (typecheck_expression assigned env) e
+  
+and typecheck_expression assigned env pos expression = match expression with
+  | Literal lit -> aty_of_literal' lit
+  | Variable (var_id, olty) ->
+    let (x, pos) = Position.value var_id, Position.position var_id in
+    let ty =
+      try
+        let aty_param = List.assoc x !parameters in
+        (match assigned with
+          | Some assign when aty_param <> assign -> check_expected_pattern x pos aty_param assign;
+            if is_type_variable aty_param && is_type_variable assign then
+              aty_param
+            else
+              (replace_params x assign;
+              assign)
+          | _ -> aty_param)
+      with Not_found -> 
+        let Scheme (_, aty) = lookup_type_scheme_of_value pos x env in
+        (match assigned with
+          | Some assign -> 
+          
+          check_expected_type_var x pos assign aty
+          | _ -> ());
+        aty
+    in
+    begin match olty with
+      | None -> ty
+      | Some lty -> 
+      Printf.printf "ty = %s\n" (print_aty ty);
+      Printf.printf "var ty = %s\n" (print_aty (List.hd (List.map aty_of_ty' lty)));
+      equi_aty x pos ty (List.hd (List.map aty_of_ty' lty)); ty
+    end
+  | Define (vd, expr) ->
+    let new_env = typecheck_value_definition env vd in
+    let aty = typecheck_expression' assigned new_env expr in
+    aty
+  | Apply (expr, lexpr) -> typecheck_apply expression pos expr lexpr env
+  | TypeAnnotation (expr, ty) ->
+    let aty = internalize_ty env ty in
+    check_expected_type_expr None expr aty (typecheck_expression' None env expr);
+    aty
   | _ -> type_error pos "typecheck_expression not exhaustive"
 
+and typecheck_apply parent_expr pos app lexpr env =
+  let aty_apply = typecheck_expression' None env app in
 
-(*and typecheck_type_scheme env pos = function
-  | ForallTy (ltvar, ty) -> 
-    let ts =
-      let rec aux rslt = function
-        | [] -> List.rev rslt
-        | hd::tl ->
-          if List.mem hd env.type_variables then
-            aux rslt tl
-          else
-            aux (hd::rslt) tl
-      in 
-      aux [] (List.map Position.value ltvar)
-    in
-    let e = bind_type_variables pos env (List.map Position.value ltvar) in
-    env, mk_type_scheme (internalize_ty env ty)*)
+  begin match aty_apply with
+    | ATyArrow (tys, ty) when List.(length tys = length lexpr) ->
+      List.iter2 (fun expected expr ->
+        let aty_expr = typecheck_expression' (Some expected) env expr in
+
+        check_expected_type_expr (Some parent_expr) expr expected aty_expr;
+        if aty_expr <> expected && is_type_variable expected && is_type_variable aty_expr then
+          type_error (Position.position expr) 
+          ((string_of_expression parent_expr) ^ "\n" ^
+          (string_of_expression' expr) ^ " has type " ^ (print_aty aty_expr) ^
+          " but an expression was expected of type " ^ (print_aty expected))
+
+      ) tys lexpr;
+      ty
+    | ATyArrow (_, _) -> type_error pos "Syntax error"
+    | _ -> type_error pos "TODO : Apply not exhaustive"
+  end
 
 and typecheck_type_scheme env pos = function
   | ForallTy (ltvar, ty) -> 
@@ -247,5 +350,88 @@ and typecheck_type_scheme env pos = function
 
     e, Scheme (tys, internalize_ty e ty)
 
+and check_expected_type_expr parent_expr expr expected_aty aty = 
+  let pos = Position.position expr in
+  if expected_aty <> aty then
+    if is_type_variable expected_aty then
+      ()
+    else
+      if is_type_variable aty then
+        ()
+      else
+        type_error pos 
+        ((if_parent_expr parent_expr) ^ "\n" ^
+        (string_of_expression' expr) ^ " has type " ^ (print_aty aty) ^
+        " but an expression was expected of type " ^ (print_aty expected_aty))
+  else
+    ()
+
+and check_expected_type_var x pos expected_aty aty = 
+  if expected_aty <> aty then
+    if is_type_variable expected_aty then
+      ()
+    else
+      if is_type_variable aty then
+        ()
+      else
+        type_error pos 
+        ((string_of_identifier x) ^ " has type " ^ (print_aty aty) ^
+        " but an expression was expected of type " ^ (print_aty expected_aty))
+  else
+    ()
+
+and check_expected_pattern x pos expected_aty aty = 
+  if expected_aty <> aty then
+    if is_type_variable expected_aty then
+      ()
+    else
+      if is_type_variable aty then
+        ()
+      else
+        type_error pos 
+        ((string_of_identifier x) ^ " pattern matches values of type " ^ (print_aty aty) ^
+        " but a pattern was expected which matches values of type " ^ (print_aty expected_aty))
+  else
+    ()
+
+and check_expected_type_function x pos expected_aty aty = 
+  if expected_aty <> aty then
+    if is_type_variable expected_aty then
+      ()
+    else
+      if is_type_variable aty then
+        ()
+      else
+        type_error pos 
+        ((string_of_identifier x) ^ " has type " ^ (print_aty aty) ^
+        " but an expression was expected of type " ^ (print_aty expected_aty))
+  else
+    ()
+
+and if_parent_expr parent_expr = 
+  begin match parent_expr with
+    | None -> ""
+    | Some expr -> (string_of_expression expr) ^ "\n"
+  end
+
+and is_type_variable = function
+  | ATyVar _ -> true
+  | ATyArrow (laty, aty) ->  List.for_all is_type_variable laty && is_type_variable aty
+  | _ -> false
+
+and equi_aty x pos aty1 laty = 
+  let equi = match aty1, aty2 with
+    | ATyVar tv1,  ATyVar tv2 -> tv1 = tv2
+    | ATyCon (tcons1, laty1),  ATyCon (tcons2, laty2) -> tcons1 = tcons2 && List.for_all2 (=) laty1 laty2
+    | ATyArrow(laty1, ty1), ATyArrow(laty2, ty2) -> List.for_all2 (=) laty1 laty2 && ty1 = ty2
+    | _, _ -> false
+  in
+
+  if equi then
+    ()
+  else
+    type_error pos 
+    ((string_of_identifier x) ^ " has type " ^ (print_aty aty1) ^
+    " but an expression was expected of type " ^ (print_aty aty2))
 
 let print_typing_environment = HopixTypes.print_typing_environment

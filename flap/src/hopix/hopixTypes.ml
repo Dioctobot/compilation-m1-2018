@@ -171,7 +171,6 @@ and type_information =
   | Sum of constructor list
   | Record of label list
 
-
 exception UnboundTypeConstructor of Position.position * type_constructor
 
 
@@ -233,6 +232,9 @@ let bind_type_variables pos env ts =
 let is_type_variable_defined pos env tv =
   List.mem tv env.type_variables
 
+let is_empty_type_variables env = 
+  List.(length env.type_variables) = 0
+
 let bind_value x scheme env = {
   env with values = (x, scheme) :: env.values
 }
@@ -247,13 +249,7 @@ let lookup_type_scheme_of_value pos x env =
 
 let remove_type_scheme_of_value x env =
   if List.mem_assoc x env.values then
-    {
-      values = List.remove_assoc x env.values;
-      constructors = env.constructors;
-      type_constructors = env.type_constructors;
-      destructors = env.destructors;
-      type_variables = env.type_variables
-    }
+    { env with values = List.remove_assoc x env.values }
   else
     env
 
@@ -318,12 +314,8 @@ let lookup_type_scheme_of_record x env =
     raise UnboundRecord
 
 let clean_type_variables env = { 
-  values = env.values;
-  constructors = env.constructors;
-  type_constructors = env.type_constructors;
-  destructors = env.destructors;
-  type_variables = []
- }
+  env with type_variables = [] 
+}
 
 let initial_typing_environment () =
   empty_typing_environment |>
@@ -373,4 +365,4 @@ let print_typing_environment tenv =
     not (List.mem_assoc x excluded.values)
   ) (List.rev tenv.values)
   in
-  String.concat "\n" (List.map print_binding values)
+  String.concat "\n" (List.map print_binding values) 

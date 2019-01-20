@@ -1,0 +1,117 @@
+Instruction Set Architecture (ISA)
+  Couche d'abstraction vis-à-vis d'une famille de processus.
+
+Micro-Architecture = technique d'implémentation d'une ISA.
+
+Deux style d'ISA : 
+  - RISC (Reduced Instruction Set Computer)
+  - CISC (Complex Instruction Set Computer)
+
+RISC :
+  * Petit nombre d'instruction orthogonales
+  * Disctinction arithmétique et mémoire
+  * ...
+
+CISC : tout ce uqi n'est pas RISC.
+
+x86-64 est CISC.
+
+Notre étude : x86-64.
+
+Avantage : Répandu, rétrocompatible, performant.
+Inconvénients : Complexe, baroque.
+
+Etat du processeur :
+  * registres
+  * mémoire, dont la pile
+(On suit la syntaxe de l'assembleur GNU)
+
+Registres entiers 64 bits :
+%rax, %rdx, %rcx, %rdx, %rbp, %rsp, %rdi, %rsi, %r8...%r15
+
+little endian - petit boutien
+
+63               31        15               0
+%rax             %eax[     %ax[%ah;%al]     ]
+
+%rip : compteur de programme
+%rflags : champs de bits; information sur les résultats arythémtique
+
+{
+ Offset (base, index, scale)
+ Memoire [OFFSET + BASE + INDEX + SCALE]
+  ou
+  Memoire [OFFSET(base, index, scale) + BASE + INDEX + SCALE]
+}
+
+OFFSET(BASE, INDEX, SCALE)
+immédiat(registre, registre optionnel, nombre {1,2,4,8} optionnel)
+
+Memoire[OFFSET + BASE + INDEX + SCALE]
+
+Transfere Memoire
+mov SRC, DST
+movq
+movl
+movw
+mob
+
+Suffix   Taille
+b         8
+w         16
+l         32
+q         64
+
+movq $42, %rax        # %rax <- 42
+movq %rdx, -8(%rsp)  # Mem[%rsp - 8] <- %rbx
+
+Pointeur de pile : %rsp
+
+Pile en x86-64 //System V 
+%rsp
+Croit vers la base
+Aligné sur 8 octets
+%rbp : pointeur de cadre (frame pointeur)
+
+push SRC
+
+pushq %rax
+          |--| pushq %rax |----|
+%rsp ->   |--|    =>      |%rax|
+                  <=
+                popq %rax
+
+pusq %rax 
+<==> 
+subq $8, %rsb
+movq %rax, (%rsp)
+<==>
+movq %rax, -8(%rsp)
+subq $8, %rsp
+
+RFLAGS :
+Bit                    Signification                    Mnemonique
+0                       retenue                           CF
+1                       parité                            PF
+6                       zéro                              ZF
+7                       signe(1 = négatif)                SF
+11                      overflow                          OF
+
+comq SRC1, SRC2
+Calcul SRC2 - SRC1, met à jour RFLAGS, jette le résultat
+cpm %rbx, %rax
+je foo
+
+jmp *%rax 
+
+Chaque call il faut que %rsp+8 soit aligné sur 16 octets.
+
+pushq %rbp
+mov %rsp, %rdp
+qubq $16, %rsp
+...
+movq %rax, -8(%rbp)
+...
+addq $16, %rsp
+popq %rbp
+ret

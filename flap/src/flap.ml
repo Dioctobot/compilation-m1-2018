@@ -28,7 +28,11 @@ and initialize_options () =
   if not (!Sys.interactive) then CommandLineOptions.parse ()
 
 and initialize_languages () =
-  HopixInitialization.initialize ()
+  HopixInitialization.initialize ();
+  RetrolixInitialization.initialize ();
+  X86_64_Initialization.initialize ();
+  ElfInitialization.initialize ();
+  ()
 
 (** Infer source language from the extension of the input file or from the
     related command line option. *)
@@ -195,6 +199,7 @@ let batch_compilation () =
     let cout = open_out output_filename in
     output_string cout (Target.print_ast cast);
     close_out cout;
+    if Target.executable_format then ExtStd.Unix.add_exec_bits output_filename;
   );
   if Options.get_running_mode () then Compiler.Target.(
     ignore (

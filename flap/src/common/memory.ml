@@ -17,7 +17,7 @@ let create size = {
 exception OutOfMemory
 
 let allocate mem size init =
-  let size = Int32.to_int size in
+  let size = Mint.to_int size in
   if mem.bound >= Array.length mem.data then
     raise OutOfMemory
   else (
@@ -35,13 +35,13 @@ let dereference mem location =
     | Some b -> b
 
 let size block =
-  Int32.of_int (Array.length block)
+  Mint.of_int (Array.length block)
 
 let read block i =
-  block.(Int32.to_int i)
+  block.(Mint.to_int i)
 
 let write block i x =
-  block.(Int32.to_int i) <- x
+  block.(Mint.to_int i) <- x
 
 let array_of_block block =
   block

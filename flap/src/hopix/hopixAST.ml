@@ -119,7 +119,7 @@ and type_scheme =
   ForallTy of type_variable located list * ty located
 
 and literal =
-  | LInt    of int32
+  | LInt    of Mint.t
   | LString of string
   | LChar   of char
 

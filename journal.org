@@ -602,7 +602,7 @@ def fact ()
 
    - Avantages : répandu, rétrocompatible, performant
    - Inconvénients : complexe et baroque
-   - Références : notes de Jean-Christophe Filliâtre, ISA réduit, spécifications d'Intel
+   - Références : notes d'Andrew Tolmach, ISA réduit, spécifications d'Intel
 *** État du processeur
     - registres:
       %rax, %rbx, %rcx, %rdx, %rbp, %rsp, %rdi, %rsi, %r8, %r9, %r10, %r11, ..., %r15
@@ -655,10 +655,241 @@ def fact ()
      - je foo
        -> sauter à "foo" si ZF est allumé
 
-     - j foo
+     - jmp foo
        -> saut inconditionnel à foo
 
-     - j *%rax
+     - jmp *%rax
        -> saut à l'adresse de code contenu par rax
 
      - Il faut que $rsp+8 soit aligné sur 16 octets
+* Cours 10 "Compilation de Retrolix vers x86-64" <2019-01-21>
+
+  Le but de la séance d'aujourd'hui est de discuter le jalon 4 : la traduction
+  de Retrolix vers x86-64.
+
+** Retour sur la programmation x86-64
+   On a étudié des rudiments de programmation x86-64 lors de la dernière séance,
+   et lors du TD. Essayons de mettre en pratique aujourd'hui.
+*** Factorielle itérative
+    On écrit le code de factorielle dans un style itératif, avec une boucle. Le
+    code C, pour se fixer les idées :
+
+    int64_t fact(int64_t n) {
+      int64_t res = 1;
+      while (n > 1) {
+        res *= n--;
+      }
+      return res;
+    }
+**** Solution
+     fact:   movq $1, %rax
+     fact0:  cmp $1, %rdi
+             jle fact1
+             imulq %rdi, %rax
+             dec %rdi
+             jmp fact0
+     fact1:  ret
+
+*** Fonction principale
+    On souhaite appeler printf() pour afficher le résultat de fact(6). Attention
+    aux contraintes d'alignement de l'ABI System V !
+
+**** Solution
+    .global main
+    main:   subq $8, %rsp
+            movq $6, %rdi
+            call factr
+            movq $msg, %rdi
+            movq %rax, %rsi
+            call printf
+            movq $0, %rdi
+            call exit
+
+*** Factorielle récursive naïve.
+    On écrit le code de factorielle dans un style récursif naïf, l'équivalent du
+    code OCaml suivant :
+
+    let rec fact n = if n <= 1 then 1 else n * fact (n - 1)
+
+**** Solution
+
+     En écrivant du code mécaniquement, comme un compilateur un peu naïf, on
+     obtient l'assembleur ci-dessous.
+
+     factr:  pushq %rbp
+             movq %rsp, %rbp
+             subq $8, %rsp
+             cmp $1, %rdi
+             jle factr0
+             movq %rdi, -8(%rbp)
+             dec %rdi
+             call factr
+             imulq -8(%rbp), %rax
+             addq $8, %rsp
+             popq %rbp
+             ret
+     factr0: movq $1, %rax
+             addq $8, %rsp
+             popq %rbp
+             ret
+
+     Note : on a négligé la contrainte d'alignement de la pile à chaque call, ne
+     respectant pas strictement l'ABI System V. Ce n'est pas gênant dans la
+     mesure où on appelle jamais de fonction de la bibliothèque standard ici.
+
+** De Retrolix à x86-64
+*** Retrolix
+    Le code relatif à Retrolix est contenu dans src/retrolix/. Commencer par
+    lire l'AST présent dans retrolixAST.ml, puis en cas de question, regarder la
+    sémantique de référence dictée par l'interprète dans retrolixInterpreter.ml.
+
+    Il s'agit d'un langage presque aussi bas niveau que l'assembleur, mais pas
+    tout à fait. Quelques caractéristiques :
+
+    - des registres (x86-64) *et* des variables (locales, globales, paramètres),
+
+    - le registre matériel %r15 est réservé (jamais utilisé),
+
+    - respecte la convention d'appel en ce qui concerne les registres (registres
+      caller-save vs. callee-save, registre stockant la valeur de retour),
+
+    - un jeu d'instruction bas niveau.
+
+    /!\ Les six premiers arguments sont passés par %rdi, %rsi, etc. Donc les
+    arguments déclarés et passés explicitement en Rétrolix n'apparaîssent que
+    dans les fonctions avec strictement plus de six arguments. /!\
+
+*** x86-64
+
+    Le code est contenu dans src/x86-64/, et l'AST qui nous intéresse est dans
+    x86_64_AST.ml. Pas d'interprète ou parser.
+
+    On a vu les points saillants de l'assembleur x86-64 la dernière fois.
+
+    Remarque : comme on utilise GCC pour l'assemblage et l'édition de liens, nos
+    programmes assembleurs doivent disposer d'une fonction main().
+
+    /!\ L'AST est *trop permissif* ! Il permet d'écrire du code qui n'assemble
+    pas, par exemple "movq (%rsp), (%rsp)". Éviter de générer ce genre de code
+    fait partie de votre travail. /!\
+
+*** Différences entre Retrolix et x86-64
+
+    - des chaînes litérales en Retrolix,
+
+    - en Retrolix, pas de fonction main(), le point d'entrée du programme est la
+      séquence des blocs d'initialisation de ses variables globales,
+
+    - pas de variables en x86-64,
+
+    - jeu d'instructions assez différent : Retrolix est plutôt RISC mais x86-64
+      est très CISC ; par exemple :
+
+      * trois adresses vs. deux adresses,
+
+      * modes d'adressage et opérandes mémoires limités en x86-64,
+
+      * bizarreries en x86-64, par exemple la division.
+
+*** Traduire Retrolix vers x86-64
+
+    Certaines des différences que nous venons de décrire ne sont pas
+    essentielles, et sont donc déjà traitées pour vous (chaînes litérales,
+    génération d'un main, ...). On va se concentrer sur deux points :
+
+    - la traduction des constructions Retrolix en assembleur x86-64,
+
+    - la gestion des variables et de la pile.
+
+    La passe de traduction est dans src/x86-64/retrolixToX86_64.ml. Vous devez
+    remplacer les [failwith "Students! ..."] avec le code approprié.
+
+    Il s'agit essentiellement d'implémenter deux modules, MyInstructionSelector
+    et MyFrameManager. Le premier se charge de la traduction de construction
+    atomiques de Rétrolix en x86-64, le second de la gestion de la pile et des
+    variables. Le second va naturellement faire appel au premier.
+
+    /!\ Dans ce jalon, on se concentrera sur la *correction* du code généré, et
+    on ne cherchera pas nécessairement à optimiser la traduction. On reviendra
+    sur l'optimisation ultérieurement. /!\
+
+**** Points à gérer
+
+***** Bases de la gestion de la pile
+
+      Considérons la fonction ci-dessous.
+
+      def f(x, y)
+      local a, b, c:
+        ...
+      end
+
+      En suivant l'ABI System V, à quoi doit ressembler son cadre de pile après
+      l'exécution de son prologue ? Quel est le code du prologue, d'ailleurs ?
+      De l'épilogue ?
+
+****** Indications
+
+     Prologue :
+
+       pushq %rbp
+       movq %rsp, %rbp
+       subq $24, %rsp
+
+     Épilogue :
+
+       addq $24, %rsp
+       popq %rbp
+       ret
+
+     Disposition de la pile :
+
+     | cadre parent |        |
+     |--------------+--------|
+     | arg y        |        |
+     | arg x        |        |
+     | saved %rip   |        |
+     | saved %rbp   | <- rbp |
+     | var a        |        |
+     | var b        |        |
+     | var c        | <- rsp |
+
+     Notons que l'ABI nous laisse le choix de l'ordre des variables locales.
+
+***** Bases de la traduction
+
+      Comment traduire les instructions Retrolix suivantes ?
+
+        %rax <- load 42;
+
+        %rax <- add %rax, %rbx;
+
+        %rax <- add %rbx, %rcx;
+
+        %rax <- div %rbx, %rcx;
+
+      Comment traduire l'instruction suivante, si a est une variable locale ? Un
+      paramètre ? Une variable globale ?
+
+         a <- load 42;
+
+      Dans les instructions ci-dessous, on se place dans le corps d'une fonction
+      dont les variables locales sont a, b et c, déclarées dans cet ordre.
+
+         a <- load 42;
+
+         %rax <- add %rax, a;
+
+         a <- add a, %rax;
+
+         a <- add a, b;
+
+         a <- add b, c;
+
+***** Convention d'appel
+
+      Comment traduire les appels de fonction ?
+
+      def f()
+        call g(23, %rax, %rbx)
+

@@ -57,7 +57,7 @@ rule token = parse
   | "orelse"              { ORELSE }
   | "exit"                { EXIT }
   | "def"                 { DEF }
-  | "global"              { GLOBAL }
+  | "globals"             { GLOBALS }
   | "end"                 { END }
   | "local"               { LOCAL }
   | "ret"                 { RET }

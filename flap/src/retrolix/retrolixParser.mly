@@ -10,7 +10,7 @@
     match o with None -> false | Some () -> true
 %}
 
-%token SEMICOLON COLON COMMA EOF DEF EXTERNAL GLOBAL END LPAREN RPAREN
+%token SEMICOLON COLON COMMA EOF DEF EXTERNAL GLOBALS END LPAREN RPAREN
 %token LOCAL CALL TAIL RET LARROW RARROW EXIT UPPERSAND
 %token JUMP JUMPIF SWITCH ORELSE
 %token GT LT GTE LTE EQ
@@ -33,7 +33,7 @@ program: ds=definition* EOF
   Error.error "parsing" pos "Syntax error."
 }
 
-definition: GLOBAL LPAREN xs=separated_list(COMMA, identifier)
+definition: GLOBALS LPAREN xs=separated_list(COMMA, identifier)
                                RPAREN b=block END {
   DValues (xs, b)
 }

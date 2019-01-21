@@ -28,7 +28,7 @@ let rec program ?(decorations=nodecorations) p =
 
 and definition decorations = function
   | DValues (xs, b) ->
-    group (string "global" ++ parens (identifiers xs))
+    group (string "globals" ++ parens (identifiers xs))
     ^^ hardline ^^ block decorations b ++ string "end"
   | DFunction (f, xs, b) ->
     group (string "def"

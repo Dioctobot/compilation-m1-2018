@@ -27,8 +27,8 @@ let rec program ?(decorations=nodecorations) p =
   vcat (List.map (definition decorations) p)
 
 and definition decorations = function
-  | DValue (x, b) ->
-    group (string "global" ++ parens (identifier x))
+  | DValues (xs, b) ->
+    group (string "global" ++ parens (identifiers xs))
     ^^ hardline ^^ block decorations b ++ string "end"
   | DFunction (f, xs, b) ->
     group (string "def"
@@ -115,10 +115,10 @@ and literal = function
   | LString s -> string ("\"" ^ String.escaped s ^ "\"")
   | LChar c -> string ("'" ^ Char.escaped c ^ "'")
 
-and register (RId x) = string ("$" ^ x)
+and register (RId x) = string ("%" ^ x)
 
 and op = function
-  | Load -> "load"
+  | Copy -> "copy"
   | Add -> "add"
   | Mul -> "mul"
   | Div -> "div"

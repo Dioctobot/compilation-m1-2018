@@ -136,7 +136,7 @@ let print_runtime runtime =
 
 let evaluate runtime0 (ast : t) =
   let extract_function_definition runtime = function
-    | DValue _ -> runtime
+    | DValues _ -> runtime
     | DFunction (f, formals, body) ->
       { runtime with functions =
           FIdMap.add f { formals; body } runtime.functions
@@ -148,9 +148,14 @@ let evaluate runtime0 (ast : t) =
     let runtime = List.fold_left extract_function_definition runtime ds in
     List.fold_left definition runtime ds
   and definition runtime = function
-    | DValue (x, b) ->
+    | DValues (xs, b) ->
        let runtime =
-         { runtime with gvariables = IdMap.add x DUnit runtime.gvariables }
+         { runtime with
+           gvariables = List.fold_left
+                          (fun gvariables x -> IdMap.add x DUnit gvariables)
+                          runtime.gvariables
+                          xs;
+         }
        in
        block runtime b
     | DFunction (f, xs, b) ->
@@ -249,7 +254,7 @@ let evaluate runtime0 (ast : t) =
       literal l
   and op l runtime o vs =
     match o, vs with
-      | Load, [ v ] -> v
+      | Copy, [ v ] -> v
       | Add, [ DInt x; DInt y ] ->
         DInt (Mint.add x y)
       | Mul, [ DInt x; DInt y ] ->

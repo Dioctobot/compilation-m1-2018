@@ -47,8 +47,8 @@ type rvalue = [ lvalue | `Immediate of literal ]
 type t = definition list
 
 and definition =
-  (** DValue (x, b) is a block [b] that defines a global variable [x]. *)
-  | DValue     of identifier * block
+  (** DValues (xs, b) is a block [b] that defines global variables [xs]. *)
+  | DValues    of identifier list * block
   (** DFunction (f, xs, ys, b) is a function definition with formal
       parameters [xs], and block [b]. *)
   | DFunction  of function_identifier * identifier list * block
@@ -81,7 +81,7 @@ and instruction =
   | Exit
 
 and op =
-  | Load
+  | Copy
   | Add | Mul | Div | Sub
   | And | Or
 
@@ -115,10 +115,13 @@ exception GlobalIdentifiersMustBeUnique of identifier
     checks that the definition are unique. *)
 let globals =
   List.fold_left (fun globals -> function
-      | DValue (x, _) ->
-         if IdSet.mem x globals then
-           raise (GlobalIdentifiersMustBeUnique x);
-         IdSet.add x globals
+      | DValues (xs, _) ->
+         let add globals x =
+           if IdSet.mem x globals then
+             raise (GlobalIdentifiersMustBeUnique x);
+           IdSet.add x globals
+         in
+         List.fold_left add globals xs
       | _ ->
          globals
   ) IdSet.empty

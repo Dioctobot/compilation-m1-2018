@@ -53,8 +53,8 @@ let label_of_function_identifier (S.FId s) =
 let data_label_of_global (S.Id s) =
   label_of_retrolix_label s
 
-let init_label_of_global (S.Id name) =
-  ".I_" ^ name
+let init_label_of_global (xs : S.identifier list) =
+  ".I_" ^ hash xs
 
 let label_of_internal_label_id (id : T.label) =
   ".X_" ^ id
@@ -327,7 +327,7 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
               IS.andl ~dst ~srcl ~srcr
            | S.Or, [ srcl; srcr; ] ->
               IS.orl ~dst ~srcl ~srcr
-           | S.Load, [ src; ] ->
+           | S.Copy, [ src; ] ->
               IS.mov ~dst ~src
            | _ ->
               error "Unknown operator or bad arity"
@@ -419,12 +419,13 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
 
     let translate_definition def (body, env) =
       match def with
-      | S.DValue ((S.Id id) as name, block) ->
-         let name = init_label_of_global name in
+      | S.DValues (xs, block) ->
+         let ids = RetrolixPrettyPrinter.(to_string identifiers xs) in
+         let name = init_label_of_global xs in
          let def, env =
            translate_block
              ~name
-             ~desc:("Initializer for " ^ id ^ ".")
+             ~desc:("Initializer for " ^ ids ^ ".")
              ~params:[]
              block
              env
@@ -446,7 +447,7 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
          T.(Directive (Extern id)) :: body,
          env
 
-    let generate_main env =
+    let generate_main env p =
       let open X86_64_Architecture in
       let open T in
 
@@ -456,11 +457,15 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
 
       (* Call all initialization stubs *)
       let calls_to_initialization_stubs =
-        let call id body =
-          let l = init_label_of_global id in
-          FM.call fd ~kind:`Normal ~f:(`Imm (Lab l)) ~args:[] @ body
+        let call def body =
+          match def with
+          | S.DValues (ids, _) ->
+             let l = init_label_of_global ids in
+             FM.call fd ~kind:`Normal ~f:(`Imm (Lab l)) ~args:[] @ body
+          | S.DFunction _ | S.DExternalFunction _ ->
+             body
         in
-        S.IdSet.fold call env.globals []
+        List.fold_right call p []
       in
 
       let main, _ =
@@ -476,9 +481,9 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
     (** [translate p env] turns a Retrolix program into a X86-64 program. *)
     let rec translate (p : S.t) (env : environment) : T.t * environment =
       let env = register_globals (S.globals p) env in
-      let p, env = List.fold_right translate_definition p ([], env) in
-      let main = generate_main env in
-      let p = T.data_section :: env.data_lines @ T.text_section :: main @ p in
+      let pt, env = List.fold_right translate_definition p ([], env) in
+      let main = generate_main env p in
+      let p = T.data_section :: env.data_lines @ T.text_section :: main @ pt in
       T.remove_unused_labels p, env
   end
 

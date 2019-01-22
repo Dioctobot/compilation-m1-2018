@@ -14,7 +14,7 @@ val create : int -> 'a t
 
 (** [allocate mem size init] produces a location that points to a fresh block
     of size cells. These cells are initialized with [init]. *)
-val allocate : 'a t -> Int32.t -> 'a -> location
+val allocate : 'a t -> Mint.t -> 'a -> location
 
 (** The following exception is raised if no new block can be allocated in the
     memory. *)
@@ -24,13 +24,13 @@ exception OutOfMemory
 val dereference : 'a t -> location -> 'a block
 
 (** [size block] returns the length of a block. *)
-val size : 'a block -> Int32.t
+val size : 'a block -> Mint.t
 
 (** [read block i] returns the content of the i-th cell of the block *)
-val read : 'a block -> Int32.t -> 'a
+val read : 'a block -> Mint.t -> 'a
 
 (** [write block i x] sets the content of the i-th cell of the block to [x]. *)
-val write : 'a block -> Int32.t -> 'a -> unit
+val write : 'a block -> Mint.t -> 'a -> unit
 
 (** [array_of_block b] returns the cells of [b] packed in an array. *)
 val array_of_block : 'a block -> 'a array

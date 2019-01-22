@@ -16,6 +16,10 @@ module type Language = sig
   (** Each language has its own extension for source code filenames. *)
   val extension : string
 
+  (** [executable_format] should true when programs of the language are directly
+      executable when dumped on disk as files.  *)
+  val executable_format : bool
+
   (** [parse_string c] is the same as [parse_filename] except that the
       source code is directly given as a string. *)
   val parse_string : string -> ast

@@ -175,6 +175,11 @@ module Option = struct
     | None -> ()
     | Some x -> f x
 
+  let fold f x acc =
+    match x with
+    | None -> acc
+    | Some x -> f x acc
+
 end
 
 module Pervasives = struct
@@ -194,26 +199,45 @@ module Pervasives = struct
 
 end
 
+module Buffer = struct
+  include Buffer
+
+  let slurp ?(buffer_size = 4096) ic =
+    let b = Buffer.create buffer_size in
+    let rec loop () =
+      match Buffer.add_channel b ic buffer_size with
+      | () ->
+         loop ()
+      | exception _ ->
+         b
+    in
+    loop ()
+
+end
+
 module Unix = struct
 
   open Unix
 
+  let output_and_error_of_command ?(env = Unix.environment ()) cmd =
+    let cin, cout, cerr = open_process_full cmd env in
+    let stdin = Buffer.slurp cin in
+    let stderr = Buffer.slurp cerr in
+    let status = close_process_full (cin, cout, cerr) in
+    status, Buffer.contents stdin, Buffer.contents stderr
+
   let output_of_command cmd =
-    let cin = open_process_in cmd in
-    let b = Buffer.create 13 in
-    let rec read () =
-      try Buffer.add_string b (input_line cin); read ()
-      with _ -> ()
-    in
-    read ();
-    let status = close_process_in cin in
-    (Buffer.contents b, status)
+    let status, stdin, _ = output_and_error_of_command cmd in
+    status, stdin
 
   let string_of_process_status = function
     | WEXITED k -> Printf.sprintf "exited(%d)" k
     | WSTOPPED k -> Printf.sprintf "stopped(%d)" k
     | WSIGNALED k -> Printf.sprintf "signaled(%d)" k
 
+  let add_exec_bits filename =
+    let st = stat filename in
+    chmod filename (st.st_perm lor 0o111)
 end
 
 module Hashtbl = struct

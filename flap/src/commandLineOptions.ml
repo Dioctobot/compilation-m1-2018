@@ -85,11 +85,6 @@ let generic_options () = Arg.(align (List.flatten [
     (" Force the compilation to use this intermediate language");
 
   options
-    ["--gcc"; "-G" ]
-    (Bool Options.set_gcc)
-    ("(true|false) Ask to compiler to produce assembly code in GCC format");
-
-  options
     ["--types"; "-T"]
     (Bool Options.set_show_types)
     ("(true|false) Ask the compiler to show types for toplevel values.");
@@ -103,11 +98,6 @@ let generic_options () = Arg.(align (List.flatten [
     ["--typechecking"; "-C"]
     (Bool Options.set_check_types)
     ("(true|false) Ask the compiler to check types for toplevel values.");
-
-  options
-    ["--retromips"]
-    (Bool Options.set_retromips)
-    ("(true|false) Activate the MIPS version of Retrolix.");
 
   options
     ["--sexp-in"]
@@ -130,16 +120,6 @@ let generic_options () = Arg.(align (List.flatten [
   ("[dirname] Set the directory where runtime.c is located.");
 
   options
-  ["--mips-host"; "-MH"]
-  (String Options.set_mips_host)
-  ("[hostname] Set the hostname of the target MIPS machine.");
-
-  options
-  ["--mips-port"; "-MP"]
-  (String Options.set_mips_port)
-  ("[port] Set the port of the target MIPS machine.");
-
-  options
   ["--output-file"; "-o"]
   (String Options.set_output_file)
   "[filename] Set the output file.";
@@ -147,7 +127,12 @@ let generic_options () = Arg.(align (List.flatten [
   options
   ["--fast-pattern-matching"; "-fpm"]
   (Bool Options.set_fast_match)
-  " Enable efficient pattern-matching compilation."
+  " Enable efficient pattern-matching compilation.";
+
+  options
+  ["--backend"; "-b"]
+  (String Options.set_backend)
+  "[architecture] Set the architecture backend, default is x86-64."
 
 ] @ (List.flatten (optimizers_options ()))))
 

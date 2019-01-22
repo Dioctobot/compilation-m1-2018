@@ -26,6 +26,9 @@ let parse_filename filename =
 let extension =
   ".hopix"
 
+let executable_format =
+  false
+
 let parse_string =
   parse Lexing.from_string
 

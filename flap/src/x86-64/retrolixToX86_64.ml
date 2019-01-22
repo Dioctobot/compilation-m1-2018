@@ -497,7 +497,7 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
 
 (** {2 Concrete instructions selectors and calling conventions} *)
 
-module MyInstructionSelector : InstructionSelector =
+module InstructionSelector : InstructionSelector =
   struct
     open T
 
@@ -533,7 +533,7 @@ module MyInstructionSelector : InstructionSelector =
 
   end
 
-module MyFrameManager(IS : InstructionSelector) : FrameManager =
+module FrameManager(IS : InstructionSelector) : FrameManager =
   struct
     type frame_descriptor =
       {
@@ -579,6 +579,6 @@ module MyFrameManager(IS : InstructionSelector) : FrameManager =
   end
 
 module CG =
-  Codegen(MyInstructionSelector)(MyFrameManager(MyInstructionSelector))
+  Codegen(InstructionSelector)(FrameManager(InstructionSelector))
 
 let translate = CG.translate

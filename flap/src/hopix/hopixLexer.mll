@@ -67,7 +67,8 @@ let str = '\"' ((atom|'\''|"\\\"")*) '\"'
 let integer = ('-'? digit+|"0x"(digit|['a'-'f']|['A'-'F'])+|"0o"(['0'-'7'])+|"0b"(['0'-'1'])+)
 
 rule token = parse
-  (** Layout *)
+	    (** Layout *)
+ | "(*"	           { comment 1 lexbuf             }
  | eof             { EOF }
  | newline         { next_line_and token lexbuf }
  | blank+          { token lexbuf               }
@@ -130,5 +131,12 @@ rule token = parse
  | label_id as id  { LABEL id }
  | str as s        { STRING (replace_int_in_str (String.sub s 1 ((String.length s)-2) ) ) }
   (** Lexing error. *)
- |_               { error lexbuf "unexpected character." }
+ |_                { error lexbuf "unexpected character." }
 
+and comment index = parse
+ | "(*"           { comment (index+1) lexbuf }
+ | "*)"           { if index = 1 then token lexbuf
+		    else comment (index-1) lexbuf
+		  }
+ | eof            { EOF }
+ | _              { comment index lexbuf }

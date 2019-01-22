@@ -31,6 +31,7 @@ let scratchr = X86_64_Architecture.scratch_register
 let scratch = `Reg scratchr
 let rsp = `Reg X86_64_Architecture.RSP
 let rbp = `Reg X86_64_Architecture.RBP
+let rdi = `Reg X86_64_Architecture.RDI
 
 (** [align n b] returns the smallest multiple of [b] larger than [n]. *)
 let align n b =
@@ -164,7 +165,7 @@ module type InstructionSelector =
         [srcl * srcr] into [dst]. *)
     val mul : dst:T.dst -> srcl:T.src -> srcr:T.src -> T.line list
 
-    (** [mul ~dst ~srcl ~srcr] generates the x86-64 assembly listing to store
+    (** [div ~dst ~srcl ~srcr] generates the x86-64 assembly listing to store
         [srcl / srcr] into [dst]. *)
     val div : dst:T.dst -> srcl:T.src -> srcr:T.src -> T.line list
 
@@ -451,32 +452,39 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
       let open X86_64_Architecture in
       let open T in
 
-      let fd = FM.frame_descriptor ~params:[] ~locals:[] in
-
-      let finish_inss, _ = translate_instruction fd S.Exit env in
+      let body =
+        List.rev
+          [
+            Directive (PadToAlign { pow = 3; fill = 0x90; });
+            Label "main";
+            Instruction (Comment "Program entry point.");
+            Instruction (T.subq ~src:(`Imm (Lit 8L)) ~dst:rsp);
+          ]
+      in
 
       (* Call all initialization stubs *)
-      let calls_to_initialization_stubs =
-        let call def body =
+      let body =
+        let call body def =
           match def with
           | S.DValues (ids, _) ->
              let l = init_label_of_global ids in
-             FM.call fd ~kind:`Normal ~f:(`Imm (Lab l)) ~args:[] @ body
+             Instruction (T.calld (Lab l)) :: body
           | S.DFunction _ | S.DExternalFunction _ ->
              body
         in
-        List.fold_right call p []
+        List.fold_left call body p
       in
 
-      let main, _ =
-        translate_fun_def
-          ~name:"main"
-          ~desc:"Entry point."
-          ~locals:[]
-          ~params:[]
-          (fun _ -> calls_to_initialization_stubs @ finish_inss, env)
+      let body =
+        T.insns
+          [
+            T.calld (Lab "exit");
+            T.movq ~src:(liti 0) ~dst:rdi;
+          ]
+        @ body
       in
-      Directive (Global "main") :: main
+
+      Directive (Global "main") :: List.rev body
 
     (** [translate p env] turns a Retrolix program into a X86-64 program. *)
     let rec translate (p : S.t) (env : environment) : T.t * environment =
@@ -505,16 +513,16 @@ module MyInstructionSelector : InstructionSelector =
     let sub ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
-    let mul =
+    let mul ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
     let div ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
-    let andl =
+    let andl ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
-    let orl =
+    let orl ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
@@ -551,7 +559,7 @@ module MyFrameManager(IS : InstructionSelector) : FrameManager =
       + fd.locals_space
 
     let frame_descriptor ~params ~locals =
-            failwith "Students! This is your job!"
+      failwith "Students! This is your job!"
 
     let location_of fd id =
       failwith "Students! This is your job!"

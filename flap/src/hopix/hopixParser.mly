@@ -17,23 +17,15 @@
 
 %start<HopixAST.t> program
 
-
-%right PLUS MINUS
-%right TIMES DIV 
-%right IS_EQUAL BIGGER SMALLER E_SMALLER E_BIGGER INFIX
-%right REF EXCL
 %right E_ARROW
-%right BOTH EITHER
 %right SYM_AND SYM_BAR
 %left ASSIGN
 %right THEN
 %right ELSE
-%left COMMA
 %right COLON
 %left POINT
 %right SEMICOLON
 %right EQUAL
-%right LPAR
 
 %on_error_reduce
  definition
@@ -188,25 +180,19 @@ expr_fin: LPAR expr = expression RPAR { expr }
 binop: expr = binop_cont { expr }
 
 binop_add_cont:
-| expr_un = located(binop_mult_cont) op = located(expr_binop_add) expr_deux = located(binop_mult_cont)
-{ Apply(op, expr_un::expr_deux::[]) }
 | expr_un = located(binop_add_cont) op = located(expr_binop_add) expr_deux = located(binop_mult_cont)
 { Apply(op, expr_un::expr_deux::[]) }
 | expr = binop_mult_cont
 { expr }
 
 binop_mult_cont:
-| expr_un = located(expr_fin) op = located(expr_binop_mult) expr_deux = located(expr_fin)
-{ Apply(op, expr_un::expr_deux::[]) }
-| expr_un = located(binop_mult_cont) op = located(expr_binop_mult) expr_deux = located(expr_fin)
+| expr_un = located(binop_mult_cont) op = located(expr_binop_mult) expr_deux = located(expr_sub)
 { Apply(op, expr_un::expr_deux::[]) }
 | expr = expr_sub
 { expr }
 
 binop_cont:
 | expr_un = located(binop_cont) op = located(expr_binop_bool) expr_deux = located(binop_add_cont)
-{ Apply(op, expr_un::expr_deux::[]) }
-| expr_un = located(binop_add_cont) op = located(expr_binop_bool) expr_deux = located(binop_add_cont)
 { Apply(op, expr_un::expr_deux::[]) }
 | expr = binop_add_cont { expr }
 

@@ -136,7 +136,7 @@ let print_runtime runtime =
 
 let evaluate runtime0 (ast : t) =
   let extract_function_definition runtime = function
-    | DValue _ -> runtime
+    | DValues _ -> runtime
     | DFunction (f, formals, body) ->
       { runtime with functions =
           FIdMap.add f { formals; body } runtime.functions
@@ -148,9 +148,14 @@ let evaluate runtime0 (ast : t) =
     let runtime = List.fold_left extract_function_definition runtime ds in
     List.fold_left definition runtime ds
   and definition runtime = function
-    | DValue (x, b) ->
+    | DValues (xs, b) ->
        let runtime =
-         { runtime with gvariables = IdMap.add x DUnit runtime.gvariables }
+         { runtime with
+           gvariables = List.fold_left
+                          (fun gvariables x -> IdMap.add x DUnit gvariables)
+                          runtime.gvariables
+                          xs;
+         }
        in
        block runtime b
     | DFunction (f, xs, b) ->
@@ -249,7 +254,7 @@ let evaluate runtime0 (ast : t) =
       literal l
   and op l runtime o vs =
     match o, vs with
-      | Load, [ v ] -> v
+      | Copy, [ v ] -> v
       | Add, [ DInt x; DInt y ] ->
         DInt (Mint.add x y)
       | Mul, [ DInt x; DInt y ] ->
@@ -329,7 +334,7 @@ let evaluate runtime0 (ast : t) =
          return (Memory.read block i) runtime
       | "equal_char", (DChar c1 :: DChar c2 :: _) ->
          return (DBool (c1 = c2)) runtime
-      | "print_int", (DInt i :: _) ->
+      | ("observe_int" | "print_int"), (DInt i :: _) ->
          print_string (Mint.to_string i);
          return DUnit runtime
       | "print_char", (DChar i :: _) ->
@@ -337,6 +342,14 @@ let evaluate runtime0 (ast : t) =
          return DUnit runtime
       | "print_string", (DString i :: _) ->
          print_string i;
+         return DUnit runtime
+      | "add_eight_int",
+        (DInt i1 :: DInt i2 :: DInt i3 :: DInt i4
+         :: DInt i5 :: DInt i6 :: DInt i7 :: DInt i8 :: _) ->
+         let r =
+           List.fold_left Mint.add Mint.zero [i1; i2; i3; i4; i5; i6; i7]
+         in
+         print_string (Mint.to_string r);
          return DUnit runtime
       | _ ->
          failwith (

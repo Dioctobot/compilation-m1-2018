@@ -31,6 +31,7 @@ let scratchr = X86_64_Architecture.scratch_register
 let scratch = `Reg scratchr
 let rsp = `Reg X86_64_Architecture.RSP
 let rbp = `Reg X86_64_Architecture.RBP
+let rdi = `Reg X86_64_Architecture.RDI
 
 (** [align n b] returns the smallest multiple of [b] larger than [n]. *)
 let align n b =
@@ -53,8 +54,8 @@ let label_of_function_identifier (S.FId s) =
 let data_label_of_global (S.Id s) =
   label_of_retrolix_label s
 
-let init_label_of_global (S.Id name) =
-  ".I_" ^ name
+let init_label_of_global (xs : S.identifier list) =
+  ".I_" ^ hash xs
 
 let label_of_internal_label_id (id : T.label) =
   ".X_" ^ id
@@ -164,7 +165,7 @@ module type InstructionSelector =
         [srcl * srcr] into [dst]. *)
     val mul : dst:T.dst -> srcl:T.src -> srcr:T.src -> T.line list
 
-    (** [mul ~dst ~srcl ~srcr] generates the x86-64 assembly listing to store
+    (** [div ~dst ~srcl ~srcr] generates the x86-64 assembly listing to store
         [srcl / srcr] into [dst]. *)
     val div : dst:T.dst -> srcl:T.src -> srcr:T.src -> T.line list
 
@@ -327,7 +328,7 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
               IS.andl ~dst ~srcl ~srcr
            | S.Or, [ srcl; srcr; ] ->
               IS.orl ~dst ~srcl ~srcr
-           | S.Load, [ src; ] ->
+           | S.Copy, [ src; ] ->
               IS.mov ~dst ~src
            | _ ->
               error "Unknown operator or bad arity"
@@ -419,12 +420,13 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
 
     let translate_definition def (body, env) =
       match def with
-      | S.DValue ((S.Id id) as name, block) ->
-         let name = init_label_of_global name in
+      | S.DValues (xs, block) ->
+         let ids = RetrolixPrettyPrinter.(to_string identifiers xs) in
+         let name = init_label_of_global xs in
          let def, env =
            translate_block
              ~name
-             ~desc:("Initializer for " ^ id ^ ".")
+             ~desc:("Initializer for " ^ ids ^ ".")
              ~params:[]
              block
              env
@@ -446,45 +448,56 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
          T.(Directive (Extern id)) :: body,
          env
 
-    let generate_main env =
+    let generate_main env p =
       let open X86_64_Architecture in
       let open T in
 
-      let fd = FM.frame_descriptor ~params:[] ~locals:[] in
-
-      let finish_inss, _ = translate_instruction fd S.Exit env in
+      let body =
+        List.rev
+          [
+            Directive (PadToAlign { pow = 3; fill = 0x90; });
+            Label "main";
+            Instruction (Comment "Program entry point.");
+            Instruction (T.subq ~src:(`Imm (Lit 8L)) ~dst:rsp);
+          ]
+      in
 
       (* Call all initialization stubs *)
-      let calls_to_initialization_stubs =
-        let call id body =
-          let l = init_label_of_global id in
-          FM.call fd ~kind:`Normal ~f:(`Imm (Lab l)) ~args:[] @ body
+      let body =
+        let call body def =
+          match def with
+          | S.DValues (ids, _) ->
+             let l = init_label_of_global ids in
+             Instruction (T.calld (Lab l)) :: body
+          | S.DFunction _ | S.DExternalFunction _ ->
+             body
         in
-        S.IdSet.fold call env.globals []
+        List.fold_left call body p
       in
 
-      let main, _ =
-        translate_fun_def
-          ~name:"main"
-          ~desc:"Entry point."
-          ~locals:[]
-          ~params:[]
-          (fun _ -> calls_to_initialization_stubs @ finish_inss, env)
+      let body =
+        T.insns
+          [
+            T.calld (Lab "exit");
+            T.movq ~src:(liti 0) ~dst:rdi;
+          ]
+        @ body
       in
-      Directive (Global "main") :: main
+
+      Directive (Global "main") :: List.rev body
 
     (** [translate p env] turns a Retrolix program into a X86-64 program. *)
     let rec translate (p : S.t) (env : environment) : T.t * environment =
       let env = register_globals (S.globals p) env in
-      let p, env = List.fold_right translate_definition p ([], env) in
-      let main = generate_main env in
-      let p = T.data_section :: env.data_lines @ T.text_section :: main @ p in
+      let pt, env = List.fold_right translate_definition p ([], env) in
+      let main = generate_main env p in
+      let p = T.data_section :: env.data_lines @ T.text_section :: main @ pt in
       T.remove_unused_labels p, env
   end
 
 (** {2 Concrete instructions selectors and calling conventions} *)
 
-module MyInstructionSelector : InstructionSelector =
+module InstructionSelector : InstructionSelector =
   struct
     open T
 
@@ -500,16 +513,16 @@ module MyInstructionSelector : InstructionSelector =
     let sub ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
-    let mul =
+    let mul ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
     let div ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
-    let andl =
+    let andl ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
-    let orl =
+    let orl ~dst ~srcl ~srcr =
       failwith "Students! This is your job!"
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
@@ -520,7 +533,7 @@ module MyInstructionSelector : InstructionSelector =
 
   end
 
-module MyFrameManager(IS : InstructionSelector) : FrameManager =
+module FrameManager(IS : InstructionSelector) : FrameManager =
   struct
     type frame_descriptor =
       {
@@ -546,16 +559,19 @@ module MyFrameManager(IS : InstructionSelector) : FrameManager =
       + fd.locals_space
 
     let frame_descriptor ~params ~locals =
-            failwith "Students! This is your job!"
+      (* Student! Implement me! *)
+      { param_count = 0; locals_space = 0; stack_map = S.IdMap.empty; }
 
     let location_of fd id =
       failwith "Students! This is your job!"
 
     let function_prologue fd =
-      failwith "Students! This is your job!"
+      (* Student! Implement me! *)
+      []
 
     let function_epilogue fd =
-      failwith "Students! This is your job!"
+      (* Student! Implement me! *)
+      []
 
     let call fd ~kind ~f ~args =
       failwith "Students! This is your job!"
@@ -563,6 +579,6 @@ module MyFrameManager(IS : InstructionSelector) : FrameManager =
   end
 
 module CG =
-  Codegen(MyInstructionSelector)(MyFrameManager(MyInstructionSelector))
+  Codegen(InstructionSelector)(FrameManager(InstructionSelector))
 
 let translate = CG.translate

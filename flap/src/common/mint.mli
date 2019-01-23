@@ -1,6 +1,6 @@
 (** This module defines the integer type used in all languages. *)
 
-type t = Nativeint.t
+type t = Int64.t
 
 (** {2 Basic Values} *)
 

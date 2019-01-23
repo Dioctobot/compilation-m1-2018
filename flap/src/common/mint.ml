@@ -1,4 +1,4 @@
-include Nativeint
+include Int64
 
 exception DoesNotFit
 

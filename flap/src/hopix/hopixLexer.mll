@@ -124,7 +124,7 @@ rule token = parse
   (** Terminaux composites *)
  | type_con as ty  { TY_CON ty }
  | const_id as id  { CONST id }
- | integer as x    { INT (Int32.of_string x) }
+ | integer as x    { INT (Int64.of_string x) }
  | chr as c        { CHAR (String.get (replace_int_in_str c) 1) }
  | alien_infix_id as id     { INFIX id }
  | alien_prefix_id as id    { PREFIX id }

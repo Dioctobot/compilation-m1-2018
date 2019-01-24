@@ -161,12 +161,12 @@ let check_program_is_fully_annotated ast =
     under the typing environment [tenv]. *)
 let rec typecheck tenv ast : typing_environment =
   check_program_is_fully_annotated ast;
-  let env = typecheck_program tenv ast in
+  let tenv' = typecheck_program tenv ast in
 
-  (* *)
+  (* 
   Printf.printf "%s\n" (print_typing_environment env);
-
-  env
+*)
+  tenv'
 
 and typecheck_program tenv = function
   | [] -> tenv
@@ -301,23 +301,107 @@ and typecheck_expression assigned env pos expression = match expression with
           | _ -> ());
         aty
     in
+
     begin match olty with
       | None -> ty
       | Some lty -> 
-      Printf.printf "ty = %s\n" (print_aty ty);
-      Printf.printf "var ty = %s\n" (print_aty (List.hd (List.map aty_of_ty' lty)));
-      equi_aty x pos ty (List.hd (List.map aty_of_ty' lty)); ty
+        let var_aty = internalize_ty env (List.hd lty) in 
+        Printf.printf "var_aty = %s\n" (print_aty var_aty);
+        Printf.printf "ty = %s\n" (print_aty ty);
+
+        if var_aty <> ty then
+          type_error pos 
+            ((string_of_identifier x) ^ " has type " ^ (print_aty var_aty) ^
+            " but an expression was expected of type " ^ (print_aty ty))
+        else
+          ty
     end
+  | Fun fd -> 
+    begin match assigned with 
+      | None -> typecheck_function [] env fd
+      | Some aty -> 
+        let aty_fun = match aty with
+          | ATyArrow(tys, _) -> typecheck_function tys env fd
+          | _ -> type_error pos "Expected ATyArrow type for recfunctions"
+        in
+        aty_fun
+    end
+  | Field (expr, lab) ->
+    let (x, pos) = Position.value lab, Position.position lab in
+    let Scheme(_, aty_lab) = lookup_type_scheme_of_record x env in
+    let aty_expr = typecheck_expression' None env expr in
+    check_expected_type_expr (Some expression) expr aty_lab aty_expr;
+    aty_lab
+  | Sequence lexpr ->
+    List.fold_left (fun aty expr ->
+      typecheck_expression' None env expr
+      ) (typecheck_expression' None env (List.hd lexpr)) (List.tl lexpr)
   | Define (vd, expr) ->
     let new_env = typecheck_value_definition env vd in
     let aty = typecheck_expression' assigned new_env expr in
     aty
   | Apply (expr, lexpr) -> typecheck_apply expression pos expr lexpr env
+  | Ref expr -> href (typecheck_expression' None env expr)
+  | Assign (e1, e2) ->
+    let aty_e1 = typecheck_expression' None env e1 in
+    let aty_e2 = typecheck_expression' None env e2 in
+
+    if type_of_reference_type aty_e1 <> aty_e2 then
+      type_error (Position.position e1) 
+        ((string_of_expression expression) ^ "\n" ^
+        (string_of_expression' e2) ^ " has type " ^ (print_aty aty_e2) ^
+        " but an expression was expected of type " ^ (print_aty aty_e1))
+    else
+      hunit
+  | Read expr -> type_of_reference_type (typecheck_expression' None env expr)
+  | IfThenElse (e1, e2, oe3) ->
+    let aty_e1 = typecheck_expression' None env e1 in
+    let aty_e2 = typecheck_expression' None env e2 in
+    if aty_e1 <> hbool then
+      type_error (Position.position e1) "Expected conditional boolean"
+    else
+      begin
+        match oe3 with
+          | None -> check_expected_type_expr None e1 hunit aty_e2; hunit
+          | Some e3 -> 
+            let aty_e3 = typecheck_expression' None env e3 in
+            check_expected_type_expr (Some expression) e3 aty_e2 aty_e3;
+            aty_e2
+      end
+  | While (loop, expr) ->
+    let aty_loop = typecheck_expression' None env loop in
+    if aty_loop <> hbool then
+      type_error (Position.position loop) "Expected conditional boolean"
+    else
+      typecheck_expression' None env expr
+  | For(id, e1, e2, oe3, e4) ->
+    let (x, pos) = Position.value id, Position.position id in
+    let aty_e1 = typecheck_expression' None env e1 in
+    let aty_e2 = typecheck_expression' None env e2 in
+    let new_env = bind_value x (mk_type_scheme aty_e1) env in
+    check_is_int e1 aty_e1;
+    check_is_int e2 aty_e2;
+    begin match oe3 with
+      | None -> ()
+      | Some e3 -> 
+        let aty_e3 = typecheck_expression' None env e3 in
+        check_is_int e3 (aty_e3)
+    end;
+    typecheck_expression' None new_env e4
   | TypeAnnotation (expr, ty) ->
     let aty = internalize_ty env ty in
-    check_expected_type_expr None expr aty (typecheck_expression' None env expr);
+    check_expected_type_expr None expr aty (typecheck_expression' (Some aty) env expr);
     aty
-  | _ -> type_error pos "typecheck_expression not exhaustive"
+  | _ -> hunit
+
+and check_is_int expr aty =
+  let (x, pos) = Position.value expr, Position.position expr in
+  if aty <> hint then
+    type_error pos
+    ((string_of_expression x) ^ " has type " ^ (print_aty aty) ^
+    " but an expression was expected of type " ^ (print_aty hint))
+  else
+    ()
 
 and typecheck_apply parent_expr pos app lexpr env =
   let aty_apply = typecheck_expression' None env app in
@@ -420,7 +504,7 @@ and is_type_variable = function
   | _ -> false
 
 and equi_aty x pos aty1 laty = 
-  let equi = match aty1, aty2 with
+  let equi = match aty1, laty with
     | ATyVar tv1,  ATyVar tv2 -> tv1 = tv2
     | ATyCon (tcons1, laty1),  ATyCon (tcons2, laty2) -> tcons1 = tcons2 && List.for_all2 (=) laty1 laty2
     | ATyArrow(laty1, ty1), ATyArrow(laty2, ty2) -> List.for_all2 (=) laty1 laty2 && ty1 = ty2
@@ -432,6 +516,6 @@ and equi_aty x pos aty1 laty =
   else
     type_error pos 
     ((string_of_identifier x) ^ " has type " ^ (print_aty aty1) ^
-    " but an expression was expected of type " ^ (print_aty aty2))
+    " but an expression was expected of type " ^ (print_aty laty))
 
 let print_typing_environment = HopixTypes.print_typing_environment

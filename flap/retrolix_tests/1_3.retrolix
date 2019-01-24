@@ -1,0 +1,16 @@
+def fact()
+l0 : %rax <- copy 1;
+l1 : jumpif lte %rdi, 1 -> l5, l2;
+l2 : %rax <- mul %rax, %rdi;
+l3 : %rdi <- sub %rdi, 1;
+l4 : jump l1;
+l5 : %rdi <- copy %rdi;
+end
+
+globals()
+l0 : %rdi <- copy 5;
+l1 : fact();
+l2 : %rdi <- copy %rax;
+l3 : observe_int();
+end
+

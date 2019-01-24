@@ -12,7 +12,7 @@
 %token<string> BINOP
 %token<char> CHAR
 %token<string> STRING
-%token<Int32.t> INT
+%token<Int64.t> INT
 
 %token<string> ALIEN_INFIX_ID ALIEN_PREFIX_ID CONSTR_ID TYPE_CON SHARE_ID 
 
@@ -30,10 +30,10 @@
 %right SEMICOLON RARROWEQUAL
 %left ASSIGN
 %right THEN ELSE
+%left ALIEN_INFIX_ID
 %left BINOP
 %left PLUS, MINUS
 %left SLASH, STAR
-%left ALIEN_INFIX_ID
 %right LPAREN
 %right COLON DOT
 %right EXCLMARK REF
@@ -108,10 +108,10 @@ expression:
 | expr1=located(expression) b=binop expr2=located(expression)
 {
   let bin = match b with
-    | "+" | "`+" -> "`+`"
-    | "-" | "`-" -> "`-`"
-    | "*" | "`*" -> "`*`"
-    | "/" | "`/" -> "`/`"
+    | "+" -> "`+`"
+    | "-" -> "`-`"
+    | "*" -> "`*`"
+    | "/" -> "`/`"
     | "&&" -> "`&&`"
     | "||" -> "`||`"
     | "=?" -> "`=?`"
@@ -121,8 +121,10 @@ expression:
     | ">?" -> "`>?`"
     | _ -> b
   in
-  let op = Position.with_poss $startpos $endpos (Variable ((Position.with_poss $startpos $endpos (Id bin)), None)) in
-  Apply(op, [expr1; expr2])
+  let located_bin = Position.with_poss ($startpos(b)) ($endpos(b)) (Id bin) in
+  let var_bin = Variable(located_bin, None) in
+  let located_op = Position.with_poss ($startpos(b)) ($endpos(b)) var_bin in
+  Apply(located_op, [expr1; expr2])
 }
 | CASE expr=located(expression) br=delimited(LCBRACK, branches, RCBRACK)
   { Case (expr, br)}
@@ -136,9 +138,9 @@ expression:
   {Read (e)}
 | WHILE e1=located(expression) e2=delimited(LCBRACK, located(expression), RCBRACK)
   {While(e1,e2)}
-| FOR var_id=located(identifier) EQUAL e1=located(expression) TO e2=located(expression) opt=option(preceded(BY, located(expression))) e3=delimited(LCBRACK, located(expression), RCBRACK)
+| FOR var_id=located(identifier) EQUAL e1=located(expression) TO e2=located(expression) oe3=option(preceded(BY, located(expression))) e4=delimited(LCBRACK, located(expression), RCBRACK)
 {
-  For (var_id, e1, e2, opt, e3)
+  For (var_id, e1, e2, oe3, e4)
 }
 | expr=delimited(LPAREN, expression, RPAREN)
 {

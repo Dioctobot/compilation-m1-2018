@@ -387,7 +387,7 @@ and expression position environment memory = function
     (match eval with
       | VLocation loc ->
         let block = Memory.dereference memory'' loc in
-        let read = Memory.read block Int32.zero in
+        let read = Memory.read block Int64.zero in
         (match read with
           | VClosure (env, lid, e) ->
             let environment' = bind_ids environment lid evalues in
@@ -400,7 +400,7 @@ and expression position environment memory = function
       | _ -> error [position] "Apply fail")
   | Ref expr ->
     let eval, memory' = expression' environment memory expr in
-    let loc = Memory.allocate memory' Int32.one eval in
+    let loc = Memory.allocate memory' Int64.one eval in
     VLocation loc, memory'
   | Assign (e, e') -> 
     let eval, memory' = expression' environment memory e in
@@ -408,14 +408,14 @@ and expression position environment memory = function
     (match eval with
       | VLocation loc -> 
         let block = Memory.dereference memory'' loc in
-        Memory.write block Int32.zero eval';
+        Memory.write block Int64.zero eval';
         VUnit, memory''
       | _ ->  error [position] "Assign fail")
   | Read expr -> let eval, memory' = expression' environment memory expr in
     (match eval with
       | VLocation loc ->
         let block = Memory.dereference memory' loc in
-        Memory.read block Int32.zero, memory'
+        Memory.read block Int64.zero, memory'
       | _ ->  error [position] "Read fail")
   | Case (expr, lbr) -> 
     let eval, memory' = expression' environment memory expr in
@@ -447,28 +447,32 @@ and expression position environment memory = function
       else
         VUnit, memory'
     in while_e memory
-  | For (id, e1, e2, oe3, e4) ->
+  | For (id, e1, e2, oe3, expr) ->
+    let (x, pos) = destruct id in
+    
     let forinit, memory1 = expression' environment memory e1 in
+    let environment' = Environment.bind environment x forinit in
     let forend, memory2 = expression' environment memory1 e2 in
-    let environment' = Environment.bind environment id.value forinit in
-    let forstep, memory3 = (match oe3 with
-      | None -> int_as_value Int32.one, memory2
-      | Some st -> expression' environment memory2 st)
+
+    let forstep, memory3 = match oe3 with
+      | None -> int_as_value Int64.one, memory2
+      | Some e3 -> expression' environment memory2 e3
     in
-    let rec for_e mem =
-      let evalue, memory' = expression' environment' mem e4 in
-      let index = Environment.lookup id.position id.value environment' in
-      if index < forend then
-        begin
-          let newinit = int_as_value (Int32.add (to_int32_opt (value_as_int index)) (to_int32_opt (value_as_int forstep))) in
-          Environment.update e1.position id.value environment' newinit;
-          for_e memory';
-        end
-      else
+    
+    let n1 = to_int64_opt (value_as_int forinit) in
+    let n2 = to_int64_opt (value_as_int forend) in
+    let n3 = to_int64_opt (value_as_int forstep) in
+
+    let rec for_loop memory' = function
+      | n when (Int64.compare n n2) <= 0  ->
+        let n1' = Int64.add n n3 in
+        let (_, memory'') = expression' environment' memory' expr in
+        Environment.update pos x environment' (int_as_value n1');
+        for_loop memory'' n1'
+      | n when (Int64.compare n n2) > 0 -> 
         VUnit, memory'
-    in (match forinit, forstep, forend with
-      | VInt _, VInt _, VInt _ -> for_e memory3
-      | _, _, _ -> error [position] "For fail")
+      | _ -> error [position] "For fail"
+    in for_loop memory3 n1 
   | TypeAnnotation (expr, _) -> expression' environment memory expr
 
 and bind_ids run_env ids evs = match ids, evs with
@@ -494,7 +498,7 @@ and eval_memory' f memory = function
   | hd::tl -> let ev, mem' = f memory hd in
     eval_memory' f mem' tl
 
-and to_int32_opt = function None -> Int32.zero | Some n -> n
+and to_int64_opt = function None -> Int64.one | Some n -> n
 
 and pattern environment evalue = function
   | PVariable id -> Some (Environment.bind environment id.value evalue)

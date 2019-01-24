@@ -1,0 +1,20 @@
+globals (x)
+l1 : x <- copy 6;
+l2 : %rdi <- copy x;
+end
+
+globals (y)
+l1 : y <- copy 7;
+l2 : %rdi <- copy y;
+end
+
+globals (z)
+l1 : z <- mul x, y;
+l2 : %rdi <- copy z;
+end
+
+globals (k)
+l1 : k <- sub z, x;
+l2 : %rdi <- copy k;
+l3 : observe_int (1);
+end

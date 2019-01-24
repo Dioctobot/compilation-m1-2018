@@ -38,7 +38,7 @@ Little-endian
 Quelles sont les conventions d’appel de l’architecture x86-64/System V
 [source](https://en.wikipedia.org/wiki/X86_calling_conventions#List_of_x86_calling_conventions)
 ```
-The cdecl (which stands for C declaration) is a calling convention that originates from the C programming language and is used by many C compilers for the x86 architecture.
+vectorcall et autre
 ```
 
 ```

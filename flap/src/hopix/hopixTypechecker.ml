@@ -306,8 +306,6 @@ and typecheck_expression assigned env pos expression = match expression with
       | None -> ty
       | Some lty -> 
         let var_aty = internalize_ty env (List.hd lty) in 
-        Printf.printf "var_aty = %s\n" (print_aty var_aty);
-        Printf.printf "ty = %s\n" (print_aty ty);
 
         if var_aty <> ty then
           type_error pos 
@@ -316,6 +314,39 @@ and typecheck_expression assigned env pos expression = match expression with
         else
           ty
     end
+  | Tagged (cons, olty, lexpr) ->
+    let (x, pos) = Position.value cons, Position.position cons in
+    let aty_scheme_cons = lookup_type_scheme_of_constructor x env in
+    let Scheme(_, aty_cons) = aty_scheme_cons in
+    let aty = output_type_of_function aty_cons in
+    begin match olty with
+      | None -> 
+        if lexpr <> [] then
+          let tys = List.fold_left (fun acc expr -> 
+            let aty_expr = typecheck_expression' None env expr in
+              check_expected_type_expr (Some expression) expr aty aty_expr;
+              acc @ [aty_expr]
+          ) ([]) lexpr in
+          ATyArrow(tys, aty)
+        else
+          aty
+      | Some lty -> 
+        if lexpr <> [] && List.(length lty = length lexpr) then
+          let tys = List.fold_left2 (fun acc ty expr -> 
+            let aty_expr = typecheck_expression' None env expr in
+            let expected_aty = internalize_ty env ty in
+            check_expected_type_expr (Some expression) expr expected_aty aty_expr;
+            acc @ [expected_aty]
+          ) ([]) lty lexpr in
+          ATyArrow(tys, aty)
+        else
+          aty
+    end
+  (*| Record (llpat, olty) -> 
+    begin match olty with
+      | None -> env
+      | Some lty -> env
+    end*)
   | Fun fd -> 
     begin match assigned with 
       | None -> typecheck_function [] env fd
@@ -354,6 +385,9 @@ and typecheck_expression assigned env pos expression = match expression with
     else
       hunit
   | Read expr -> type_of_reference_type (typecheck_expression' None env expr)
+  | Case (expr, lbr) ->
+    let aty = typecheck_expression' None env expr in
+    typecheck_branchs env aty expr lbr
   | IfThenElse (e1, e2, oe3) ->
     let aty_e1 = typecheck_expression' None env e1 in
     let aty_e2 = typecheck_expression' None env e2 in
@@ -424,6 +458,50 @@ and typecheck_apply parent_expr pos app lexpr env =
     | _ -> type_error pos "TODO : Apply not exhaustive"
   end
 
+and typecheck_branchs env aty_expr expr lbr =
+  List.fold_left (fun ty (Branch(p, e)) -> 
+    let env' = located (typecheck_pattern ty expr env) p in
+    let aty = typecheck_expression' None env' e in
+    checktype_pattern ty aty p (Some (Position.value e));
+    aty
+  ) (aty_expr) (List.map Position.value lbr);
+  
+
+and typecheck_pattern aty expr env pos = function
+  | PVariable id -> bind_value (Position.value id) (mk_type_scheme aty) env
+  | PWildcard -> env
+  | PTypeAnnotation (pat, ty) -> 
+    let aty' = internalize_ty env ty in
+    checktype_pattern aty aty' pat (Some (Position.value expr));
+    located (typecheck_pattern aty' expr env) pat
+  | PLiteral lit -> 
+    let pos = Position.position lit in
+    let aty' = aty_of_literal' lit in
+    if aty = aty' then env else type_error pos "Literal matches is wrong"
+  | PTaggedValue (cons, olty, lpat) -> 
+    begin match olty with
+      | None -> env
+      | Some lty -> env
+    end
+  | PRecord (llpat, olty) -> 
+    begin match olty with
+      | None -> env
+      | Some lty -> env
+    end
+  | POr lpat | PAnd lpat -> 
+    List.fold_left (fun env' pat -> 
+      located (typecheck_pattern aty expr env') pat) env lpat
+
+and checktype_pattern aty aty' pat expr =
+  let (x, pos) = Position.value pat, Position.position pat in
+  if aty <> aty' then
+    type_error pos 
+    ((if_parent_expr expr) ^
+    (string_pattern x) ^ " pattern matches values of type " ^ (print_aty aty') ^
+    " but a pattern was expected which matches values of type " ^ (print_aty aty))
+  else
+    ()
+
 and typecheck_type_scheme env pos = function
   | ForallTy (ltvar, ty) -> 
     let new_env = clean_type_variables env in
@@ -444,7 +522,7 @@ and check_expected_type_expr parent_expr expr expected_aty aty =
         ()
       else
         type_error pos 
-        ((if_parent_expr parent_expr) ^ "\n" ^
+        ((if_parent_expr parent_expr) ^
         (string_of_expression' expr) ^ " has type " ^ (print_aty aty) ^
         " but an expression was expected of type " ^ (print_aty expected_aty))
   else

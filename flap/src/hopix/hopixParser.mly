@@ -34,6 +34,7 @@
 %left BINOP
 %left PLUS, MINUS
 %left SLASH, STAR
+%left TYPE_CON CONSTR_ID
 %right LPAREN
 %right COLON DOT
 %right EXCLMARK REF
@@ -81,7 +82,11 @@ expression:
 {
   Variable (var_id, tc)
 }
-| constr_id=located(constructor) tc=ty_chevron lexpr=loption(delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN))
+| constr_id=located(constructor) tc=ty_chevron
+{
+  Tagged (constr_id, tc, [])
+}
+| constr_id=located(constructor) tc=ty_chevron lexpr=delimited(LPAREN, separated_nonempty_list(COMMA, located(expression)), RPAREN)
 {
   Tagged (constr_id, tc, lexpr)
 }

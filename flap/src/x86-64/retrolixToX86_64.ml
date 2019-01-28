@@ -497,7 +497,7 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
 
 (** {2 Concrete instructions selectors and calling conventions} *)
 
-module MyInstructionSelector : InstructionSelector =
+module InstructionSelector : InstructionSelector =
   struct
     open T
 
@@ -533,7 +533,7 @@ module MyInstructionSelector : InstructionSelector =
 
   end
 
-module MyFrameManager(IS : InstructionSelector) : FrameManager =
+module FrameManager(IS : InstructionSelector) : FrameManager =
   struct
     type frame_descriptor =
       {
@@ -559,16 +559,19 @@ module MyFrameManager(IS : InstructionSelector) : FrameManager =
       + fd.locals_space
 
     let frame_descriptor ~params ~locals =
-      failwith "Students! This is your job!"
+      (* Student! Implement me! *)
+      { param_count = 0; locals_space = 0; stack_map = S.IdMap.empty; }
 
     let location_of fd id =
       failwith "Students! This is your job!"
 
     let function_prologue fd =
-      failwith "Students! This is your job!"
+      (* Student! Implement me! *)
+      []
 
     let function_epilogue fd =
-      failwith "Students! This is your job!"
+      (* Student! Implement me! *)
+      []
 
     let call fd ~kind ~f ~args =
       failwith "Students! This is your job!"
@@ -576,6 +579,6 @@ module MyFrameManager(IS : InstructionSelector) : FrameManager =
   end
 
 module CG =
-  Codegen(MyInstructionSelector)(MyFrameManager(MyInstructionSelector))
+  Codegen(InstructionSelector)(FrameManager(InstructionSelector))
 
 let translate = CG.translate

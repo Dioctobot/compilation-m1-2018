@@ -12,7 +12,7 @@ def arithmetic
   `*` (z, `+` (x, y))))
 
 val some_Int = 12345
-val some_other_Int = -889275714
+val some_other_Int = 3405691582
 val some_other_other_Int = 1354
 val yet_another_Int = 30344
 val some_char = 'a'

@@ -6,6 +6,7 @@ true : thread
 <src/common>     : include
 <src/utilities>  : include
 <src/hopix>      : include
+<src/fopix>      : include
 <src/retrolix>   : include
 <src/x86-64>     : include
 <src/elf>        : include

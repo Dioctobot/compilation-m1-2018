@@ -336,6 +336,7 @@ let evaluate runtime0 (ast : t) =
          return (DBool (c1 = c2)) runtime
       | ("observe_int" | "print_int"), (DInt i :: _) ->
          print_string (Mint.to_string i);
+         flush stdout;
          return DUnit runtime
       | "print_char", (DChar i :: _) ->
          print_char i;
@@ -347,10 +348,9 @@ let evaluate runtime0 (ast : t) =
         (DInt i1 :: DInt i2 :: DInt i3 :: DInt i4
          :: DInt i5 :: DInt i6 :: DInt i7 :: DInt i8 :: _) ->
          let r =
-           List.fold_left Mint.add Mint.zero [i1; i2; i3; i4; i5; i6; i7]
+           List.fold_left Mint.add Mint.zero [i1; i2; i3; i4; i5; i6; i7; i8]
          in
-         print_string (Mint.to_string r);
-         return DUnit runtime
+         return (DInt r) runtime
       | _ ->
          failwith (
              Printf.sprintf

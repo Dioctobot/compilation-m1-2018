@@ -194,6 +194,8 @@ and condition_op = T.(function
 )
 
 let preprocess p env =
+  Printf.printf "LOL %s\n" 
+    (FopixPrettyPrinter.(to_string program p));
   (p, env)
 
 

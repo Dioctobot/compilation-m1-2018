@@ -1,0 +1,3 @@
+def x (y) = print_int (y)
+
+val display = x (37)

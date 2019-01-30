@@ -1,0 +1,52 @@
+def double_int()
+d0 : %rax <- add %rdi, %rdi;
+d1 : ret;
+end
+
+globals(x)
+l00 : x <- copy 1;
+l01 : %rbx <- copy 4;
+l02 : jumpif gte %rbx, 1 -> l03, l08;
+l03 : %rdi <- copy x;
+l04 : %rbx <- sub %rbx, 1;
+l05 : double_int ();
+l06 : x <- copy %rax;
+l07 : jump l02;
+l08 : %rdi <- copy x;
+l09 : observe_int ();
+l10 : exit;
+end
+
+double_int:
+  pushq %rbp
+  subq $8, %rsp
+  addq %rdi, %rdi
+  movq %rdi, %rax
+  addq $8, %rsp
+  popq %rbp 
+  ret
+
+l01 :
+  subq %8, %rsp
+  movq $1, x(%rip); x <- 1
+  movq $4, %rdx rbx <- 4
+  
+l02 :
+  cmp $1, %rbx;
+  jge l03; aller à l03 si %rbx - 1 > 0
+  jmp l08
+
+l03 :
+  movq x(%rip), %rdi; rdi <- x
+  subq $1, %rdx;
+  call double_int;
+  movq %rax, x(%rip)
+  jmp l02
+
+l08 :
+  movq x(%rip), %rdi
+  call observe_int;
+  movq %0, %rdi;
+  call exit
+
+

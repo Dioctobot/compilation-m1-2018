@@ -32,6 +32,9 @@ let scratch = `Reg scratchr
 let rsp = `Reg X86_64_Architecture.RSP
 let rbp = `Reg X86_64_Architecture.RBP
 let rdi = `Reg X86_64_Architecture.RDI
+let rax = `Reg X86_64_Architecture.RAX
+let rcx = `Reg X86_64_Architecture.RCX
+let rdx = `Reg X86_64_Architecture.RDX
 
 (** [align n b] returns the smallest multiple of [b] larger than [n]. *)
 let align n b =
@@ -502,33 +505,61 @@ module InstructionSelector : InstructionSelector =
     open T
 
     let mov ~(dst : dst) ~(src : src) =
-      failwith "Students! This is your job!"
+      Printf.printf "mov\n";
+      [T.(Instruction (movq ~src ~dst))]
 
     let bin ins ~dst ~srcl ~srcr =
+      Printf.printf "bin\n";
       failwith "Students! This is your job!"
 
     let add ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Printf.printf "add\n";
+      [T.(Instruction (movq ~src:srcr ~dst:scratch));
+      T.(Instruction (addq ~src:srcl ~dst:scratch));
+      T.(Instruction (movq ~src:scratch ~dst));
+      ]
 
     let sub ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Printf.printf "sub\n";
+      [T.(Instruction (movq ~src:srcr ~dst:scratch));
+      T.(Instruction (subq ~src:srcl ~dst:scratch));
+      T.(Instruction (movq ~src:scratch ~dst));
+      ]
 
     let mul ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Printf.printf "mul\n";
+      [T.(Instruction (movq ~src:srcr ~dst:rax));
+      T.(Instruction (imulq ~src:srcl ~dst:scratch));
+      T.(Instruction (movq ~src:scratch ~dst));
+      ]
 
     let div ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Printf.printf "div\n";
+      [T.(Instruction (movq ~src:srcr ~dst:rax));
+      T.(Instruction (idivq ~src:srcl));
+      T.(Instruction (movq ~src:srcr ~dst));
+      ]
 
     let andl ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Printf.printf "andl\n";
+      [T.(Instruction (movq ~src:srcr ~dst:scratch));
+      T.(Instruction (andq ~src:srcl ~dst:scratch));
+      T.(Instruction (movq ~src:scratch ~dst));
+      ]
 
     let orl ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Printf.printf "orl\n";
+      [T.(Instruction (movq ~src:srcr ~dst:scratch));
+      T.(Instruction (orq ~src:srcl ~dst:scratch));
+      T.(Instruction (movq ~src:scratch ~dst));
+      ]
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
+      Printf.printf "conditional_jump\n";
       failwith "Students! This is your job!"
 
     let switch ?default ~discriminant ~cases =
+      Printf.printf "switch\n";
       failwith "Students! This is your job!"
 
   end
@@ -563,17 +594,22 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
       { param_count = 0; locals_space = 0; stack_map = S.IdMap.empty; }
 
     let location_of fd id =
+      Printf.printf "location_of\n";
       failwith "Students! This is your job!"
 
     let function_prologue fd =
       (* Student! Implement me! *)
+      Printf.printf "function_prologue\n";
       []
 
     let function_epilogue fd =
       (* Student! Implement me! *)
+      Printf.printf "function_epilogue\n";
+      
       []
 
     let call fd ~kind ~f ~args =
+      Printf.printf "call\n";
       failwith "Students! This is your job!"
 
   end

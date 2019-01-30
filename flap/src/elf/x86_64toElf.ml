@@ -6,10 +6,18 @@ type environment = unit
 let initial_environment () =
   ()
 
+let installation_directory () =
+  Filename.dirname Sys.argv.(0)
+
 let gcc ~src ~tgt =
+  let open Filename in
+  let runtime =
+    concat (installation_directory ()) @@ concat "runtime" "runtime.c"
+  in
   Printf.sprintf
-    "gcc -no-pie -g %s -o %s"
+    "gcc -no-pie -g %s %s -o %s"
     src
+    runtime
     tgt
 
 let translate (p : X86_64.ast) env =

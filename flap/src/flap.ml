@@ -29,6 +29,7 @@ and initialize_options () =
 
 and initialize_languages () =
   HopixInitialization.initialize ();
+  FopixInitialization.initialize ();
   RetrolixInitialization.initialize ();
   X86_64_Initialization.initialize ();
   ElfInitialization.initialize ();
@@ -66,7 +67,7 @@ let eval runtime eval print =
   let runtime, observation = eval runtime in
   let elapsed_time = Unix.gettimeofday () -. now in
   if Options.get_benchmark () then
-    print_endline ("(" ^ string_of_float elapsed_time ^ "s)");
+    Printf.eprintf "[%fs]\n" elapsed_time;
   if Options.get_verbose_eval () then
     print_endline (print runtime observation);
   runtime

@@ -336,6 +336,7 @@ let evaluate runtime0 (ast : t) =
          return (DBool (c1 = c2)) runtime
       | ("observe_int" | "print_int"), (DInt i :: _) ->
          print_string (Mint.to_string i);
+         flush stdout;
          return DUnit runtime
       | "print_char", (DChar i :: _) ->
          print_char i;

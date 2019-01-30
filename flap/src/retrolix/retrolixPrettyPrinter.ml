@@ -1,4 +1,4 @@
-(** This module offers a pretty-printer for Stackix programs. *)
+(** This module offers a pretty-printer for Retrolix programs. *)
 
 open PPrint
 open PPrintCombinators
@@ -137,5 +137,5 @@ let instruction i = group (instruction i)
 
 let to_string f x =
   let b = Buffer.create 13 in
-  ToBuffer.pretty 0.5 80 b (f x);
+  ToBuffer.pretty 0.7 120 b (f x);
   Buffer.contents b

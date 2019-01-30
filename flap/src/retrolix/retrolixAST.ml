@@ -112,7 +112,7 @@ module FIdMap = Map.Make (FIdCmp)
 exception GlobalIdentifiersMustBeUnique of identifier
 
 (** [globals p] returns the global variables of the program [p]. It
-    checks that the definition are unique. *)
+    checks that each definition is unique. *)
 let globals =
   List.fold_left (fun globals -> function
       | DValues (xs, _) ->

@@ -350,8 +350,7 @@ let evaluate runtime0 (ast : t) =
          let r =
            List.fold_left Mint.add Mint.zero [i1; i2; i3; i4; i5; i6; i7; i8]
          in
-         print_string (Mint.to_string r);
-         return DUnit runtime
+         return (DInt r) runtime
       | _ ->
          failwith (
              Printf.sprintf

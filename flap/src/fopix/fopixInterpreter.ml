@@ -258,7 +258,7 @@ and expression runtime = function
      | _ -> assert false (* By typing. *)
      end
 
-  | FunCall (FunId "print_int", [e]) ->
+  | FunCall (FunId ("observe_int" | "print_int"), [e]) ->
      begin match expression runtime e with
      | VInt x ->
         ignore (print_string (Mint.to_string x));

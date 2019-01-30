@@ -230,7 +230,11 @@ and expression runtime = function
     end
 
   | IfThenElse (c, t, f) ->
-    failwith "Student! This is your job!"
+    begin match value_as_bool (expression runtime c) with
+      | Some true -> expression runtime t
+      | Some false -> expression runtime f
+      | None -> error [] "Condition is not a boolean."
+    end
 
   | Define (x, ex, e) ->
     let v = expression runtime ex in
@@ -241,10 +245,27 @@ and expression runtime = function
     expression runtime e
 
   | FunCall (FunId "allocate_block", [size]) ->
-    failwith "Student! This is your job!"
+    begin match value_as_int (expression runtime size) with
+      | Some size ->
+        let a = Memory.allocate runtime.memory size VUnit in
+        VAddress a
+      | None ->
+        error [] "A block size should be an integer."
+    end
 
   | (FunCall (FunId "read_block", [location; index])) as e ->
-    failwith "Student! This is your job!"
+    begin match
+        (value_as_address (expression runtime location),
+         value_as_int (expression runtime index))
+      with
+        | Some location, Some index ->
+           let block = Memory.dereference runtime.memory location in
+           Memory.read block index
+        | None, _ ->
+          error [] (Printf.sprintf "Expecting a block while evaluating %s" (FopixPrettyPrinter.(to_string expression e)))
+        | _, None ->
+          error [] "Expecting an integer."
+    end
 
   | FunCall (FunId "equal_string", [e1; e2]) ->
      begin match expression runtime e1, expression runtime e2 with
@@ -273,7 +294,20 @@ and expression runtime = function
      end
 
   | FunCall (FunId "write_block", [location; index; e]) ->
-    failwith "Student! This is your job!"
+    begin match
+        (value_as_address (expression runtime location),
+         value_as_int (expression runtime index))
+      with
+        | Some location, Some index ->
+          let v = expression runtime e in
+          let block = Memory.dereference runtime.memory location in
+          Memory.write block index v;
+          VUnit
+        | None, _ ->
+          error [] "Expecting a block."
+        | _, None ->
+          error [] "Expecting an integer."
+    end
 
   | FunCall (FunId (("`&&" | "`||") as binop), [e1; e2]) ->
      begin match expression runtime e1, binop with

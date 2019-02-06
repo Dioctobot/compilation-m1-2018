@@ -500,67 +500,67 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
 
 (** {2 Concrete instructions selectors and calling conventions} *)
 
+let display ~src = match src with
+  | dst -> match dst with
+    | `Addr addr -> Printf.printf "%s\n" 
+      X86_64_PrettyPrinter.(to_string address addr)
+    | `Reg r -> Printf.printf "%s\n" 
+      X86_64_PrettyPrinter.(to_string reg r)
+  | `Imm i -> Printf.printf "%s\n" 
+    X86_64_PrettyPrinter.(to_string imm i)
+
+let display' ~src = match src with
+  | dst -> match dst with
+    | `Addr addr -> Printf.printf "%s\n" 
+      X86_64_PrettyPrinter.(to_string address addr)
+    | `Reg r -> Printf.printf "%s\n" 
+      X86_64_PrettyPrinter.(to_string reg r)
+  | `Imm i -> Printf.printf "%s\n" 
+    X86_64_PrettyPrinter.(to_string imm i)
+
 module InstructionSelector : InstructionSelector =
   struct
     open T
 
     let mov ~(dst : dst) ~(src : src) =
       Printf.printf "mov\n";
-      [T.(Instruction (movq ~src ~dst))]
+      []
 
     let bin ins ~dst ~srcl ~srcr =
       Printf.printf "bin\n";
-      failwith "Students! This is your job!"
+      []
 
     let add ~dst ~srcl ~srcr =
       Printf.printf "add\n";
-      [T.(Instruction (movq ~src:srcr ~dst:scratch));
-      T.(Instruction (addq ~src:srcl ~dst:scratch));
-      T.(Instruction (movq ~src:scratch ~dst));
-      ]
+      []
 
     let sub ~dst ~srcl ~srcr =
       Printf.printf "sub\n";
-      [T.(Instruction (movq ~src:srcr ~dst:scratch));
-      T.(Instruction (subq ~src:srcl ~dst:scratch));
-      T.(Instruction (movq ~src:scratch ~dst));
-      ]
+      []
 
     let mul ~dst ~srcl ~srcr =
       Printf.printf "mul\n";
-      [T.(Instruction (movq ~src:srcr ~dst:rax));
-      T.(Instruction (imulq ~src:srcl ~dst:scratch));
-      T.(Instruction (movq ~src:scratch ~dst));
-      ]
+      []
 
     let div ~dst ~srcl ~srcr =
       Printf.printf "div\n";
-      [T.(Instruction (movq ~src:srcr ~dst:rax));
-      T.(Instruction (idivq ~src:srcl));
-      T.(Instruction (movq ~src:srcr ~dst));
-      ]
+      []
 
     let andl ~dst ~srcl ~srcr =
       Printf.printf "andl\n";
-      [T.(Instruction (movq ~src:srcr ~dst:scratch));
-      T.(Instruction (andq ~src:srcl ~dst:scratch));
-      T.(Instruction (movq ~src:scratch ~dst));
-      ]
+      []
 
     let orl ~dst ~srcl ~srcr =
       Printf.printf "orl\n";
-      [T.(Instruction (movq ~src:srcr ~dst:scratch));
-      T.(Instruction (orq ~src:srcl ~dst:scratch));
-      T.(Instruction (movq ~src:scratch ~dst));
-      ]
+      []
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
       Printf.printf "conditional_jump\n";
-      failwith "Students! This is your job!"
+      []
 
     let switch ?default ~discriminant ~cases =
       Printf.printf "switch\n";
-      failwith "Students! This is your job!"
+      []
 
   end
 
@@ -590,27 +590,41 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
       + fd.locals_space
 
     let frame_descriptor ~params ~locals =
-      (* Student! Implement me! *)
-      { param_count = 0; locals_space = 0; stack_map = S.IdMap.empty; }
+      (* Student! Implement me! 
+      Printf.printf "frame_descriptor\n";
+      Printf.printf "params\n";
+      List.iter (fun id -> Printf.printf "%s\n" (data_label_of_global id)) params;
+      Printf.printf "locals\n";
+      List.iter (fun id -> Printf.printf "%s\n" (data_label_of_global id)) locals;
+*)
+      { param_count = 0; 
+      locals_space = 0; 
+      stack_map = S.IdMap.empty; }
 
     let location_of fd id =
-      Printf.printf "location_of\n";
-      failwith "Students! This is your job!"
+      (*Printf.printf "location_of\n";
+      Printf.printf "%s\n" (data_label_of_global id);
+      Printf.printf "param_count %d\n" fd.param_count;
+      Printf.printf "locals_space %d\n" fd.locals_space;*)
+      T.addr ()
 
     let function_prologue fd =
       (* Student! Implement me! *)
-      Printf.printf "function_prologue\n";
+      (*Printf.printf "function_prologue\n";
+      Printf.printf "param_count %d\n" fd.param_count;
+      Printf.printf "locals_space %d\n" fd.locals_space;*)
+
       []
 
     let function_epilogue fd =
-      (* Student! Implement me! *)
-      Printf.printf "function_epilogue\n";
+      (* Student! Implement me! 
+      Printf.printf "function_epilogue\n";*)
       
       []
 
     let call fd ~kind ~f ~args =
-      Printf.printf "call\n";
-      failwith "Students! This is your job!"
+      (*Printf.printf "call\n";*)
+      []
 
   end
 

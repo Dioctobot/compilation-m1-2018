@@ -173,3 +173,52 @@ let rec expression e dst = match e with
     expression srcl dstl ++
     expression srcl dstr ++
     [Assign(dst, Add, [dstl;dstr])] 
+
+
+Cours 4:
+
+let f0 z =
+  let y = z * 2 in
+  fun x -> x + y + z
+
+#defin as_int(x,i) ((int*)x)[i]
+
+typedef void* any_t;
+
+
+any_int (int x) {
+  any_t a = (int* )malloc (sizeof(int));
+  as_int (a, 0) = x;
+  return a;
+}
+
+typedef any_t (*function_ptr_t) (any_t args);
+
+typedef struct closure {
+  any_t* free_varaibles;
+  function_ptr_t code;
+} closure_t;
+
+
+any_t g_code(closure_t* close, any_t x) {
+  return as_int(x, 0) + as_int(close->free_varaibles, 0) + as_int(close->free_varaibles, 1);
+}
+
+any_t f0 (closure_t close, any_t z) {
+  int y = ((int *) z)[0] * 2;
+  closure_t* c = (closure_t*) malloc (sizeof (closure_t));
+  c-> code = g_code;
+  c->free_varaibles = (any_t*) malloc (sizeof (any_t) * 2);
+  c->free_varaibles[0] = any_int (y);
+  c->free_varaibles[1] = z;
+  return c;
+}
+
+int main() {
+  closure_t* f0 = (closure_t*) malloc (sizeof (closure_t));
+  f0->code = f0_code;
+
+  closure_t* h = f0->code (f0, any_int(3));
+  printf("%d\n", as_int (h->code(h->code (h, any_int(4)))));
+  exit(EXIT_SUCCESS);
+}

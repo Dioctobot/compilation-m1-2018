@@ -1,6 +1,6 @@
-(* This module implements a compiler from Retrolix to X86-64 *)
+(** This module implements a compiler from Retrolix to X86-64 *)
 
-(* In more details, this module performs the following tasks:
+(** In more details, this module performs the following tasks:
    - turning accesses to local variables and function parameters into stack
      loads and stores ;
    - generating initialization code and reserving space in the .data section for

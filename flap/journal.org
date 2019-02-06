@@ -992,7 +992,7 @@ def fact ()
      initialiseur de variable globale).
 
      Plus subtil : Fopix accède à la mémoire à travers des blocs. La syntaxe
-     concrète des assignations prend la forme
+     concrète des affectations prend la forme
 
        block_e[index_e] := val_e
 
@@ -1066,6 +1066,9 @@ def fact ()
       mesure, de séparer la correction de l'efficicacité. Concrètement, on peut
       générer du code naïf simple qui sera optimisé par une passe ultérieure.
 * Cours 12 <2019-02-04>
+** FAQ
+   - Question d'OCaml:
+     Comment utiliser les "labels" en OCaml?
 ** De Fopix à Retrolix, continued
 *** Détails de la traduction
 **** Les variables locales et le masquage
@@ -1121,3 +1124,81 @@ def fact ()
         lK1: %rax <- copy r;
              ret;
       end
+** En route vers le jalon 6, de Hobix vers Fopix
+*** Présentation de Hobix
+    - Voir [file:src/hobix/hobixAST.ml]
+*** Les différences entre Hobix et Fopix
+    - Fopix distingue les fonctions et les valeurs, Hobix non.
+    - Les littéraux de Hobix sont les mêmes que Fopix, sauf les pointeurs de fonction.
+*** L'explication des fermetures
+
+Comment traduire les programmes OCaml suivant en C?
+
+**** Rappel: une fonction, ce n'est pas juste un pointeur.
+
+let f0 z =
+  let y = z * 2 in
+  fun x -> x + y + z
+
+***** Traduction
+
+      C(fun (x₁, ..., xₙ) -> e) = <<
+        val c = allocate_block (1 + m)
+        c[0] := &code
+        c[1] := y₁
+        ...
+        c[m] := yₘ
+      >>
+      where FV(fun (x₁, ..., xₙ) -> e) = { y₁, ..., yₘ}
+      where code is such that:
+      <<
+      def code (closure, x₁, ..., xₙ) = C(e)
+      >>
+
+**** Application = auto-application d'une fermeture
+
+let test0 = f0 3
+
+let apply f x = f x
+
+     C(a b) = <<
+        val c = C(a);
+        val e = C(b);
+        c[0] (c, e)
+     >>
+
+**** La récursion simple
+
+let rec repeat n f =
+  if n = 0 then () else (f n; repeat (n - 1) f)
+
+let test1 = repeat 3 (fun x -> x + 1)
+
+let test2 = repeat 5 (f0 2)
+
+***** Solution 1
+      Mimer l'interpréteur en produisant des fermetures cycliques où
+      les occurrences récursives sont vues comme des variables libres.
+
+***** Solution 2
+      Comme on compile la fonction repeat, on connait le nom de la
+      fonction fopix qui réalise son code : il suffit de l'appeler
+      directement.
+
+**** La récursion mutuelle
+
+let repeat_alt n f =
+  let rec odd k =
+     if k < 0 then () else (f true; even (k - 1))
+  and even k =
+     if k < 0 then () else (f false; odd (k - 1))
+  in
+  if n mod 0 = 0 then even n else odd n
+
+  - Les solutions sont similaires au cas d'une simple fonction récursive.
+  - On peut aussi faire comme OCaml et produire une unique fermeture
+    qui partage les pointeurs de toutes les fonctions mutuellement
+    récursives et l'union des variables libres de ces fonctions.
+
+*** Les différents choix de représentation des fermetures
+

@@ -102,6 +102,11 @@ module FIdCmp = struct
 end
 module FIdSet = Set.Make (FIdCmp)
 module FIdMap = Map.Make (FIdCmp)
+module LabelCmp = struct
+  type t = label
+  let compare = compare
+end
+module LabelSet = Set.Make (LabelCmp)
 
 (**
 

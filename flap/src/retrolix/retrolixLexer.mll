@@ -46,6 +46,8 @@ rule token = parse
   | "div"                 { DIV }
   | "sub"                 { SUB }
   | "copy"                { COPY }
+  | "and"                 { AND }
+  | "or"                  { OR  }
   | "gt"                  { GT  }
   | "gte"                 { GTE }
   | "lt"                  { LT  }

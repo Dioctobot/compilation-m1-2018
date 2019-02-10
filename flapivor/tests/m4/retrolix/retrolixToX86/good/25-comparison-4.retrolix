@@ -1,0 +1,11 @@
+external printf
+
+globals (x)
+  l11: jumpif lte 1, 1 -> l17, l20;
+  l17: %rdi <- copy "lte\n";
+  l18: printf();
+  l19: exit;
+  l20: %rdi <- copy "not lte\n";
+  l21: printf();
+  l22: exit;
+end

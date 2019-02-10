@@ -1,0 +1,11 @@
+external printf
+
+globals (x)
+  l11: jumpif eq 1, 1 -> l17, l20;
+  l17: %rdi <- copy "eq\n";
+  l18: printf();
+  l19: exit;
+  l20: %rdi <- copy "not eq\n";
+  l21: printf();
+  l22: exit;
+end

@@ -10,8 +10,9 @@ def check ()
   c07: jump c10;
   c08: %rdi <- copy "rdi <> 0, 1, 2, 3\n";
   c09: jump c10;
-  c10: printf ();
-  c11: ret;
+  c10: %rax <- copy 0;
+  c11: printf ();
+  c12: ret;
 end
 
 globals (x)

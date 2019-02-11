@@ -7,8 +7,9 @@ local a1, a2:
   l10: %rdi <- copy "%d %d\n";
   l11: %rsi <- copy a1;
   l12: %rdx <- copy a2;
-  l13: printf();
-  l14: ret;
+  l13: %rax <- copy 0;
+  l14: printf();
+  l15: ret;
 end
 
 globals (x)

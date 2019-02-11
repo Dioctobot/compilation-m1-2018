@@ -5,8 +5,9 @@ local a1:
   a1: a1 <- copy %rdi;
   l00: %rdi <- copy "%d\n";
   l01: %rsi <- copy a1;
-  l02: printf();
-  l03: ret;
+  l02: %rax <- copy 0;
+  l03: printf();
+  l04: ret;
 end
 
 globals (x)

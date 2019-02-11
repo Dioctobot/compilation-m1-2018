@@ -11,8 +11,9 @@ local a1, a2, a3, a4:
   l12: %rdx <- copy a2;
   l13: %rcx <- copy a3;
   l14: %r8 <- copy a4;
-  l15: printf();
-  l16: ret;
+  l15: %rax <- copy 0;
+  l16: printf();
+  l17: ret;
 end
 
 globals (x)

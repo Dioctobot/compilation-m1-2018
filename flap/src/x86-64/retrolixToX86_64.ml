@@ -386,7 +386,8 @@ module Codegen(IS : InstructionSelector)(FM : FrameManager) =
          env
 
       | Exit ->
-         FM.call fd ~kind:`Normal ~f:(`Imm (Lab "exit")) ~args:[liti 0],
+         IS.mov ~src:(liti 0) ~dst:rdi
+         @ FM.call fd ~kind:`Normal ~f:(`Imm (Lab "exit")) ~args:[],
          env
       end
 

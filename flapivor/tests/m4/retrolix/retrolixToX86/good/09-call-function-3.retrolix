@@ -9,8 +9,9 @@ local a1, a2, a3:
   l11: %rsi <- copy a1;
   l12: %rdx <- copy a2;
   l13: %rcx <- copy a3;
-  l14: printf();
-  l15: ret;
+  l14: %rax <- copy 0;
+  l15: printf();
+  l16: ret;
 end
 
 globals (x)

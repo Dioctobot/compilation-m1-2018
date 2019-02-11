@@ -36,6 +36,10 @@ let rax = `Reg X86_64_Architecture.RAX
 let rcx = `Reg X86_64_Architecture.RCX
 let rdx = `Reg X86_64_Architecture.RDX
 
+let r14 = `Reg X86_64_Architecture.RDX
+let r13 = `Reg X86_64_Architecture.RDX
+let r12 = `Reg X86_64_Architecture.RDX
+
 (** [align n b] returns the smallest multiple of [b] larger than [n]. *)
 let align n b =
   let m = n mod b in
@@ -523,8 +527,8 @@ module InstructionSelector : InstructionSelector =
     open T
 
     let mov ~(dst : dst) ~(src : src) =
-      Printf.printf "mov\n";
-      []
+      (*Printf.printf "add\n";*)
+      [T.(Instruction (movq src dst))]
 
     let bin ins ~dst ~srcl ~srcr =
       Printf.printf "bin\n";
@@ -536,15 +540,26 @@ module InstructionSelector : InstructionSelector =
 
     let sub ~dst ~srcl ~srcr =
       Printf.printf "sub\n";
-      []
+      [
+        T.(Instruction (movq srcl scratch));
+        T.(Instruction (subq srcr scratch));
+        T.(Instruction (movq scratch dst));
+      ]
 
     let mul ~dst ~srcl ~srcr =
       Printf.printf "mul\n";
-      []
+      [
+        T.(Instruction (movq srcl scratch));
+        T.(Instruction (subq srcr scratch));
+        T.(Instruction (movq scratch dst));
+      ]
 
     let div ~dst ~srcl ~srcr =
       Printf.printf "div\n";
-      []
+      [
+        T.(Instruction (movq srcl rdx));
+        T.(Instruction (movq srcr rax));
+      ]
 
     let andl ~dst ~srcl ~srcr =
       Printf.printf "andl\n";
@@ -597,12 +612,14 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
       Printf.printf "locals\n";
       List.iter (fun id -> Printf.printf "%s\n" (data_label_of_global id)) locals;
 *)
-      { param_count = 0; 
-      locals_space = 0; 
+      { param_count = List.length params;
+      locals_space = List.fold_left (fun acc locals -> 
+        acc + Mint.size_in_bytes) (0) locals; 
       stack_map = S.IdMap.empty; }
 
     let location_of fd id =
-      (*Printf.printf "location_of\n";
+      Printf.printf "location_of\n";
+      (*
       Printf.printf "%s\n" (data_label_of_global id);
       Printf.printf "param_count %d\n" fd.param_count;
       Printf.printf "locals_space %d\n" fd.locals_space;*)
@@ -614,17 +631,43 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
       Printf.printf "param_count %d\n" fd.param_count;
       Printf.printf "locals_space %d\n" fd.locals_space;*)
 
-      []
+      [
+        T.(Instruction (pushq scratch));
+        T.(Instruction (pushq r14));
+        T.(Instruction (pushq r13));
+      ] @ (IS.sub rdi rsp rax)
 
-    let function_epilogue fd =
+    let function_epilogue fd = 
+      let check_frame = match empty_frame fd with
+        | true -> [T.(Instruction (leaq (T.addr ()) rsp))] (*TODO -128[R13] *)
+        | false -> [T.(Instruction (leaq (T.addr ()) rsp))] (*TODO fixed-allocation-size -128[R13] *)
+      in
       (* Student! Implement me! 
       Printf.printf "function_epilogue\n";*)
-      
-      []
+      check_frame @ 
+      [
+        T.(Instruction (popq r13));
+        T.(Instruction (popq r14));
+        T.(Instruction (popq scratch));
+        T.(Instruction Ret);
+      ]
 
     let call fd ~kind ~f ~args =
       (*Printf.printf "call\n";*)
-      []
+      let check_call () = [] in
+      [
+        T.(Instruction (pushq rbp));
+        T.(Instruction (movq rsp rbp));
+        T.(Instruction (subq (liti 16) rsp));
+      ]
+      @
+      check_call ()
+      @
+      [
+        T.(Instruction (addq (liti 16) rsp));
+        T.(Instruction (popq rbp));
+        T.(Instruction Ret);
+      ]
 
   end
 

@@ -1,0 +1,10 @@
+def f()
+  %rax <- copy 42;
+end
+
+
+globals()
+  f();
+  %rdi <- copy %rax;
+  observe_int (%rdi);
+end

@@ -14,7 +14,7 @@
 %token LOCAL CALL TAIL RET LARROW RARROW EXIT UPPERSAND
 %token JUMP JUMPIF SWITCH ORELSE
 %token GT LT GTE LTE EQ
-%token ADD MUL DIV SUB COPY
+%token ADD MUL DIV SUB COPY AND OR
 %token<Mint.t> INT
 %token<string> ID RID COMMENT LSTRING
 %token<char> LCHAR
@@ -138,6 +138,8 @@ op:
 | DIV { Div }
 | SUB { Sub }
 | COPY { Copy }
+| AND { And }
+| OR  { Or }
 
 lvalue:
  v=identifier

@@ -29,19 +29,20 @@ let rec program ?(decorations=nodecorations) p =
 and definition decorations = function
   | DValues (xs, b) ->
     group (string "globals" ++ parens (identifiers xs))
-    ^^ hardline ^^ block decorations b ++ string "end"
+    ^^ hardline
+    ^^ block decorations b  ++ string "end" ^^ hardline
   | DFunction (f, xs, b) ->
     group (string "def"
            ++ function_identifier f
            ++ parens (identifiers xs))
-    ++ hardline
-    ^^ block decorations b ++ string "end"
+    ^^ hardline
+    ^^ block decorations b ++ string "end" ^^ hardline
   | DExternalFunction f ->
     group (string "external" ++ function_identifier f)
 
 and block decorations (ls, b) =
   let shift = max_label_length b in
-  group (locals ls ^^ string ":") ++
+  group (locals ls) ++
   vcat (List.map (labelled_instruction decorations shift) b)
 
 and identifiers xs =
@@ -55,7 +56,7 @@ and function_identifier (FId x) =
 
 and locals = function
   | [] -> empty
-  | xs -> group (string "local" ++ group (identifiers xs))
+  | xs -> group (string "local" ++ group (identifiers xs) ++ string ":")
 
 and labelled_instruction decorations lsize (l, i) =
   vcat (

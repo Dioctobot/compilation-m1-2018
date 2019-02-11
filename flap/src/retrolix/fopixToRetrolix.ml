@@ -77,7 +77,7 @@ and declaration env = T.(function
     let x = Id x in
     let ec = expression (`Variable x) e in
     let locals = locals env ec in
-    DValues ([x], (locals, ec))
+    DValues ([x], (locals, ec @ [labelled T.Ret]))
 
   | S.DefineFunction (S.FunId f, xs, e) ->
     failwith "Students! This is your job!"

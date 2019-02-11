@@ -222,3 +222,23 @@ int main() {
   printf("%d\n", as_int (h->code(h->code (h, any_int(4)))));
   exit(EXIT_SUCCESS);
 }
+
+Cours 5 :
+Compilation(K(e1,...,en)) = 
+val b = allocate_block (n + 1);
+b[0] := "code k";
+b[1] := "Compilation e1";
+...
+b[n] := "Compilation en";
+
+
+
+
+
+let rec all_menu : menu -> menu ListMonad.t = ListMonad.(function
+  | Dish d -> return (Dish d)
+  | And (m1, m2) ->
+    bind (all_menu m1) (fun m1' -> bind (all_menu m2) (fun m2' -> return (And (m1', m2'))))
+  | Or (m1, m2) ->
+    bind (all_menu m1) (fun m1' -> bind (all_menu m2) (fun m2' -> pick [m1', m2']))
+)

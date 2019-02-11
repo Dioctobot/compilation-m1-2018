@@ -35,6 +35,7 @@ let rdi = `Reg X86_64_Architecture.RDI
 let rax = `Reg X86_64_Architecture.RAX
 let rcx = `Reg X86_64_Architecture.RCX
 let rdx = `Reg X86_64_Architecture.RDX
+let rip = `Reg X86_64_Architecture.RIP
 
 let r14 = `Reg X86_64_Architecture.RDX
 let r13 = `Reg X86_64_Architecture.RDX
@@ -527,19 +528,19 @@ module InstructionSelector : InstructionSelector =
     open T
 
     let mov ~(dst : dst) ~(src : src) =
-      (*Printf.printf "add\n";*)
       [T.(Instruction (movq src dst))]
 
     let bin ins ~dst ~srcl ~srcr =
-      Printf.printf "bin\n";
       []
 
     let add ~dst ~srcl ~srcr =
-      Printf.printf "add\n";
-      []
+      [
+        T.(Instruction (movq srcl scratch));
+        T.(Instruction (subq srcr scratch));
+        T.(Instruction (movq scratch dst));
+      ]
 
     let sub ~dst ~srcl ~srcr =
-      Printf.printf "sub\n";
       [
         T.(Instruction (movq srcl scratch));
         T.(Instruction (subq srcr scratch));
@@ -547,22 +548,19 @@ module InstructionSelector : InstructionSelector =
       ]
 
     let mul ~dst ~srcl ~srcr =
-      Printf.printf "mul\n";
       [
         T.(Instruction (movq srcl scratch));
-        T.(Instruction (subq srcr scratch));
+        T.(Instruction (imulq srcr scratch));
         T.(Instruction (movq scratch dst));
       ]
 
     let div ~dst ~srcl ~srcr =
-      Printf.printf "div\n";
       [
         T.(Instruction (movq srcl rdx));
         T.(Instruction (movq srcr rax));
       ]
 
     let andl ~dst ~srcl ~srcr =
-      Printf.printf "andl\n";
       []
 
     let orl ~dst ~srcl ~srcr =
@@ -570,11 +568,9 @@ module InstructionSelector : InstructionSelector =
       []
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
-      Printf.printf "conditional_jump\n";
       []
 
     let switch ?default ~discriminant ~cases =
-      Printf.printf "switch\n";
       []
 
   end
@@ -605,50 +601,65 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
       + fd.locals_space
 
     let frame_descriptor ~params ~locals =
-      (* Student! Implement me! 
-      Printf.printf "frame_descriptor\n";
-      Printf.printf "params\n";
-      List.iter (fun id -> Printf.printf "%s\n" (data_label_of_global id)) params;
-      Printf.printf "locals\n";
-      List.iter (fun id -> Printf.printf "%s\n" (data_label_of_global id)) locals;
-*)
-      { param_count = List.length params;
-      locals_space = List.fold_left (fun acc locals -> 
-        acc + Mint.size_in_bytes) (0) locals; 
-      stack_map = S.IdMap.empty; }
+      (* Student! Implement me! *)
+
+      let params_stack = List.fold_left (fun (acc, value) param ->
+        let new_value = value + 8 in  
+        [param, -new_value] @ acc, new_value) ([], 8) params in
+      let stack_rip = [S.Id "rip", -8] in
+      let stack_rbp = [S.Id "rbp", 0] in
+      let locals_stack = List.fold_left (fun (acc, value) local ->
+        let new_value = value + 8 in  
+        [local, new_value] @ acc, new_value) ([], 0) locals in
+      
+      { 
+        param_count = List.length params;
+        locals_space = List.fold_left (fun acc locals -> 
+          acc + Mint.size_in_bytes) (0) locals; 
+        stack_map = List.fold_left (fun map (id, offset) -> 
+          S.IdMap.add id (Mint.of_int offset) map) (S.IdMap.empty) 
+          ((List.rev (fst params_stack)) @ stack_rip @ stack_rbp @ (fst locals_stack));
+      }
 
     let location_of fd id =
-      Printf.printf "location_of\n";
-      (*
-      Printf.printf "%s\n" (data_label_of_global id);
-      Printf.printf "param_count %d\n" fd.param_count;
-      Printf.printf "locals_space %d\n" fd.locals_space;*)
-      T.addr ()
+      (*Printf.printf "location_of\n";*)
+      let open X86_64_Architecture in
+      try
+        T.(addr ~offset:(Lit (S.IdMap.find id fd.stack_map)) 
+        ~base:(register_of_string "rip")
+        ~idx:(register_of_string "rsp") ())
+      with _ -> 
+        T.addr ()
 
     let function_prologue fd =
-      (* Student! Implement me! *)
-      (*Printf.printf "function_prologue\n";
-      Printf.printf "param_count %d\n" fd.param_count;
-      Printf.printf "locals_space %d\n" fd.locals_space;*)
-
+      (* Student! Implement me! 
       [
         T.(Instruction (pushq scratch));
         T.(Instruction (pushq r14));
         T.(Instruction (pushq r13));
-      ] @ (IS.sub rdi rsp rax)
+      ] @ (IS.sub rdi rsp rax)*)
+      [
+        T.(Instruction (pushq rbp));
+        T.(Instruction (movq rsp rbp));
+        T.(Instruction (subq rdi rbp));
+      ]
 
     let function_epilogue fd = 
-      let check_frame = match empty_frame fd with
-        | true -> [T.(Instruction (leaq (T.addr ()) rsp))] (*TODO -128[R13] *)
-        | false -> [T.(Instruction (leaq (T.addr ()) rsp))] (*TODO fixed-allocation-size -128[R13] *)
-      in
       (* Student! Implement me! 
-      Printf.printf "function_epilogue\n";*)
+      let check_frame = match empty_frame fd with
+        | true -> [T.(Instruction (leaq (T.addr ()) rsp))] TODO -128[R13]
+        | false -> [T.(Instruction (leaq (T.addr ()) rsp))] TODO fixed-allocation-size -128[R13]
+      in
       check_frame @ 
       [
         T.(Instruction (popq r13));
         T.(Instruction (popq r14));
         T.(Instruction (popq scratch));
+        T.(Instruction Ret);
+      ]*)
+      [
+        T.(Instruction (addq rdi rsp));
+        T.(Instruction (popq rbp));
         T.(Instruction Ret);
       ]
 

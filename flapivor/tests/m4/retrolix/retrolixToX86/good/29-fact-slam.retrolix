@@ -61,9 +61,10 @@ local saved_r12:
  tf7: %rsi <- copy %rbx;
  tf8: %rdx <- copy %r12;
  tf9: %rcx <- copy %rax;
- tf10: printf ();
+ tf10: %rax <- copy 0;
+ tf11: printf ();
  tf12: %r12 <- copy saved_r12;
- tf11: ret;
+ tf13: ret;
 end
 
 globals ( )

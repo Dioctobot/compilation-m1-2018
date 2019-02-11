@@ -1,9 +1,9 @@
 external printf
 
 def print_one_int ()
-  rax: %rax <- copy %rdi;
+  rax: %rsi <- copy %rdi;
   l10: %rdi <- copy "%d\n";
-  l11: %rsi <- copy %rax;
+  l11: %rax <- copy 0;
   l12: printf();
   l13: ret;
 end

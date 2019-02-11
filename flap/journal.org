@@ -1065,7 +1065,7 @@ def fact ()
       compilateurs optimisants est de permettre, au moins dans une certaine
       mesure, de séparer la correction de l'efficicacité. Concrètement, on peut
       générer du code naïf simple qui sera optimisé par une passe ultérieure.
-* Cours 12 <2019-02-04>
+* Cours 12 "Explication des fermetures" <2019-02-04>
 ** FAQ
    - Question d'OCaml:
      Comment utiliser les "labels" en OCaml?
@@ -1201,4 +1201,44 @@ let repeat_alt n f =
     récursives et l'union des variables libres de ces fonctions.
 
 *** Les différents choix de représentation des fermetures
+* Cours 13 "L'analyse de motifs" <2019-02-11>
+** FAQ
+   - Exit doit-il vraiment être appelé avec zéro sur la pile?
+   - Comment parler de l'adresse d'une variable globale dans location_of?
+** de Hopix à Retrolix
+*** Compilation des valeurs étiquetées
+*** Compilation naïve du pattern-matching
+**** Expansion élégante des noeuds disjonctifs
+** Vue d'ensemble des optimisations à venir
+** Compilation efficace du pattern-matching
+*** Réfléchir sur un exemple
 
+   - Quelles sont les sources d'inefficacité de la compilation naïve
+     du pattern-matching?
+
+#+BEGIN_EXAMPLE
+    let f x = match x with
+    | A -> 1
+    | B -> 2
+    | C -> 3
+    | D -> 4
+    | E -> 5
+#+END_EXAMPLE
+
+Peut-on remplacer la séquence de tests produite par la compilation
+naïve en une unique opération plus atomique?
+
+#+BEGIN_EXAMPLE
+    let f x y z = match x, y, z with
+    | _, F, T -> 1
+    | F, T, _ -> 2
+    | _, _, F -> 3
+    | _, _, T -> 4
+#+END_EXAMPLE
+
+Comment ne tester au plus qu'une seule fois x, y et z?
+
+*** Article de Luc Maranget
+    - http://moscova.inria.fr/~maranget/papers/ml05e-maranget.pdf
+
+** Compilation du switch en X86-64

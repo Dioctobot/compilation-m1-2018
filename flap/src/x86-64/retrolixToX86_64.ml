@@ -502,34 +502,40 @@ module InstructionSelector : InstructionSelector =
     open T
 
     let mov ~(dst : dst) ~(src : src) =
-      failwith "Students! This is your job!"
+      Instruction (movq src dst) :: []
 
     let bin ins ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (bin)"
 
     let add ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (add)"
 
     let sub ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Instruction (movq srcl scratch)
+      :: Instruction (subq srcr scratch)
+      :: Instruction (movq scratch dst)
+      :: []
 
     let mul ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      Instruction (movq srcl scratch)
+      :: Instruction (imulq srcr scratch)
+      :: Instruction (movq scratch dst)
+      :: []
 
     let div ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (div)"
 
     let andl ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (andl)"
 
     let orl ~dst ~srcl ~srcr =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (orl)"
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (c_jmp)"
 
     let switch ?default ~discriminant ~cases =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (switch)"
 
   end
 
@@ -563,8 +569,21 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
       { param_count = 0; locals_space = 0; stack_map = S.IdMap.empty; }
 
     let location_of fd id =
-      failwith "Students! This is your job!"
-
+      try
+	let offset:T.imm =  Lit (S.IdMap.find id fd.stack_map) in
+	let base = X86_64_Architecture.register_of_string "rsp" in
+	let index = X86_64_Architecture.register_of_string "rip" in
+	let scale = `One in
+	T.addr ~offset:offset ~idx:index ~scale:scale ~base:base ()
+      with
+      |Not_found -> T.addr ~scale:`One ()
+    (* Not_found ->
+	match id with
+	| S.Id s -> 
+	   print_int fd.param_count;
+	   let s = "La variable " ^ s ^ " n'a pas etee trouvee." in
+	   failwith s *)
+					  
     let function_prologue fd =
       (* Student! Implement me! *)
       []
@@ -574,7 +593,7 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
       []
 
     let call fd ~kind ~f ~args =
-      failwith "Students! This is your job!"
+      failwith "Students! This is your job! (call)"
 
   end
 

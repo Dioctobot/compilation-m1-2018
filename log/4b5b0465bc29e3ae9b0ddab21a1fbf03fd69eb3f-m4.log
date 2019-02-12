@@ -1,0 +1,2294 @@
+make: Entering directory '/home/opam/source/flap/tests/m4'
+make[1]: Entering directory '/home/opam/source/flap/tests/m4/retrolix/retrolixToX86/bad'
+========================================================
+In retrolixToX86/bad
+GOOD: 0/0
+
+BAD: 0/0
+make[1]: Leaving directory '/home/opam/source/flap/tests/m4/retrolix/retrolixToX86/bad'
+make[1]: Entering directory '/home/opam/source/flap/tests/m4/retrolix/retrolixToX86/good'
+========================================================
+In retrolixToX86/good
+[ KO ]   -->  01-print-int.retrolix
+
+INPUT:
+globals ()
+  l00: %rdi <- copy 73;
+  l01: observe_int();
+  l02: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+73
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  02-double.retrolix
+
+INPUT:
+def double_int ( )
+  d0: %rax <- add %rdi, %rdi;
+  d1: ret;
+end
+
+globals (x)
+  l00: x <- copy 1;
+  l01: %rbx <- copy 4;
+  l02: jumpif gte %rbx, 1 -> l03, l08;
+  l03: %rdi <- copy x;
+  l04: %rbx <- sub %rbx, 1;
+  l05: double_int();
+  l06: x <- copy %rax;
+  l07: jump l02;
+  l08: %rdi <- copy x;
+  l09: observe_int();
+  l10: exit;
+end
+
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap5b2de8.s":
+/tmp/flap5b2de8.s: Assembler messages:
+/tmp/flap5b2de8.s:31: Error: bad expression
+/tmp/flap5b2de8.s:31: Error: missing ')'
+/tmp/flap5b2de8.s:34: Error: bad expression
+/tmp/flap5b2de8.s:34: Error: missing ')'
+/tmp/flap5b2de8.s:44: Error: bad expression
+/tmp/flap5b2de8.s:44: Error: missing ')'
+/tmp/flap5b2de8.s:46: Error: bad expression
+/tmp/flap5b2de8.s:46: Error: missing ')'
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+16
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  02-print-string.retrolix
+
+INPUT:
+external printf
+
+globals ()
+  l00: %rdi <- copy "Hello world!\n";
+  l01: %rax <- copy 0;
+  l02: printf();
+  l03: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+Hello world!
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  03-print-char.retrolix
+
+INPUT:
+external printf
+
+globals ()
+  l00: %rdi <- copy "%c\n";
+  l01: %rsi <- copy 'a';
+  l02: %rax <- copy 0;
+  l03: printf();
+  l04: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+a
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  04-print-global.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  lx : x <- copy "The universe is big, it's vast and complicated, and ridiculous and sometimes, very rarely, impossible things just happen and we call them miracles.";
+  l00: %rdi <- copy "%s\n";
+  l01: %rsi <- copy x;
+  l02: %rax <- copy 0;
+  l03: printf();
+  l04: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flapbc992f.s":
+/tmp/flapbc992f.s: Assembler messages:
+/tmp/flapbc992f.s:24: Error: bad expression
+/tmp/flapbc992f.s:24: Error: missing ')'
+/tmp/flapbc992f.s:26: Error: bad expression
+/tmp/flapbc992f.s:26: Error: missing ')'
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+The universe is big, it's vast and complicated, and ridiculous and sometimes, very rarely, impossible things just happen and we call them miracles.
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  05-write-global.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  lx : x <- copy "The universe is big, it's vast and complicated, and ridiculous and sometimes, very rarely, impossible things just happen and we call them miracles.";
+  l00: %rdi <- copy "%s\n";
+  l01: %rsi <- copy x;
+  l02: %rax <- copy 0;
+  l03: printf();
+  lx3: x <- copy "Like an assignment that works, for instance!";
+  l04: %rdi <- copy "%s\n";
+  l05: %rsi <- copy x;
+  l06: %rax <- copy 0;
+  l07: printf();
+  l08: exit;
+end
+
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap5d7dde.s":
+/tmp/flap5d7dde.s: Assembler messages:
+/tmp/flap5d7dde.s:28: Error: bad expression
+/tmp/flap5d7dde.s:28: Error: missing ')'
+/tmp/flap5d7dde.s:30: Error: bad expression
+/tmp/flap5d7dde.s:30: Error: missing ')'
+/tmp/flap5d7dde.s:38: Error: bad expression
+/tmp/flap5d7dde.s:38: Error: missing ')'
+/tmp/flap5d7dde.s:40: Error: bad expression
+/tmp/flap5d7dde.s:40: Error: missing ')'
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+The universe is big, it's vast and complicated, and ridiculous and sometimes, very rarely, impossible things just happen and we call them miracles.
+Like an assignment that works, for instance!
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  06-call-function.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+  rax: %rsi <- copy %rdi;
+  l10: %rdi <- copy "%d\n";
+  l11: %rax <- copy 0;
+  l12: printf();
+  l13: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: print_one_int();
+  l03: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  07-call-function-2.retrolix
+
+INPUT:
+external printf
+
+def print_two_int ()
+  rax: %rax <- copy %rdi;
+  rbx: %rbx <- copy %rsi;
+  l10: %rdi <- copy "%d %d\n";
+  l11: %rsi <- copy %rax;
+  l12: %rdx <- copy %rbx;
+  l13: %rax <- copy 0;
+  l14: printf();
+  l15: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: print_two_int();
+  l04: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  08-use-locals.retrolix
+
+INPUT:
+external printf
+
+def print_two_int ()
+local a1, a2:
+  rax: a1 <- copy %rdi;
+  rbx: a2 <- copy %rsi;
+  l10: %rdi <- copy "%d %d\n";
+  l11: %rsi <- copy a1;
+  l12: %rdx <- copy a2;
+  l13: %rax <- copy 0;
+  l14: printf();
+  l15: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: print_two_int();
+  l04: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap8c1f2d.s":
+/tmp/flap8c1f2d.s: Assembler messages:
+/tmp/flap8c1f2d.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8c1f2d.s:22: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8c1f2d.s:24: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8c1f2d.s:25: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  09-call-function-3.retrolix
+
+INPUT:
+external printf
+
+def print_three_int ()
+local a1, a2, a3:
+  a1: a1 <- copy %rdi;
+  a2: a2 <- copy %rsi;
+  a3: a3 <- copy %rdx;
+  l10: %rdi <- copy "%d %d %d\n";
+  l11: %rsi <- copy a1;
+  l12: %rdx <- copy a2;
+  l13: %rcx <- copy a3;
+  l14: %rax <- copy 0;
+  l15: printf();
+  l16: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: %rdx <- copy 42;
+  l04: print_three_int();
+  l05: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flapd84c60.s":
+/tmp/flapd84c60.s: Assembler messages:
+/tmp/flapd84c60.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapd84c60.s:22: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapd84c60.s:23: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapd84c60.s:25: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapd84c60.s:26: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapd84c60.s:27: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73 42
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  10-call-function-4.retrolix
+
+INPUT:
+external printf
+
+def print_four_int ()
+local a1, a2, a3, a4:
+  a1: a1 <- copy %rdi;
+  a2: a2 <- copy %rsi;
+  a3: a3 <- copy %rdx;
+  a4: a4 <- copy %rcx;
+  l10: %rdi <- copy "%d %d %d %d\n";
+  l11: %rsi <- copy a1;
+  l12: %rdx <- copy a2;
+  l13: %rcx <- copy a3;
+  l14: %r8 <- copy a4;
+  l15: %rax <- copy 0;
+  l16: printf();
+  l17: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: %rdx <- copy 31;
+  l04: %rcx <- copy 13;
+  l05: print_four_int();
+  l06: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap1ea621.s":
+/tmp/flap1ea621.s: Assembler messages:
+/tmp/flap1ea621.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap1ea621.s:22: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap1ea621.s:23: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap1ea621.s:24: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap1ea621.s:26: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap1ea621.s:27: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap1ea621.s:28: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap1ea621.s:29: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73 31 13
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  11-call-function-5.retrolix
+
+INPUT:
+external printf
+
+def print_five_int ()
+local a1, a2, a3, a4, a5:
+  a1: a1 <- copy %rdi;
+  a2: a2 <- copy %rsi;
+  a3: a3 <- copy %rdx;
+  a4: a4 <- copy %rcx;
+  a5: a5 <- copy %r8;
+  l10: %rdi <- copy "%d %d %d %d %d\n";
+  l11: %rsi <- copy a1;
+  l12: %rdx <- copy a2;
+  l13: %rcx <- copy a3;
+  l14: %r8 <- copy a4;
+  l15: %r9 <- copy a5;
+  l16: %rax <- copy 0;
+  l17: printf();
+  l18: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: %rdx <- copy 31;
+  l04: %rcx <- copy 13;
+  l05: %r8  <- copy 00;
+  l06: print_five_int();
+  l07: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flape173d0.s":
+/tmp/flape173d0.s: Assembler messages:
+/tmp/flape173d0.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:22: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:23: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:24: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:25: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:27: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:28: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:29: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:30: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape173d0.s:31: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73 31 13 0
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  12-call-function-6.retrolix
+
+INPUT:
+external printf
+
+def print_six_int ()
+local a1, a2, a3, a4, a5, a6:
+  a1: a1 <- copy %rdi;
+  a2: a2 <- copy %rsi;
+  a3: a3 <- copy %rdx;
+  a4: a4 <- copy %rcx;
+  a5: a5 <- copy %r8;
+  a6: a6 <- copy %r9;
+  l10: %rdi <- copy "%d %d %d %d %d\n";
+  l11: %rsi <- copy a1;
+  l12: %rdx <- copy a2;
+  l13: %rcx <- copy a3;
+  l14: %r8 <- copy a4;
+  l15: %r9 <- copy a6;
+  l16: %rax <- copy 0;
+  l17: printf();
+  l18: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: %rdx <- copy 31;
+  l04: %rcx <- copy 13;
+  l05: %r8  <- copy 00;
+  l06: %r9  <- copy 00;
+  l07: print_six_int();
+  l08: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flapafcc6e.s":
+/tmp/flapafcc6e.s: Assembler messages:
+/tmp/flapafcc6e.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:22: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:23: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:24: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:25: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:26: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:28: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:29: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:30: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:31: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapafcc6e.s:32: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73 31 13 0
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  13-call-function-7.retrolix
+
+INPUT:
+external printf
+
+def print_six_int_for_real ()
+local a1, a2, a3, a4, a5, a6:
+  a1: a1 <- copy %rdi;
+  a2: a2 <- copy %rsi;
+  a3: a3 <- copy %rdx;
+  a4: a4 <- copy %rcx;
+  a5: a5 <- copy %r8;
+  a6: a6 <- copy %r9;
+  l10: %rdi <- copy "%d %d %d %d %d %d\n";
+  l11: %rsi <- copy a1;
+  l12: %rdx <- copy a2;
+  l13: %rcx <- copy a3;
+  l14: %r8 <- copy a4;
+  l15: %r9 <- copy a5;
+  l16: %rax <- copy 0;
+  l17: printf(a6);
+  l18: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: %rdx <- copy 31;
+  l04: %rcx <- copy 13;
+  l05: %r8  <- copy 00;
+  l06: %r9  <- copy 99;
+  l07: print_six_int_for_real();
+  l08: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap8fcf8c.s":
+/tmp/flap8fcf8c.s: Assembler messages:
+/tmp/flap8fcf8c.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:22: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:23: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:24: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:25: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:26: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:28: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:29: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:30: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:31: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8fcf8c.s:32: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73 31 13 0 99
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  14-call-function-8.retrolix
+
+INPUT:
+external printf
+
+def print_seven_int_for_real (a7)
+local a1, a2, a3, a4, a5, a6:
+  a1: a1 <- copy %rdi;
+  a2: a2 <- copy %rsi;
+  a3: a3 <- copy %rdx;
+  a4: a4 <- copy %rcx;
+  a5: a5 <- copy %r8;
+  a6: a6 <- copy %r9;
+  l10: %rdi <- copy "%d %d %d %d %d %d %d\n";
+  l11: %rsi <- copy a1;
+  l12: %rdx <- copy a2;
+  l13: %rcx <- copy a3;
+  l14: %r8 <- copy a4;
+  l15: %r9 <- copy a5;
+  l16: %rax <- copy 0;
+  l17: printf(a6, a7);
+  l18: ret;
+end
+
+globals (x)
+  l01: %rdi <- copy 37;
+  l02: %rsi <- copy 73;
+  l03: %rdx <- copy 31;
+  l04: %rcx <- copy 13;
+  l05: %r8  <- copy 00;
+  l06: %r9  <- copy 99;
+  l07: print_seven_int_for_real(42);
+  l08: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flapcb64be.s":
+/tmp/flapcb64be.s: Assembler messages:
+/tmp/flapcb64be.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:22: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:23: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:24: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:25: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:26: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:28: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:29: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:30: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:31: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapcb64be.s:32: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37 73 31 13 0 99 42
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  15-call-unknown-function.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+local a1:
+  a1: a1 <- copy %rdi;
+  l00: %rdi <- copy "%d\n";
+  l11: %rsi <- copy a1;
+  l12: %rax <- copy 0;
+  l13: printf();
+  l14: ret;
+end
+
+globals (x)
+  local f:
+  l01: %rdi <- copy 37;
+  l02: f <- copy &print_one_int;
+  l03: call f();
+  l04: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap7199ac.s":
+/tmp/flap7199ac.s: Assembler messages:
+/tmp/flap7199ac.s:22: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap7199ac.s:24: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap7199ac.s:43: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+37
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  16-arithmetic-1.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+local a1:
+  a1: a1 <- copy %rdi;
+  l00: %rdi <- copy "%d\n";
+  l11: %rsi <- copy a1;
+  l12: %rax <- copy 0;
+  l13: printf();
+  l14: ret;
+end
+
+globals (x)
+  l01: %rdi <- add 37, 73;
+  l03: print_one_int();
+  l04: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flapb2ad15.s":
+/tmp/flapb2ad15.s: Assembler messages:
+/tmp/flapb2ad15.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapb2ad15.s:23: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+110
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  17-arithmetic-3.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+local a1:
+  a1: a1 <- copy %rdi;
+  l00: %rdi <- copy "%d\n";
+  l11: %rsi <- copy a1;
+  l12: %rax <- copy 0;
+  l13: printf();
+  l14: ret;
+end
+
+globals (x)
+  l01: %rdi <- mul 37, 73;
+  l03: print_one_int();
+  l04: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flapf9f87c.s":
+/tmp/flapf9f87c.s: Assembler messages:
+/tmp/flapf9f87c.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapf9f87c.s:23: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+2701
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  18-arithmetic-4.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+local a1:
+  a1: a1 <- copy %rdi;
+  l10: %rdi <- copy "%d\n";
+  l11: %rsi <- copy a1;
+  l12: %rax <- copy 0;
+  l13: printf();
+  l14: ret;
+end
+
+globals (x)
+  l01: %rdi <- sub 37, 73;
+  l03: print_one_int();
+  l04: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flapb6ff52.s":
+/tmp/flapb6ff52.s: Assembler messages:
+/tmp/flapb6ff52.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flapb6ff52.s:23: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+-36
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  19-arithmetic-5.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+local a1:
+  a1: a1 <- copy %rdi;
+  l10: %rdi <- copy "%d\n";
+  l11: %rsi <- copy a1;
+  l12: %rax <- copy 0;
+  l13: printf();
+  l14: ret;
+end
+
+globals (x)
+  l01: %rdi <- div 37, 73;
+  l03: print_one_int();
+  l04: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flape934b2.s":
+/tmp/flape934b2.s: Assembler messages:
+/tmp/flape934b2.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flape934b2.s:23: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+0
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  20-logic.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+local a1:
+  a1: a1 <- copy %rdi;
+  l00: %rdi <- copy "%d\n";
+  l01: %rsi <- copy a1;
+  l02: %rax <- copy 0;
+  l03: printf();
+  l04: ret;
+end
+
+globals (x)
+  l11: %rdi <- and 1, 0;
+  l12: print_one_int();
+  l13: %rdi <- and 1, 1;
+  l14: print_one_int();
+  l15: %rdi <- and 0, 1;
+  l16: print_one_int();
+  l17: %rdi <- and 0, 0;
+  l18: print_one_int();
+  l19: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap467c2d.s":
+/tmp/flap467c2d.s: Assembler messages:
+/tmp/flap467c2d.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap467c2d.s:23: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+0
+1
+0
+0
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  21-logic-2.retrolix
+
+INPUT:
+external printf
+
+def print_one_int ()
+local a1:
+  a1: a1 <- copy %rdi;
+  l00: %rdi <- copy "%d\n";
+  l01: %rsi <- copy a1;
+  l02: %rax <- copy 0;
+  l03: printf();
+  l04: ret;
+end
+
+globals (x)
+  l11: %rdi <- or 1, 0;
+  l12: print_one_int();
+  l13: %rdi <- or 1, 1;
+  l14: print_one_int();
+  l15: %rdi <- or 0, 1;
+  l16: print_one_int();
+  l17: %rdi <- or 0, 0;
+  l18: print_one_int();
+  l19: exit;
+end
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap71923c.s":
+/tmp/flap71923c.s: Assembler messages:
+/tmp/flap71923c.s:21: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap71923c.s:23: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+1
+1
+1
+0
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  22-comparison.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  l11: jumpif gt 1, 0 -> l17, l20;
+  l17: %rdi <- copy "gt\n";
+  l18: printf();
+  l19: exit;
+  l20: %rdi <- copy "not gt\n";
+  l21: %rax <- copy 0;
+  l22: printf();
+  l23: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+gt
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  23-comparison-2.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  l11: jumpif lt 1, 0 -> l17, l20;
+  l17: %rdi <- copy "lt\n";
+  l18: printf();
+  l19: exit;
+  l20: %rdi <- copy "not lt\n";
+  l21: %rax <- copy 0;
+  l22: printf();
+  l23: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+not lt
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  24-comparison-3.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  l11: jumpif gte 1, 1 -> l17, l20;
+  l17: %rdi <- copy "gte\n";
+  l18: printf();
+  l19: exit;
+  l20: %rdi <- copy "not gte\n";
+  l21: %rax <- copy 0;
+  l22: printf();
+  l23: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+gte
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  25-comparison-4.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  l11: jumpif lte 1, 1 -> l17, l20;
+  l17: %rdi <- copy "lte\n";
+  l18: printf();
+  l19: exit;
+  l20: %rdi <- copy "not lte\n";
+  l21: %rax <- copy 0;
+  l22: printf();
+  l23: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+lte
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  26-comparison-5.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  l11: jumpif eq 1, 1 -> l17, l20;
+  l17: %rdi <- copy "eq\n";
+  l18: printf();
+  l19: exit;
+  l20: %rdi <- copy "not eq\n";
+  l21: %rax <- copy 0;
+  l22: printf();
+  l23: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+eq
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  27-jump.retrolix
+
+INPUT:
+external printf
+
+globals (x)
+  l00: %rbx <- copy 1;
+  l01: jumpif eq %rbx, 22 -> l17, l11;
+  l11: %rdi <- copy "%d jump\n";
+  l12: %rsi <- copy %rbx;
+  l13: %rax <- copy 0;
+  l14: printf();
+  l15: %rbx <- add %rbx, 1;
+  ll6: jump l01;
+  l17: %rdi <- copy "street\n";
+  l18: %rax <- copy 0;
+  l20: printf();
+  l21: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+1 jump
+2 jump
+3 jump
+4 jump
+5 jump
+6 jump
+7 jump
+8 jump
+9 jump
+10 jump
+11 jump
+12 jump
+13 jump
+14 jump
+15 jump
+16 jump
+17 jump
+18 jump
+19 jump
+20 jump
+21 jump
+street
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  28-switch.retrolix
+
+INPUT:
+external printf
+
+def check ()
+  c01: switch %rdi -> c02, c04, c06, c06 orelse c08;
+  c02: %rdi <- copy "rdi = 0\n";
+  c03: jump c10;
+  c04: %rdi <- copy "rdi = 1\n";
+  c05: jump c10;
+  c06: %rdi <- copy "rdi = 2 or 3\n";
+  c07: jump c10;
+  c08: %rdi <- copy "rdi <> 0, 1, 2, 3\n";
+  c09: jump c10;
+  c10: %rax <- copy 0;
+  c11: printf ();
+  c12: ret;
+end
+
+globals (x)
+  l00: %rdi <- copy 0;
+  l01: check ();
+  l02: %rdi <- copy 1;
+  l03: check ();
+  l04: %rdi <- copy 2;
+  l05: check ();
+  l06: %rdi <- copy 3;
+  l07: check ();
+  l08: %rdi <- copy 4;
+  l09: check ();
+  l10: %rdi <- copy 5;
+  l11: check ();
+  l12: %rdi <- copy 73;
+  l13: check ();
+  l14: %rdi <- copy 0;
+  l15: exit;
+end
+OUTPUT: 
+Process exited with status exited(0).
+STDOUT:
+
+STDERR:
+
+
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+rdi = 0
+rdi = 1
+rdi = 2 or 3
+rdi = 2 or 3
+rdi <> 0, 1, 2, 3
+rdi <> 0, 1, 2, 3
+rdi <> 0, 1, 2, 3
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  29-fact-slam.retrolix
+
+INPUT:
+external printf
+
+def fact ( )
+local x:
+ f1: jumpif lte %rdi, 1 -> f2, f4;
+ f2: %rax <- copy 1;
+ f3: ret;
+ f4: x <- copy %rdi;
+ f5: %rdi <- sub %rdi, 1;
+ f6: fact();
+ f7: %rax <- mul %rax, x;
+ f8: ret;
+end
+
+def fact_tailrec_body ( )
+ ft1: jumpif lte %rdi, 1 -> ft2, ft4;
+ ft2: %rax <- copy %rsi;
+ ft3: ret;
+ ft4: %rsi <- mul %rsi, %rdi;
+ ft5: %rdi <- sub %rdi, 1;
+ ft6: fact_tailrec_body ( ) tail;
+end
+
+def fact_tailrec ( )
+  ftr1: %rsi <- copy 1;
+  ftr2: fact_tailrec_body ( ) tail;
+end
+
+def fact_iter ( )
+ y1: %rax <- copy 1;
+ y2: jumpif lte %rdi, 1 -> y6, y3;
+ y3: %rax <- mul %rax, %rdi;
+ y4: %rdi <- sub %rdi, 1;
+ y5: jump y2;
+ y6: ret;
+end
+
+def fact_adapt ( )
+  o1: switch %rdi -> o11, o11, o13, o15, o17, o19 orelse oE;
+  o11: %rax <- copy 1;
+  o12: ret;
+  o13: %rax <- copy 2;
+  o14: ret;
+  o15: %rax <- copy 6;
+  o16: ret;
+  o17: %rax <- copy 24;
+  o18: ret;
+  o19: fact ( ) tail;
+  oE: fact_iter ( ) tail;
+end
+
+def test_fact_impl ( )
+local saved_r12:
+ tf0: saved_r12 <- copy %r12;
+ tf1: %rax <- copy %rdi;
+ tf2: %rdi <- copy %rsi;
+ tf3: %rbx <- copy %rdx;
+ tf4: %r12 <- copy %rsi;
+ tf5: call %rax ();
+ tf6: %rdi <- copy "%s(%d) = %d\n";
+ tf7: %rsi <- copy %rbx;
+ tf8: %rdx <- copy %r12;
+ tf9: %rcx <- copy %rax;
+ tf10: %rax <- copy 0;
+ tf11: printf ();
+ tf12: %r12 <- copy saved_r12;
+ tf13: ret;
+end
+
+globals ( )
+local saved_r12, saved_r13:
+ xx: saved_r12 <- copy %r12;
+ xy: saved_r13 <- copy %r13;
+ x0: %r12 <- copy 30;
+ x1: %r13 <- copy 1;
+ x2: jumpif lte %r13, %r12 -> x3, xEND;
+ x3: %rdi <- copy &fact;
+ x4: %rsi <- copy %r13;
+ x5: %rdx <- copy "fact";
+ x6: test_fact_impl ( );
+ x7: %rdi <- copy &fact_iter;
+ x8: %rsi <- copy %r13;
+ x9: %rdx <- copy "fact_iter";
+ x10: test_fact_impl ( );
+ x11: %rdi <- copy &fact_adapt;
+ x12: %rsi <- copy %r13;
+ x13: %rdx <- copy "fact_adapt";
+ x14: test_fact_impl ( );
+ x15: %rdi <- copy &fact_tailrec;
+ x16: %rsi <- copy %r13;
+ x17: %rdx <- copy "fact_tailrec";
+ x18: test_fact_impl ( );
+ x19: %r13 <- add %r13, 1;
+ x20: jump x2;
+ xEND: %r12 <- copy saved_r12;
+ xEND0: %r13 <- copy saved_r13;
+ xEND1: exit;
+end
+
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap8ce523.s":
+/tmp/flap8ce523.s: Assembler messages:
+/tmp/flap8ce523.s:33: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8ce523.s:44: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8ce523.s:147: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8ce523.s:169: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8ce523.s:180: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8ce523.s:181: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8ce523.s:225: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap8ce523.s:226: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+fact(1) = 1
+fact_iter(1) = 1
+fact_adapt(1) = 1
+fact_tailrec(1) = 1
+fact(2) = 2
+fact_iter(2) = 2
+fact_adapt(2) = 2
+fact_tailrec(2) = 2
+fact(3) = 6
+fact_iter(3) = 6
+fact_adapt(3) = 6
+fact_tailrec(3) = 6
+fact(4) = 24
+fact_iter(4) = 24
+fact_adapt(4) = 24
+fact_tailrec(4) = 24
+fact(5) = 120
+fact_iter(5) = 120
+fact_adapt(5) = 120
+fact_tailrec(5) = 120
+fact(6) = 720
+fact_iter(6) = 720
+fact_adapt(6) = 720
+fact_tailrec(6) = 720
+fact(7) = 5040
+fact_iter(7) = 5040
+fact_adapt(7) = 5040
+fact_tailrec(7) = 5040
+fact(8) = 40320
+fact_iter(8) = 40320
+fact_adapt(8) = 40320
+fact_tailrec(8) = 40320
+fact(9) = 362880
+fact_iter(9) = 362880
+fact_adapt(9) = 362880
+fact_tailrec(9) = 362880
+fact(10) = 3628800
+fact_iter(10) = 3628800
+fact_adapt(10) = 3628800
+fact_tailrec(10) = 3628800
+fact(11) = 39916800
+fact_iter(11) = 39916800
+fact_adapt(11) = 39916800
+fact_tailrec(11) = 39916800
+fact(12) = 479001600
+fact_iter(12) = 479001600
+fact_adapt(12) = 479001600
+fact_tailrec(12) = 479001600
+fact(13) = 1932053504
+fact_iter(13) = 1932053504
+fact_adapt(13) = 1932053504
+fact_tailrec(13) = 1932053504
+fact(14) = 1278945280
+fact_iter(14) = 1278945280
+fact_adapt(14) = 1278945280
+fact_tailrec(14) = 1278945280
+fact(15) = 2004310016
+fact_iter(15) = 2004310016
+fact_adapt(15) = 2004310016
+fact_tailrec(15) = 2004310016
+fact(16) = 2004189184
+fact_iter(16) = 2004189184
+fact_adapt(16) = 2004189184
+fact_tailrec(16) = 2004189184
+fact(17) = -288522240
+fact_iter(17) = -288522240
+fact_adapt(17) = -288522240
+fact_tailrec(17) = -288522240
+fact(18) = -898433024
+fact_iter(18) = -898433024
+fact_adapt(18) = -898433024
+fact_tailrec(18) = -898433024
+fact(19) = 109641728
+fact_iter(19) = 109641728
+fact_adapt(19) = 109641728
+fact_tailrec(19) = 109641728
+fact(20) = -2102132736
+fact_iter(20) = -2102132736
+fact_adapt(20) = -2102132736
+fact_tailrec(20) = -2102132736
+fact(21) = -1195114496
+fact_iter(21) = -1195114496
+fact_adapt(21) = -1195114496
+fact_tailrec(21) = -1195114496
+fact(22) = -522715136
+fact_iter(22) = -522715136
+fact_adapt(22) = -522715136
+fact_tailrec(22) = -522715136
+fact(23) = 862453760
+fact_iter(23) = 862453760
+fact_adapt(23) = 862453760
+fact_tailrec(23) = 862453760
+fact(24) = -775946240
+fact_iter(24) = -775946240
+fact_adapt(24) = -775946240
+fact_tailrec(24) = -775946240
+fact(25) = 2076180480
+fact_iter(25) = 2076180480
+fact_adapt(25) = 2076180480
+fact_tailrec(25) = 2076180480
+fact(26) = -1853882368
+fact_iter(26) = -1853882368
+fact_adapt(26) = -1853882368
+fact_tailrec(26) = -1853882368
+fact(27) = 1484783616
+fact_iter(27) = 1484783616
+fact_adapt(27) = 1484783616
+fact_tailrec(27) = 1484783616
+fact(28) = -1375731712
+fact_iter(28) = -1375731712
+fact_adapt(28) = -1375731712
+fact_tailrec(28) = -1375731712
+fact(29) = -1241513984
+fact_iter(29) = -1241513984
+fact_adapt(29) = -1241513984
+fact_tailrec(29) = -1241513984
+fact(30) = 1409286144
+fact_iter(30) = 1409286144
+fact_adapt(30) = 1409286144
+fact_tailrec(30) = 1409286144
+
+STDERR:
+
+
+
+--------------------------------------------------------
+[ KO ]   -->  30-nested-while.retrolix
+
+INPUT:
+globals (m1)
+
+l1: m1 <- copy 10;
+l2: ret;
+end
+
+globals (n2)
+
+l3: n2 <- copy 10;
+l4: ret;
+end
+
+def ref ()
+local X1, X12, X13, X14, X25, _5, b4, v3 :
+ l5: v3 <- copy %rdi;
+l37: X25 <- copy 1;
+l38: %rdi <- copy X25;
+l40: allocate_block () ;
+l39: b4 <- copy %rax;
+l19: X12 <- copy b4;
+l20: X13 <- copy 0;
+l21: X14 <- copy v3;
+l22: %rdi <- copy X12;
+l23: %rsi <- copy X13;
+l24: %rdx <- copy X14;
+l26: write_block () ;
+l25: _5 <- copy %rax;
+ l8: X1 <- copy b4;
+ l7: %rax <- copy X1;
+ l6: ret;
+end
+
+def read ()
+local X26, X37, X38, r6 :
+l41: r6 <- copy %rdi;
+l54: X37 <- copy r6;
+l55: X38 <- copy 0;
+l56: %rdi <- copy X37;
+l57: %rsi <- copy X38;
+l59: read_block () ;
+l58: X26 <- copy %rax;
+l43: %rax <- copy X26;
+l42: ret;
+end
+
+def write ()
+local X39, X50, X51, X52, r7, v8 :
+l60: r7 <- copy %rdi;
+l61: v8 <- copy %rsi;
+l74: X50 <- copy r7;
+l75: X51 <- copy 0;
+l76: X52 <- copy v8;
+l77: %rdi <- copy X50;
+l78: %rsi <- copy X51;
+l79: %rdx <- copy X52;
+l81: write_block () ;
+l80: X39 <- copy %rax;
+l63: %rax <- copy X39;
+l62: ret;
+end
+
+def make_matrix ()
+local
+X102, X103, X114, X125, X126, X137, X138, X149, X150, X151, X162, X163, X174, X175, X186, X187, X198, X199, X200, X211, X212, X223, X224, X235, X236, X247, X248, X259, X260, X261, X272, X53, X64, X65, X66, X77, X78, X89, X90, X91, _13, _14, _16, _17, count12, i15, m9, n10, rows11
+:
+ l82: m9 <- copy %rdi;
+ l83: n10 <- copy %rsi;
+l358: X272 <- copy m9;
+l359: %rdi <- copy X272;
+l361: allocate_block () ;
+l360: rows11 <- copy %rax;
+l342: X260 <- copy m9;
+l343: X261 <- copy 1;
+l344: X259 <- sub X260, X261;
+l345: %rdi <- copy X259;
+l347: ref () ;
+l346: count12 <- copy %rax;
+l325: X247 <- copy count12;
+l326: %rdi <- copy X247;
+l328: read () ;
+l327: X236 <- copy %rax;
+l329: X248 <- copy 0;
+l330: jumpif gte X236, X248 -> l280,  l314;
+l280: X211 <- copy rows11;
+l291: X223 <- copy count12;
+l292: %rdi <- copy X223;
+l294: read () ;
+l293: X212 <- copy %rax;
+l305: X235 <- copy n10;
+l306: %rdi <- copy X235;
+l308: allocate_block () ;
+l307: X224 <- copy %rax;
+l309: %rdi <- copy X211;
+l310: %rsi <- copy X212;
+l311: %rdx <- copy X224;
+l313: write_block () ;
+l312: _14 <- copy %rax;
+l264: X199 <- copy n10;
+l265: X200 <- copy 1;
+l266: X198 <- sub X199, X200;
+l267: %rdi <- copy X198;
+l269: ref () ;
+l268: i15 <- copy %rax;
+l247: X186 <- copy i15;
+l248: %rdi <- copy X186;
+l250: read () ;
+l249: X175 <- copy %rax;
+l251: X187 <- copy 0;
+l252: jumpif gte X175, X187 -> l169,  l236;
+l169: X125 <- copy rows11;
+l180: X137 <- copy count12;
+l181: %rdi <- copy X137;
+l183: read () ;
+l182: X126 <- copy %rax;
+l184: %rdi <- copy X125;
+l185: %rsi <- copy X126;
+l187: read_block () ;
+l186: X114 <- copy %rax;
+l198: X149 <- copy i15;
+l199: %rdi <- copy X149;
+l201: read () ;
+l200: X138 <- copy %rax;
+l212: X162 <- copy i15;
+l213: %rdi <- copy X162;
+l215: read () ;
+l214: X151 <- copy %rax;
+l226: X174 <- copy count12;
+l227: %rdi <- copy X174;
+l229: read () ;
+l228: X163 <- copy %rax;
+l230: X150 <- add X151, X163;
+l231: %rdi <- copy X114;
+l232: %rsi <- copy X138;
+l233: %rdx <- copy X150;
+l235: write_block () ;
+l234: _17 <- copy %rax;
+l128: X89 <- copy i15;
+l139: X102 <- copy i15;
+l140: %rdi <- copy X102;
+l142: read () ;
+l141: X91 <- copy %rax;
+l143: X103 <- copy 1;
+l144: X90 <- sub X91, X103;
+l145: %rdi <- copy X89;
+l146: %rsi <- copy X90;
+l148: write () ;
+l147: _16 <- copy %rax;
+l253: jump l247;
+l236: ;; Exit of while loop;
+ l97: X64 <- copy count12;
+l108: X77 <- copy count12;
+l109: %rdi <- copy X77;
+l111: read () ;
+l110: X66 <- copy %rax;
+l112: X78 <- copy 1;
+l113: X65 <- sub X66, X78;
+l114: %rdi <- copy X64;
+l115: %rsi <- copy X65;
+l117: write () ;
+l116: _13 <- copy %rax;
+l331: jump l325;
+l314: ;; Exit of while loop;
+ l86: X53 <- copy rows11;
+ l85: %rax <- copy X53;
+ l84: ret;
+end
+
+def transpose ()
+local
+X273, X284, X285, X286, X297, X298, X309, X310, X311, X322, X323, X334, X345, X346, X357, X358, X369, X370, X381, X392, X393, X404, X405, X416, X417, X428, X429, X440, X441, X442, X443, X454, X455, X466, X467, X468, X479, X480, _23, _25, _26, c24, m19, matrix18, n20, out21, r22
+:
+l362: matrix18 <- copy %rdi;
+l363: m19 <- copy %rsi;
+l364: n20 <- copy %rdx;
+l623: X479 <- copy n20;
+l624: X480 <- copy m19;
+l625: %rdi <- copy X479;
+l626: %rsi <- copy X480;
+l628: make_matrix () ;
+l627: out21 <- copy %rax;
+l607: X467 <- copy n20;
+l608: X468 <- copy 1;
+l609: X466 <- sub X467, X468;
+l610: %rdi <- copy X466;
+l612: ref () ;
+l611: r22 <- copy %rax;
+l590: X454 <- copy r22;
+l591: %rdi <- copy X454;
+l593: read () ;
+l592: X443 <- copy %rax;
+l594: X455 <- copy 0;
+l595: jumpif gte X443, X455 -> l573,  l579;
+l573: X441 <- copy m19;
+l574: X442 <- copy 1;
+l575: X440 <- sub X441, X442;
+l576: %rdi <- copy X440;
+l578: ref () ;
+l577: c24 <- copy %rax;
+l556: X428 <- copy c24;
+l557: %rdi <- copy X428;
+l559: read () ;
+l558: X417 <- copy %rax;
+l560: X429 <- copy 0;
+l561: jumpif gte X417, X429 -> l450,  l545;
+l450: X345 <- copy out21;
+l461: X357 <- copy r22;
+l462: %rdi <- copy X357;
+l464: read () ;
+l463: X346 <- copy %rax;
+l465: %rdi <- copy X345;
+l466: %rsi <- copy X346;
+l468: read_block () ;
+l467: X334 <- copy %rax;
+l479: X369 <- copy c24;
+l480: %rdi <- copy X369;
+l482: read () ;
+l481: X358 <- copy %rax;
+l503: X392 <- copy matrix18;
+l514: X404 <- copy c24;
+l515: %rdi <- copy X404;
+l517: read () ;
+l516: X393 <- copy %rax;
+l518: %rdi <- copy X392;
+l519: %rsi <- copy X393;
+l521: read_block () ;
+l520: X381 <- copy %rax;
+l532: X416 <- copy r22;
+l533: %rdi <- copy X416;
+l535: read () ;
+l534: X405 <- copy %rax;
+l536: %rdi <- copy X381;
+l537: %rsi <- copy X405;
+l539: read_block () ;
+l538: X370 <- copy %rax;
+l540: %rdi <- copy X334;
+l541: %rsi <- copy X358;
+l542: %rdx <- copy X370;
+l544: write_block () ;
+l543: _26 <- copy %rax;
+l409: X309 <- copy c24;
+l420: X322 <- copy c24;
+l421: %rdi <- copy X322;
+l423: read () ;
+l422: X311 <- copy %rax;
+l424: X323 <- copy 1;
+l425: X310 <- sub X311, X323;
+l426: %rdi <- copy X309;
+l427: %rsi <- copy X310;
+l429: write () ;
+l428: _25 <- copy %rax;
+l562: jump l556;
+l545: ;; Exit of while loop;
+l378: X284 <- copy r22;
+l389: X297 <- copy r22;
+l390: %rdi <- copy X297;
+l392: read () ;
+l391: X286 <- copy %rax;
+l393: X298 <- copy 1;
+l394: X285 <- sub X286, X298;
+l395: %rdi <- copy X284;
+l396: %rsi <- copy X285;
+l398: write () ;
+l397: _23 <- copy %rax;
+l596: jump l590;
+l579: ;; Exit of while loop;
+l367: X273 <- copy out21;
+l366: %rax <- copy X273;
+l365: ret;
+end
+
+def check ()
+local
+X481, X492, X503, X514, X515, X516, X527, X528, X539, X540, X541, X552, X553, X564, X565, X566, X577, X578, X589, X600, X601, X612, X623, X624, X635, X636, X647, X648, X659, X670, X671, X682, X683, X694, X695, X706, X707, X718, X719, X720, X721, X732, X733, X744, X745, X746, X757, _33, _35, _36, c34, count31, m127, m228, m29, n30, r32
+:
+l629: m127 <- copy %rdi;
+l630: m228 <- copy %rsi;
+l631: m29 <- copy %rdx;
+l632: n30 <- copy %rcx;
+l977: X757 <- copy 0;
+l978: %rdi <- copy X757;
+l980: ref () ;
+l979: count31 <- copy %rax;
+l961: X745 <- copy m29;
+l962: X746 <- copy 1;
+l963: X744 <- sub X745, X746;
+l964: %rdi <- copy X744;
+l966: ref () ;
+l965: r32 <- copy %rax;
+l944: X732 <- copy r32;
+l945: %rdi <- copy X732;
+l947: read () ;
+l946: X721 <- copy %rax;
+l948: X733 <- copy 0;
+l949: jumpif gte X721, X733 -> l927,  l933;
+l927: X719 <- copy n30;
+l928: X720 <- copy 1;
+l929: X718 <- sub X719, X720;
+l930: %rdi <- copy X718;
+l932: ref () ;
+l931: c34 <- copy %rax;
+l910: X706 <- copy c34;
+l911: %rdi <- copy X706;
+l913: read () ;
+l912: X695 <- copy %rax;
+l914: X707 <- copy 0;
+l915: jumpif gte X695, X707 -> l804,  l899;
+l804: X623 <- copy m127;
+l815: X635 <- copy r32;
+l816: %rdi <- copy X635;
+l818: read () ;
+l817: X624 <- copy %rax;
+l819: %rdi <- copy X623;
+l820: %rsi <- copy X624;
+l822: read_block () ;
+l821: X612 <- copy %rax;
+l833: X647 <- copy c34;
+l834: %rdi <- copy X647;
+l836: read () ;
+l835: X636 <- copy %rax;
+l837: %rdi <- copy X612;
+l838: %rsi <- copy X636;
+l840: read_block () ;
+l839: X601 <- copy %rax;
+l861: X670 <- copy m228;
+l872: X682 <- copy r32;
+l873: %rdi <- copy X682;
+l875: read () ;
+l874: X671 <- copy %rax;
+l876: %rdi <- copy X670;
+l877: %rsi <- copy X671;
+l879: read_block () ;
+l878: X659 <- copy %rax;
+l890: X694 <- copy c34;
+l891: %rdi <- copy X694;
+l893: read () ;
+l892: X683 <- copy %rax;
+l894: %rdi <- copy X659;
+l895: %rsi <- copy X683;
+l897: read_block () ;
+l896: X648 <- copy %rax;
+l898: jumpif eq X601, X648 -> l734,  l775;
+l734: X564 <- copy count31;
+l745: X577 <- copy count31;
+l746: %rdi <- copy X577;
+l748: read () ;
+l747: X566 <- copy %rax;
+l749: X578 <- copy 1;
+l750: X565 <- add X566, X578;
+l751: %rdi <- copy X564;
+l752: %rsi <- copy X565;
+l754: write () ;
+l753: _36 <- copy %rax;
+l783: jump l782;
+l775: X600 <- copy count31;
+l776: %rdi <- copy X600;
+l778: read () ;
+l777: X589 <- copy %rax;
+l779: %rdi <- copy X589;
+l781: print_int () ;
+l780: _36 <- copy %rax;
+l782: ;; Join control point;
+l703: X539 <- copy c34;
+l714: X552 <- copy c34;
+l715: %rdi <- copy X552;
+l717: read () ;
+l716: X541 <- copy %rax;
+l718: X553 <- copy 1;
+l719: X540 <- sub X541, X553;
+l720: %rdi <- copy X539;
+l721: %rsi <- copy X540;
+l723: write () ;
+l722: _35 <- copy %rax;
+l916: jump l910;
+l899: ;; Exit of while loop;
+l672: X514 <- copy r32;
+l683: X527 <- copy r32;
+l684: %rdi <- copy X527;
+l686: read () ;
+l685: X516 <- copy %rax;
+l687: X528 <- copy 1;
+l688: X515 <- sub X516, X528;
+l689: %rdi <- copy X514;
+l690: %rsi <- copy X515;
+l692: write () ;
+l691: _33 <- copy %rax;
+l950: jump l944;
+l933: ;; Exit of while loop;
+l655: X503 <- copy count31;
+l656: %rdi <- copy X503;
+l658: read () ;
+l657: X492 <- copy %rax;
+l659: %rdi <- copy X492;
+l661: print_int () ;
+l660: X481 <- copy %rax;
+l634: %rax <- copy X481;
+l633: ret;
+end
+
+globals (main37)
+local
+X768, X779, X780, X781, X782, X793, X794, X795, X806, X807, X808, X819, X820, _41, m138, m239, m340
+:
+l1061: X819 <- copy m1;
+l1062: X820 <- copy n2;
+l1063: %rdi <- copy X819;
+l1064: %rsi <- copy X820;
+l1066: make_matrix () ;
+l1065: m138 <- copy %rax;
+l1043: X806 <- copy m138;
+l1044: X807 <- copy m1;
+l1045: X808 <- copy n2;
+l1046: %rdi <- copy X806;
+l1047: %rsi <- copy X807;
+l1048: %rdx <- copy X808;
+l1050: transpose () ;
+l1049: m239 <- copy %rax;
+l1025: X793 <- copy m239;
+l1026: X794 <- copy n2;
+l1027: X795 <- copy m1;
+l1028: %rdi <- copy X793;
+l1029: %rsi <- copy X794;
+l1030: %rdx <- copy X795;
+l1032: transpose () ;
+l1031: m340 <- copy %rax;
+l1005: X779 <- copy m138;
+l1006: X780 <- copy m340;
+l1007: X781 <- copy m1;
+l1008: X782 <- copy n2;
+l1009: %rdi <- copy X779;
+l1010: %rsi <- copy X780;
+l1011: %rdx <- copy X781;
+l1012: %rcx <- copy X782;
+l1014: check () ;
+l1013: _41 <- copy %rax;
+ l991: X768 <- copy 0;
+ l992: %rdi <- copy X768;
+ l994: print_int () ;
+ l993: main37 <- copy %rax;
+l1067: ret;
+end
+
+OUTPUT: 
+Line 0, characters -1--1: Error (ELF)
+  Could not assemble or link file "/tmp/flap720e63.s":
+/tmp/flap720e63.s: Assembler messages:
+/tmp/flap720e63.s:25: Error: bad expression
+/tmp/flap720e63.s:25: Error: missing ')'
+/tmp/flap720e63.s:36: Error: bad expression
+/tmp/flap720e63.s:36: Error: missing ')'
+/tmp/flap720e63.s:46: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:47: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:48: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:55: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:56: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:57: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:58: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:59: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:60: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:61: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:68: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:69: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:70: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:80: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:81: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:82: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:83: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:84: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:91: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:92: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:102: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:103: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:104: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:105: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:106: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:107: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:108: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:109: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:116: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:117: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:127: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:128: Error: `384(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:129: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:130: Error: `248(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:137: Error: `392(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:138: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:139: Error: `240(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:140: Error: `232(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:141: Error: `240(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:142: Error: `224(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:143: Error: `224(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:150: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:152: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:153: Error: `208(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:160: Error: `200(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:161: Error: `216(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:162: Error: `392(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:163: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:164: Error: `176(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:171: Error: `168(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:172: Error: `384(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:173: Error: `192(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:180: Error: `184(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:181: Error: `160(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:182: Error: `168(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:183: Error: `184(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:190: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:191: Error: `384(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:192: Error: `152(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:193: Error: `144(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:194: Error: `152(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:195: Error: `136(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:196: Error: `136(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:203: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:205: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:206: Error: `120(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:213: Error: `112(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:214: Error: `128(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:215: Error: `392(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:216: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:217: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:224: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:225: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:226: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:233: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:234: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:235: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:242: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:243: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:244: Error: `88(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:251: Error: `80(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:252: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:253: Error: `104(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:260: Error: `96(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:261: Error: `80(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:262: Error: `96(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:263: Error: `72(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:264: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:265: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:266: Error: `72(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:273: Error: `352(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:274: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:275: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:276: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:283: Error: `320(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:284: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:285: Error: `320(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:286: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:287: Error: `312(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:288: Error: `304(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:289: Error: `312(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:296: Error: `344(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:299: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:300: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:301: Error: `288(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:308: Error: `280(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:309: Error: `296(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:310: Error: `280(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:311: Error: `296(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:312: Error: `272(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:313: Error: `264(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:314: Error: `272(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:321: Error: `328(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:324: Error: `392(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:325: Error: `256(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:335: Error: `352(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:336: Error: `344(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:337: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:338: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:339: Error: `344(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:340: Error: `296(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:341: Error: `304(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:348: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:349: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:350: Error: `288(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:351: Error: `280(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:352: Error: `288(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:353: Error: `272(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:354: Error: `272(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:361: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:363: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:364: Error: `256(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:371: Error: `248(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:372: Error: `264(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:373: Error: `344(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:374: Error: `240(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:375: Error: `232(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:376: Error: `240(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:377: Error: `224(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:378: Error: `224(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:385: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:387: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:388: Error: `208(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:395: Error: `200(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:396: Error: `216(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:397: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:398: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:399: Error: `120(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:406: Error: `112(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:407: Error: `104(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:408: Error: `112(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:415: Error: `96(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:416: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:417: Error: `136(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:424: Error: `128(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:425: Error: `352(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:426: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:427: Error: `176(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:434: Error: `168(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:435: Error: `160(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:436: Error: `168(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:443: Error: `152(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:444: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:445: Error: `192(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:452: Error: `184(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:453: Error: `152(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:454: Error: `184(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:461: Error: `144(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:462: Error: `96(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:463: Error: `128(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:464: Error: `144(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:471: Error: `328(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:472: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:473: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:474: Error: `80(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:481: Error: `72(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:482: Error: `88(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:483: Error: `72(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:484: Error: `88(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:485: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:486: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:487: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:494: Error: `320(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:497: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:498: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:499: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:506: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:507: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:508: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:509: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:510: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:511: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:512: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:519: Error: `312(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:522: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:523: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:533: Error: `424(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:534: Error: `432(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:535: Error: `440(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:536: Error: `448(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:537: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:538: Error: `376(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:545: Error: `416(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:546: Error: `440(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:547: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:548: Error: `360(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:549: Error: `368(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:550: Error: `352(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:551: Error: `352(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:558: Error: `456(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:560: Error: `456(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:561: Error: `336(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:568: Error: `328(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:569: Error: `344(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:570: Error: `448(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:571: Error: `320(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:572: Error: `312(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:573: Error: `320(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:574: Error: `304(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:575: Error: `304(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:582: Error: `408(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:584: Error: `408(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:585: Error: `288(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:592: Error: `280(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:593: Error: `296(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:594: Error: `424(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:595: Error: `456(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:596: Error: `200(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:603: Error: `192(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:604: Error: `184(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:605: Error: `192(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:612: Error: `176(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:613: Error: `408(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:614: Error: `216(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:621: Error: `208(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:622: Error: `176(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:623: Error: `208(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:630: Error: `168(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:631: Error: `432(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:632: Error: `456(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:633: Error: `256(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:640: Error: `248(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:641: Error: `240(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:642: Error: `248(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:649: Error: `232(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:650: Error: `408(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:651: Error: `272(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:658: Error: `264(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:659: Error: `232(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:660: Error: `264(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:667: Error: `224(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:668: Error: `416(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:669: Error: `416(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:670: Error: `136(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:677: Error: `128(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:678: Error: `144(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:679: Error: `128(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:680: Error: `144(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:681: Error: `120(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:682: Error: `112(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:683: Error: `120(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:690: Error: `400(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:692: Error: `416(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:693: Error: `160(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:700: Error: `152(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:701: Error: `152(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:708: Error: `400(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:711: Error: `408(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:712: Error: `408(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:713: Error: `96(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:720: Error: `88(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:721: Error: `104(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:722: Error: `88(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:723: Error: `104(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:724: Error: `80(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:725: Error: `72(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:726: Error: `80(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:733: Error: `392(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:736: Error: `456(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:737: Error: `456(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:738: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:745: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:746: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:747: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:748: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:749: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:750: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:751: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:758: Error: `384(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:761: Error: `416(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:762: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:769: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:770: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:777: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:778: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:789: Error: bad expression
+/tmp/flap720e63.s:789: Error: missing ')'
+/tmp/flap720e63.s:789: Error: too many memory references for `movq'
+/tmp/flap720e63.s:790: Error: bad expression
+/tmp/flap720e63.s:790: Error: missing ')'
+/tmp/flap720e63.s:790: Error: too many memory references for `movq'
+/tmp/flap720e63.s:791: Error: `96(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:792: Error: `104(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:799: Error: `120(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:800: Error: `120(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:801: Error: bad expression
+/tmp/flap720e63.s:801: Error: missing ')'
+/tmp/flap720e63.s:801: Error: too many memory references for `movq'
+/tmp/flap720e63.s:802: Error: bad expression
+/tmp/flap720e63.s:802: Error: missing ')'
+/tmp/flap720e63.s:802: Error: too many memory references for `movq'
+/tmp/flap720e63.s:803: Error: `72(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:804: Error: `80(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:805: Error: `88(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:812: Error: `128(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:813: Error: `128(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:814: Error: bad expression
+/tmp/flap720e63.s:814: Error: missing ')'
+/tmp/flap720e63.s:814: Error: too many memory references for `movq'
+/tmp/flap720e63.s:815: Error: bad expression
+/tmp/flap720e63.s:815: Error: missing ')'
+/tmp/flap720e63.s:815: Error: too many memory references for `movq'
+/tmp/flap720e63.s:816: Error: `48(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:817: Error: `56(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:818: Error: `64(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:825: Error: `136(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:826: Error: `120(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:827: Error: `136(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:828: Error: bad expression
+/tmp/flap720e63.s:828: Error: missing ')'
+/tmp/flap720e63.s:828: Error: too many memory references for `movq'
+/tmp/flap720e63.s:829: Error: bad expression
+/tmp/flap720e63.s:829: Error: missing ')'
+/tmp/flap720e63.s:829: Error: too many memory references for `movq'
+/tmp/flap720e63.s:830: Error: `16(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:831: Error: `24(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:832: Error: `32(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:833: Error: `40(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:840: Error: `112(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:841: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:842: Error: `8(%rip,%rsp,1)' is not a valid base/index expression
+/tmp/flap720e63.s:849: Error: bad expression
+/tmp/flap720e63.s:849: Error: missing ')'
+
+EXPECTED: 
+Process exited with status exited(0).
+STDOUT:
+1000
+STDERR:
+
+
+
+--------------------------------------------------------
+GOOD: 0/31
+SCORE: 0%
+
+BAD: 0/0
+make[1]: Leaving directory '/home/opam/source/flap/tests/m4/retrolix/retrolixToX86/good'
+--------------------------------------------------------
+Global results:
+BAD:   0 / 0
+GOOD:  0 / 31
+SCORE: 0%
+--------------------------------------------------------
+make: Leaving directory '/home/opam/source/flap/tests/m4'

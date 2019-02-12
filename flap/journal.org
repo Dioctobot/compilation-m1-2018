@@ -1205,11 +1205,56 @@ let repeat_alt n f =
 ** FAQ
    - Exit doit-il vraiment être appelé avec zéro sur la pile?
    - Comment parler de l'adresse d'une variable globale dans location_of?
-** de Hopix à Retrolix
+** de Hopix à Hobix
+   - C(K(e₁, ⋯, eₙ)) =
+     construire un bloc de taille n+1 et utiliser un (petit) entier
+     pour représenter l'étiquette K.
+   - C(case e of p₁ → e₁ | ⋯ | pₙ → eₙ) =
+	if "e matches p₁" then e₁
+	else if "e matches p₂" then e₂
+	else ...
+
+     3 problèmes ici:
+     - que faire lorsque tous les motifs ont été consommés?
+
+     - comment lier les variables des patterns?
+
+     - comment ne pas évaluer e plusieurs fois?
+
+     Nouvelle proposition
+
+     C(case e of p₁ → e₁ | ⋯ | pₙ → eₙ) =
+        val v = C(e) in
+        if "v matches p₁" then
+          let "p₁ binds subvalues of v" in
+          C(e₁)
+        else if ...
+        else
+  
+     fun (x) => case x of None -> 0 | Some [] -> 0 | Some [a] -> a
+
+     fun (x) =>
+        if x[0] = 0 then
+          0
+        else if x[0] = 1 && x[1][0] = 0 then
+          0
+        else if x[0] = 1 && x[1][0] = 1 && x[1][2][0] = 0 then
+          val a = x[1][1];
+          a
+        else goto_hell ()
+
+
 *** Compilation des valeurs étiquetées
 *** Compilation naïve du pattern-matching
 **** Expansion élégante des noeuds disjonctifs
 ** Vue d'ensemble des optimisations à venir
+   - pattern-matching efficace
+   - selection d'instructions
+   - allocation de registres
+   - tail recursion
+   - analyse CFA
+   - factorisation des sous-expressions communes
+   - propagation des constantes + déroulage
 ** Compilation efficace du pattern-matching
 *** Réfléchir sur un exemple
 
@@ -1238,7 +1283,28 @@ naïve en une unique opération plus atomique?
 
 Comment ne tester au plus qu'une seule fois x, y et z?
 
+if x = T then
+  if y = T then
+     if z = T then 4 else 3
+  else (* y = F *) then
+     if z = T then 1 else 3
+else (* x = F *)
+  if y = T then
+     2
+  else (* y = F *)
+     if z = T then
+       1
+     else (* z = F *)
+       3
+
+if z = T then
+   if y = T then 4 else 1
+else (* z = F *)
+   if x = F then 
+
 *** Article de Luc Maranget
-    - http://moscova.inria.fr/~maranget/papers/ml05e-maranget.pdf
+**** TODO Lire http://moscova.inria.fr/~maranget/papers/ml05e-maranget.pdf
 
 ** Compilation du switch en X86-64
+   - discussion sur les différentes façons d'encoder les tables de saut
+     en x86.

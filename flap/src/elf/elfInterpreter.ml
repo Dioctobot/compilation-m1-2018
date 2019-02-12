@@ -32,7 +32,7 @@ let evaluate (_ : runtime) (buf : t) =
 
 let print_observable (runtime : runtime) (obs : observable) =
   Printf.sprintf
-    "Process exited with status %s.\n\nSTDOUT:\n\n%s\nSTDERR:\n%s\n\n"
+    "Process exited with status %s.\nSTDOUT:\n%s\nSTDERR:\n%s\n\n"
     (ExtStd.Unix.string_of_process_status obs.exit_status)
     obs.stdout
     obs.stderr

@@ -111,7 +111,7 @@ let read_block e i =
   T.(FunCall (FunId "read_block", [e; i]))
 
 let lint i =
-  T.(Literal (LInt (Int32.of_int i)))
+  T.(Literal (LInt (Int64.of_int i)))
 
 
 (** [free_variables e] returns the list of free variables that

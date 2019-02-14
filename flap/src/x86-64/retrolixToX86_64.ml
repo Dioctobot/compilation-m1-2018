@@ -601,7 +601,6 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
 
     let call fd ~kind ~f ~args =
       []
-
   end
 
 module CG =

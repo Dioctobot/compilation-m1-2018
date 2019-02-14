@@ -1,0 +1,5 @@
+type T = { x : Int }
+
+val r : T = { x = 0 }<>
+
+val ry : String = r.x

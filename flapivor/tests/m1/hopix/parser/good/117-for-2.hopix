@@ -1,0 +1,2 @@
+val main =
+  for x = 0 to 100 by 10 { y := x * 2 + !y }

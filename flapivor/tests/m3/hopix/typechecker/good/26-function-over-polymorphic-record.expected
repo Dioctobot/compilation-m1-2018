@@ -1,0 +1,5 @@
+get_x : forall a, b. P<a, b> -> a
+get_y : forall a, b. P<a, b> -> b
+p : P<Int, String>
+x : Int
+y : String

@@ -1,0 +1,5 @@
+val test =
+    case Here ("OK") {
+    | Here (x) => print_string ("This test is "); print_string (x); print_string (".\n")
+    | NotHere  => print_string ("This test is KO.\n")
+    }

@@ -1,0 +1,4 @@
+val r : Ref<Int> = ref 0
+
+val main : Int = r := 33
+

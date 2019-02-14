@@ -1,0 +1,2 @@
+val main : Unit =
+    if true then 0 else 1

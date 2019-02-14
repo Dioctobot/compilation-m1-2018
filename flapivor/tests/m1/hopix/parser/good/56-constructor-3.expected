@@ -1,0 +1,6 @@
+val x =
+  Pair <
+  Pair<Int, String>,
+  String
+  >(Pair < Int, String >(0, "Wou!"),
+  "Wouha!")

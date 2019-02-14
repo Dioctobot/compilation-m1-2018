@@ -1,0 +1,7 @@
+apply : (Int -> Int) * Int -> Int
+succ : Int -> Int
+apply2 : (Int * Int -> Int) * Int * Int -> Int
+addmul : Int * Int -> Int
+apply3 : (Int * Int * Int -> Int) * Int * Int * Int -> Int
+conj : Int * Int * Int -> Int
+main : Int

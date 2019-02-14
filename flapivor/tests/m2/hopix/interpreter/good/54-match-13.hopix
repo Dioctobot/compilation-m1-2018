@@ -1,0 +1,5 @@
+def show (l) =
+  case l { N => nothing | C (x, xs) => print_string (x); show (xs) }
+
+val test =
+  show (C ("This", C (" test is ", C ("OK", C (".\n.", N)))))

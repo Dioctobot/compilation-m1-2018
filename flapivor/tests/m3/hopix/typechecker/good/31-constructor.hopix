@@ -1,0 +1,5 @@
+type Color = Red | Blue | Green
+
+val red   : Color = Red<>
+val blue  : Color = Blue<>
+val green : Color = Green<>

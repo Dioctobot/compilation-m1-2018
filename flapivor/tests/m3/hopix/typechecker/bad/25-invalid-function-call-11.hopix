@@ -1,0 +1,2 @@
+def g : Int -> Int (x) = f(x)
+and f : Int -> String (x) = g(x)

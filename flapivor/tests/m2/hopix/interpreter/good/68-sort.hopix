@@ -1,0 +1,74 @@
+def concat (l1, l2) =
+  case l1 {
+  | N => l2
+  | C (x, xs) => C (x, concat (xs, l2))
+  }
+
+val l = C (1, C (2, N))
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+val l = concat (l, l)
+
+def len (l) =
+  case l {
+  | N => 0
+  | C (x, xs) => 1 + len (xs)
+  }
+
+def sorted (l) =
+  case l {
+  | N | C (_, N) => true
+  | C (x, C (y, _) & l) => x <=? y && sorted (l)
+  }
+
+val l2 = C (1, C (2, C (6, C (7, N))))
+
+val l3 = C (-1, C (2, C (6, C (70, N))))
+
+val l4 = C (-1, C (20, C (6, C (70, N))))
+
+def not (b) = if b then false else true
+
+def sort (l) =
+    case l {
+    | N => N
+    | C (x, xs) => case pivot (x, xs) {
+      | `(l1, l2) =>
+        val l1 = sort (l1);
+	val l2 = sort (l2);
+        concat (l1, C (x, l2))
+      }
+    }
+and pivot (x, l) =
+    case l {
+    | N =>
+      `(N, N)
+    | C (y, ys) =>
+      case pivot (x, ys) {
+      | `(l1, l2) =>
+         if y >? x then `(l1,  C (y, l2)) else `(C (y, l1), l2)
+      }
+    }
+
+def print (l) =
+    case l {
+    | N => print_string ("\n")
+    | C (x, xs) => print_int (x); print_string (" "); print (xs)
+    }
+
+def show (l) =
+    print (l);
+    l
+
+val r =
+  sorted (show (sort (l))) &&
+  sorted (show (sort (l2))) &&
+  sorted (show (sort (l3))) &&
+  sorted (show (sort (l4)))
+
+val test =
+  print_string ("This test is ");
+  print_string (if r then "OK!\n" else "KO!\n")

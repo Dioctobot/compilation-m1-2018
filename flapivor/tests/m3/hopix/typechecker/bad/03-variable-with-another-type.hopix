@@ -1,0 +1,5 @@
+val y : Int =
+    val x : Int = 0;
+    x
+
+val main : String = y

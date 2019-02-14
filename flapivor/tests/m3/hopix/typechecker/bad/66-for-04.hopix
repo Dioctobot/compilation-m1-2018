@@ -1,0 +1,6 @@
+val x : Ref<Int> = ref 0
+
+val main : Unit =
+    for i = "0" to 10 {
+      nothing
+    }

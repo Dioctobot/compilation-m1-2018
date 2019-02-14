@@ -1,0 +1,3 @@
+type L = N | C (Int, L)
+
+val main : L = C<> (1, C<> (2, "N"))

@@ -1,0 +1,2 @@
+val t = { x = 1 }
+val test = print_string ("Recording succeeds.\n")

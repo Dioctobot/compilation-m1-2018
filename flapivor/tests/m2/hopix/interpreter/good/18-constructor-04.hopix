@@ -1,0 +1,4 @@
+val nil = Nil
+val l1 = Cons (0, nil)
+val l2 = Cons (1, l1)
+val test = print_string ("Construction succeeds.\n")

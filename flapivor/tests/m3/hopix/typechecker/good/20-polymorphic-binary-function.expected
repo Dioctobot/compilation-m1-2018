@@ -1,0 +1,5 @@
+apply : forall a, b. (a -> b) * a -> b
+curry : forall a, b, c. (a -> (b -> c)) -> (a * b -> c)
+uncurry : forall a, b, c. (a * b -> c) -> (a -> (b -> c))
+id_int : Int -> Int
+main : Int

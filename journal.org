@@ -1,0 +1,895 @@
+Bienvenue en Master 1!
+
+"Interprétation des programmes et Compilation"
+
+* Cours 1 "Introduction" <2018-09-10>
+** Présentation
+   Yann Régis-Gianas
+   yrg@irif.fr
+   http://yann.regis-gianas.org
+   FB / Twitter @yurug
+** Ce que vous allez apprendre ici et pourquoi.
+*** Le sujet affiché
+   - Écrire un compilateur, un traducteur d'un langage de
+     programmation vers un autre, typiquement, d'un langage de
+     haut-niveau vers un langage assembleur.
+*** Le sujet caché
+**** Deux semestres pour un premier "gros" projet de programmation
+     - 3 jalons en S1 et 8 jalons en S2
+     - Des outils de développement: générateur de codes, gestionnaire
+       de version, intégration continue, ...
+     - La méthodologie nécessaire pour travailler sur un projet réaliste.
+**** La compilation est un sujet pluridisciplinaire!
+     - Ecrire un compilateur n'est pas une compétence immédiatement
+       utilisable professionnellement.
+     - Mais c'est un prétexte pour:
+       - Apprendre à écrire un analyseur syntaxique, un analyseur statique, etc.
+       - Mieux comprendre la sémantique des langages de programmation.
+       - Mettre en pratique les cours d'architecture des machines, le
+	 cours de théorie des graphes, le cours de théorie des langages,
+	 de logiques, de sémantique, génie logiciel, méthodes formelles ...
+**** Écrire un compilateur vous transformera en meilleurs programmeurs
+** Fonctionnement du cours
+*** Un cours orienté "projet" et "inversé"
+    - Le cours est centré sur la réalisation du projet : elle dirige
+      les concepts et les discussions abordés lors des séances de
+      cours.
+    - Le code du projet est un code à trou : il faudra lire autant
+      qu'écrire!
+    - Vous aurez les sujets des jalons très rapidement et nous passerons
+      1/4 d'heure au début de chaque cours à travailler sur un ensemble
+      de questions que vous vous poserez.
+*** Ce que l'on attend de vous
+    - Un travail continu, une attitude pro-active et une approche méthodique :
+      - Un jalon à rendre toutes les trois semaines, testé automatiquement.
+      - Des questions à poser régulièrement.
+      - Une attention particulière aux indications de méthodologie!
+      - En cours: prise de notes, pensée critique, poser des questions
+      - En TP: poser des questions sur le jalon, discuter avec l'enseignant et entre vous
+      - Chez vous: lire (!), programmer
+    - Votre compréhension du projet sera évaluée individuellement en
+      soutenance (70% de la note) et à l'écrit (30% de la note).
+    - Un intérêt particulier donné à la qualité du code.
+    - En soutenance, on valide aussi votre capacité à expliquer votre code.
+*** Témoignages d'étudiants
+**** Etudiant 1
+     "Je n'ai jamais autant travaillé mais j'ai beaucoup appris!"
+**** Etudiant 2
+     "Les tests automatiques, c'est génial!"
+**** Etudiant 3
+     "Le Caml, c'était vraiment pas mon truc, mais ça c'était avant."
+**** Etudiant 4
+     "Maintenant, je comprends vraiment ce qui se passe quand mon
+      programme Java, Python, C ou Caml s'exécute!"
+**** Etudiant 5
+     "Au début, j'avais peur de M. Régis-Gianas. Maintenant,
+      il me fait toujours peur mais pour d'autres raisons."
+*** Calendrier, horaires et équipes enseignantes
+**** Enseignants
+    - Semestre 1: Adrien Guatto en TP, YRG en cours.
+    - Semestre 2: Peter Habermehl en TP, Adrien Guatto et YRG en cours.
+**** Horaires
+    - Semestre 1: Lundi 13h30 - 15h30, salle 1009 & 2031
+      (Exceptionnellement 15h aujourd'hui)
+**** Calendrier
+10/09 : Cours d'introduction
+17/09 : Cours sur les aspects pratiques du parsing (usage d'ocamllex et menhir) -- Publication de la spécification du jalon 1
+24/09 : Soutien au jalon 1, le parseur du langage source Hopix
+01/10 : Cours sur la théorie du parsing - séance 1
+08/10 : Cours sur la théorie du parsing - séance 2
+15/10 : Cours d'introduction à la sémantique opérationnelle (comment lire une spécification de sémantique opérationnelle) -- Publication de la spécification du jalon 2
+21/10 : Rendu jalon 1
+22/10 : Soutien au jalon 2, l'interpréteur de Hopix
+29/10 : Cours de sémantique dynamique et statique - séance 1 -- Publication de la spécification du jalon 3
+05/11 : Soutien au jalon 3, le typeur d'Hopix (ici, je suis en mission à Boston)
+12/11 : Cours de sémantique dynamique et statique - séance 2
+15/11 : Rendu jalon 2
+19/11 : Cours de sémantique dynamique et statique - séance 3
+26/11 : Soutien au projet (jalons 1,  2 et 3).
+20/12 : Rendu jalon 3
+
+** Un mini-compilateur
+   - Voir le fichier [file:doc/cours-01/marthe.ml]
+** Pour la prochaine fois
+*** TODO Venir en cours à 13h15
+*** TODO Forker le GIT via le gitlab:
+    git@moule.informatique.univ-paris-diderot.fr:Yann/compilation-m1-2018.git
+    http://moule.informatique.univ-paris-diderot.fr:8080
+    DEADLINE:<2018-09-17>
+*** TODO Remplir le fichier AUTEURS (2 étudiants par groupes)
+    DEADLINE:<2018-09-20>
+*** TODO Rajouter les enseignants (via gitlab)
+    DEADLINE:<2018-09-20>
+    Yann Regis-Gianas (2 comptes)
+    Adrien Guatto
+    Peter Habermehl
+*** TODO Faire une pull-request pour mettre à jour le fichier /.mrconfig
+    DEADLINE:<2016-09-18>
+*** TODO S'inscrire sur la liste de diffusion du cours  https://listes.univ-paris-diderot.fr/sympa/info/compilation-m1-2018
+*** TODO Travailler régulièrement sur le GIT.
+*** TODO Poser des questions sur le forum
+*** TODO Préparation du prochain cours
+**** TODO Lire la documentation de ocamllex
+     [[https://caml.inria.fr/pub/docs/manual-ocaml/lexyacc.html]]
+**** TODO Lire la documentation de menhir
+     [[http://pauillac.inria.fr/~fpottier/menhir/manual.pdf]]
+**** TODO Vérifier son environnement de développement *avant* le TP
+**** TODO Faire les exercices de marthe.ml
+* Cours 2 "Aspects pratiques de l'analyse syntaxique" <2018-09-17>
+** FAQ
+** Retour sur le mini-compilateur Marthe
+** Quelques définitions préliminaires
+   - Définir:
+     - Grammaire formelle, non terminal, terminal, symbole d'entrée
+     - Dérivation, dérivation gauche, dérivation droite
+     - Arbre de production, arbre de syntaxe concret, arbre de syntaxe abstraite
+     - Classification de Chomsky
+   - Voir le fichier [file:doc/cours-02/01-definitions-analyse-syntaxique.md]
+** OCamllex et Menhir, par l'exemple
+*** Présentation d'OCamllex
+*** Présentation de Menhir
+*** Marthe, reloaded
+   - Voir le fichier [file:doc/cours-02/marthe-reloaded/]
+*** Point important
+    [https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#]
+** Pour la prochaine fois
+*** TODO Terminer les TODOs de la dernière séance
+*** TODO Lire la spécification du jalon 1
+*** TODO Terminer marthe-reloaded
+* Cours 3 "Introduction à la théorie de l'analyse syntaxique" (cours 1) <2018-10-01>
+** FAQ
+   - Comment ne pas produire uniquement des ``Sequence l`` où `l` est de taille 2?
+** Généralités
+   - Référence du cours : https://dickgrune.com/Books/PTAPG_1st_Edition/BookBody.pdf
+*** Spécification d'un analyseur syntaxique
+
+    parse : token list -> ast
+
+    `parse tokens` produit un arbre si et seulement si `tokens` est un
+    mot du langage d'une certaine grammaire non ambigue G.
+
+    Si la grammaire est ambigue, on peut définir un analyseur syntaxique
+    à condition de :
+    - fournir un opérateur de choix par les arbres syntaxiques possibles ;
+    - ou bien en rendant déterministe la fonction d'analyse syntaxique ;
+    - ou fournissant une grammaire non ambigue G' équivalente à G.
+
+*** Classification des algorithmes d'analyse syntaxique
+**** Ascendant / descendant
+**** Directionnel / non directionnel
+**** Expressivité / Complexité
+*** Les algorithmes de type LR
+    - Inventé par Donald Knuth
+    - Objectif: analyse grammaticale en temps linéaire
+    - LR(k):
+      - L : Left-to-right, on lit l'entrée de gauche à droite.
+      - R : Rightmost, on construit la dérivation rightmost.
+      - k : On a le droit de lire k tokens en avance pour prendre une décision
+    - https://en.wikipedia.org/wiki/LR_parser
+**** LR(0)
+     - Comment construire l'automate LR(0) correspondant à une grammaire donnée?
+     - Comment utiliser l'automate LR(0) pour reconnaître un mot?
+     - Réponse : au tableau! (ou dans les transparents [file:doc/cours-03/LR.pdf])
+     - Conflits LR(0)
+**** LR(1)
+     - Comment construire l'automate LR(1) correspondant à une grammaire donnée?
+     - Comment utiliser l'automate LR(1) pour reconnaître un mot?
+     - Réponse : au tableau! (ou dans les transparents [file:doc/cours-03/LR.pdf])
+     - LALR(1)
+     - L'algorithme utilisé par Menhir
+       
+* Cours 4 "Introduction à la théorie de l'analyse syntaxique" (cours 2) <2018-10-08>
+** FAQ
+** Analyse descendante
+*** Retour sur le parser de Marthe
+*** Analyse prédictive LL
+    [file:doc/cours-04/LL.pdf]
+**** Principe de l'analyse prédictive LL(k)
+**** La récursion à gauche
+**** LL(1) sur la grammaire de Marthe
+**** LL(1) sur la grammaire des s-expressions
+**** Traitement des règles ε
+**** LL(1) sur la grammaire de Marthe étendue par la factorielle
+**** Comparaison LL(k) vs LR(k)
+     [file:doc/cours-04/llvslr.png]
+*** Bilan sur l'analyse syntaxique
+**** Savoirs
+     - Terminologie: grammaire, terminaux/tokens, non terminaux, lexing/parsing, ...
+     - Classification des algorithmes d'analyse syntaxique
+     - LR(1) / LALR(1)
+     - LL(1)
+**** Savoirs-faire
+     - Utiliser un générateur d'analyseurs syntaxiques LR(1)
+     - Utiliser un générateurs d'analyseurs lexicaux LEX
+     - Ne pas utiliser de regexp pour faire de l'analyse syntaxique
+     - Produire et faire tourner à la main l'automate LR(1) d'une grammaire
+     - Produire et faire tourner à la main l'automate LL(1)  d'une grammaire
+**** Pour aller plus loin
+***** Idées de projet
+      - Implémenter un parseur pour un vrai langage (Java, ...) ou un format de données.
+      - Implémenter votre propre générateur de parseurs LR, LL, ou autres!
+***** Lectures
+      - Les algorithmes Earley, GLR (voir le livre de Grune/Jacobs)
+      - Les combinateurs d'analyse syntaxique / parsing combinators
+      - L'analyse syntaxique du C, du shell script
+      - L'analyse syntaxique pour les langages naturels (IBM/Watson)
+***** Sujets de recherche
+      - L'analyse syntaxique incrémentale 
+        (voir la thèse de doctorat de Tim Wagner)
+      -> Peut-on certifier un analyseur syntaxique incrémental?
+* Cours 5 "Introduction à la sémantique des langages de programmation" <2018-10-15>
+** FAQ Projet
+** Théorie de la sémantique, quelques définitions
+   - Comment donner du sens à de la syntaxe?
+     -> Le rôle de la sémantique
+     -> Dans quel langage décrit-on une sémantique?
+        -> Les maths! Sémantique dénotationnelle
+        -> Les programmes!
+           -> Sémantique opérationnelle dynamique
+              -> Sémantique opérationnelle à petits pas
+              -> Sémantique opérationnelle à grands pas
+           -> Sémantique opérationnelle statique
+** Sémantique de Marthe
+*** Syntaxe
+    Désormais, on s'intérèsse aux langages d'*arbres*.
+
+       t ::= n | t + t | t * t
+
+    est une façon polie d'écrire:
+
+       type t = Int of int | Add of t * t | Mul of t * t
+
+*** Sémantique opérationnelle à petits pas pour Marthe
+    - "t → t'" se lit "en une étape de calcul, t se réécrit en t'".
+    - Voir les règles écrites au tableau.
+*** Sémantique opérationnelle à grands pas pour Marthe
+    - "t ⇓ v" se lit "le terme t s'évalue en la valeur v".
+** Notion de variable dans les programmes
+*** Syntaxe
+    On étend la syntaxe avec un "let" et une notion de variable.
+
+       t ::= x | let x = t in t | ...
+*** Terminologie
+    - variable libre, variable liée, substitution sans capture
+*** Sémantique
+    - Nous avons vu deux variantes de l'évaluation du let:
+
+      let x = t₁ in t₂ → t₂[x / t₁]    "Appel par nom"
+
+      let x = v in t₂ → t₂[x / v] v    "Appel par valeur"
+
+*** Implémentation en OCaml
+    - Voir [file:doc/cours-05/martheSemantic.ml]
+* Cours 6 "Sémantique des langages du premier ordre" <2018-10-29>
+** FAQ Projet
+   - Doit-on rendre les règles de sémantique que nous avons choisies?
+     Réponse: Non, vous devez seulement être capable de les écrire
+     pendant la soutenance.
+   - Et si on n'implémente pas exactement la sémantique que vous attendez
+     mais que l'on passe les tests.
+     Réponse: Tout ira bien. Les tests devraient tout de même faire le
+     travail de séparation entre les mauvaises et les bonnes réponses.
+   - Peut-on vraiment implémenter des fonctions récursives avec ces
+     règles de sémantique?
+     Réponse: Bien sûr! On en reparlera lors du cours sur les fermetures.
+     En fait, il faut en parler en peu maintenant à cause du calendrier.
+
+     let rec fact n =
+       if n = 0 then 1 else n * fact (n - 1)
+
+     Quelle est la forme la fermeture de "fact"?
+
+     (fun n -> if n = 0 then 1 else n * fact (n - 1))
+     [ fact = que mettre ici? ]
+
+     Il faut créer une fermeture cyclique. Heureusement, les
+     opérations sur les environnements le permettent!
+
+   - Peut-on travailler sur l'interpréteur quand le parseur n'est
+     pas fini?
+     Réponse: Oui. Les tests fonctionneront tout de même.
+
+** Retour sur le cours dernier
+   - Sémantique à petits pas:
+
+                        t -> t'
+
+     Deux types de règles de réécriture:
+
+     - Passage au contexte : comment réécrire en profondeur dans
+       les programmes.
+       - Par exemple:
+
+               e₁ → e₁'
+	 ——————————————————
+	 e₁ + e₂ → e₁' + e₂
+
+     - Réduction : comment faire avancer le calcul?
+
+        ——————————————
+         n₁ + n₂ → n₃
+   - Sémantique à grands pas:
+
+     Le jugement est de la forme "t ⇓ v"
+   - La variable libre et de substitution
+
+** Une toute première passe de compilation
+   voir [file:doc/cours-06/liaison-des-noms.pdf]
+* Cours 7 "Sémantique des langages du premier ordre" <2018-11-12>
+** FAQ Projet
+** Les langages du premier ordre
+   voir [file:doc/cours-06/langage-du-premier-ordre.pdf]
+   voir [file:doc/cours-06/langage-du-premier-ordre-suite.pdf]
+*** Conditions
+*** Fonctions de seconde classe
+* Cours 8 "Sémantique des langages d'ordre supérieur" <2018-11-19>
+** FAQ Projet
+** Brève présentation de la compilation des langages du premier ordre
+** Marthe à la sauce Curry (MiniML)
+*** Syntaxe
+
+    t ::=
+      >   x
+      >   n
+      >   +, -, /, *
+      >   fun x -> t
+      >   t t
+      >   let x = t in t
+
+    let x = t1 in t2     ==     (fun x -> t2) t1
+
+*** Sémantique opérationnelle à petits pas
+
+    Les valeurs du langage
+
+    v ::= n | fun x -> t
+
+    Relation de réduction: t_1 -> t_2
+
+
+    Règle de réduction
+
+    ——————————————————————————  (β-réduction en appel par valeur)
+    (fun x -> t) v -> t[x ↦ v]
+
+    —————————————————————————–
+    let x = v in t -> t[x ↦ v]
+
+    ————————————  où ⊕ ∈ { +, -, /, -} et m est le résultat de l'opération ⊕ sur ces deux entiers
+    n₁ ⊕ n₂ -> m
+
+    Règle de passage au contexte
+
+        t -> t'
+    ——————————————
+    n ⊕ t -> n ⊕ t'
+
+          t₁ -> t₁'
+    —————————————–—————–
+    t₁ ⊕ t₂ -> t₁' ⊕ t₂
+
+          t₁ -> t₁'
+    ———————————————————–
+       t₁ t₂ -> t₁' t₂
+
+               t₂ -> t₂'
+    ———————————————————–————————————————————–
+       (fun x -> t₁) t₂ -> (fun x -> t₁) t₂'
+
+              t₁ -> t₁'
+   ———————————————————————————————–
+   let x = t₁ in t₂ -> let x = t₁' in t₂
+
+   Une autre formulation:
+
+   Plutôt que de définir toutes ces règles de passage au contexte, on
+   peut définir une nouvelle entité syntaxique que l'on appelle un
+   contexte d'évaluation C.
+
+   C := [] | v ⊕ C | C ⊕ t | let x = C in t | (fun x -> t) C | C t
+
+   Th: Pour tout terme t qui n'est pas une valeur, il existe un unique C, t = C[t₀]
+       tel que il existe t₀' qui est le réduit de t₀.
+
+*** Sémantique opérationnelle à grands pas
+
+    E ⊢ t ⇓ v
+
+    v := n | (fun x -> t)[E]
+
+    ————————————
+    E ⊢ x ⇓ E(x)
+
+    ———————————————————————————————
+    E ⊢ fun x -> t ⇓ fun x -> t [E]
+
+    E ⊢ t₁ ⇓ v₁  E + x ↦ v₁ ⊢ t₂ ⇓ v₂
+    —-——————————————————————————————–
+        E ⊢ let x = t₁ in t₂ ⇓ v₂
+
+	E ⊢ t₁ ⇓ (fun x -> t)[E_f]
+	E ⊢ t₂ ⇓ v₂
+	E_f + x ↦ v₂ ⊢ t ⇓ v
+	———————————————–————
+   	    E ⊢ t₁ t₂ ⇓ v
+
+    E ⊢ t₁ ⇓ n₁
+    E ⊢ t₂ ⇓ n₂
+    m = n₁ ⊕ n₂
+    ———————————————————
+    E ⊢ t₁ ⊕ t₂ ⇓ m
+
+**** À propos de E
+
+     let f x y =
+       let z = something_huge () in
+       fun k -> x
+
+*** Typage, vérification et inférence des types
+
+    τ ::= int | τ -> τ | α
+    σ ::= ∀ α₁ ... αₙ. τ
+
+    Γ ::= • | Γ (x : σ)
+
+    Γ ⊢ t : σ
+    Γ ⊢ t : τ
+
+
+    Γ(x) = σ
+    ——————————
+    Γ ⊢ x : σ
+
+    Γ ⊢ t₁ : σ    Γ + (x : σ) ⊢ t₂ : τ
+    ————————————————————–—————————————–
+    Γ ⊢ let x = t₁ in t₂ : τ
+
+    Γ (x : τ₁) ⊢ t : τ₂
+    ————————————————————————–
+    Γ ⊢ fun x -> t : τ₁ -> τ₂
+
+    Γ ⊢ t₁ : τ₁ -> τ₂
+    Γ ⊢ t₂ : τ₁
+    ————————————————————————–
+    Γ ⊢ t₁ t₂ : τ₂
+
+    Γ ⊢ t₁ : int
+    Γ ⊢ t₂ : int
+    ——————————————————
+    Γ ⊢ t₁ ⊕ t₂ : int
+
+
+    • ⊢ 1 + 1 : int    ...
+    ——————————————————————————–—
+    • ⊢ let x = 1 + 1 in x : int
+
+
+    • ⊢ fun x -> x : α -> α
+    (id : ∀ α. α -> α) ⊢ id 0 : int
+    ————————————————————————————————————–
+    • ⊢ let id = fun x -> x in id 0 : int
+
+    Il manque donc une règle de généralisation:
+
+    Gen (fausse):
+
+    Γ : t : τ   α₁...αₙ sont les variables de type libres de τ
+    ———————————————————–——————————————————————————————————————
+    Γ ⊢ t : ∀ α₁...αₙ. τ
+
+    Inst:
+
+    Γ ⊢ t : ∀ α₁...αₙ. τ
+    —————————————————–—-
+    Γ : t : τ[αᵢ ↦ τᵢ]
+
+
+    (x : α) ⊢ x : α
+    ———————————————————–
+    (x : α) ⊢ x : ∀ α. α
+    ——————————————–—————-
+    (x : α) ⊢ x : β
+    —————————————————————
+    ⊢ fun x -> x : α -> β
+    ————————————————————————————–
+    ⊢ fun x -> x : ∀ α β. α -> β
+
+
+    Gen:
+
+    Γ : t : τ   α₁...αₙ sont les variables de type libres de τ et n'apparaissent pas dans Γ.
+    ———————————————————–———————————————————————————————————————————————————————————————————–
+    Γ ⊢ t : ∀ α₁...αₙ. τ
+
+** Présentation du cours du second semestre
+   Hopix -> Hobix -> Fopix -> Retrolix -> MIPS|AMD64
+* Cours 9 "Présentation du cours du second semestre et introduction à la programmation x86-64" <2019-01-14>
+** Objectifs
+   - Vous emmener de Hopix jusqu'au langage machine!
+   - Programmer en assembleur et générer de l'assembleur pour votre propre machine.
+   - Comprendre les conventions qui rendent possibles l'interopérabilité entre
+     les composants logiciels.
+   - Prendre conscience des différences de performances entre le code interprété,
+     le code compilé naïvement et le code optimisé.
+   - Découvrir de premières analyses statiques qui sont plus précises que le typage.
+   - Raffiner votre connaissance du "coût de l'abstraction" dans les langages de
+     haut-niveau, typiquement ceux d'ordre supérieur.
+   - Implémenter des algorithmes variés (des transformations de programmes bien
+     sûr mais aussi des algorithmes de calcul de point fixe ou de coloriages de graphes).
+   - Gagner la flapicup.
+** Fonctionnement du cours
+   - Toujours le même principe : un jalon toutes les deux semaines pour un
+     projet qui sert de fil directeur et de motivation au cours.
+   - Des batteries de tests pour chaque jalon.
+   - Au début de chaque séance de cours, 30 minutes de travaux dirigés pour
+     corriger un exercice à faire à la maison.
+   - Les TPs servent à débuter les jalons (sauf le premier TP qui s'intéresse
+     à la programmation assembleur) : travailler au fur et à mesure!
+   - Pas ou peu de séances de cours magistraux avec des transparents, plutôt
+     des cours/TD où vous travaillerez autant que nous!
+** Contenu du cours
+   - Le projet se décompose en deux étapes :
+     1. Implémenter un compilateur naïf de Hopix vers x86-64.
+     2. Implémenter des optimisations de haut niveau et de bas niveau.
+** Vue d'ensemble du compilateur
+
+    - La chaîne de compilation :
+
+                  Hopix → Hobix → Fopix → Retrolix → x86-64
+
+    - Nous allons construire le compilateur à l'envers, de l'assembleur vers Hopix.
+
+*** Hopix vers Hobix
+
+def len (l) =
+   case l {
+   | Nil => 0
+   | Cons (_, xs) => 1 + len (xs)
+   }
+
+devient
+
+def len (l) =
+   if l[0] = 0 then
+     0
+   else
+     let xs = l[2] in
+     1 + len (xs)
+
+*** Hobix vers Fopix
+
+def add (x) =
+    let z = 2 * x in
+    fun (y) -> x + y * z
+
+devient
+
+def anomymous (y, env) =
+    env[2] + y * env[1]
+
+def add (x) =
+    let z = 2 * x in
+    [ ptr_code(anonymous) ; z ; x ]
+
+*** Fopix vers Retrolix
+
+def fact (n) =
+    if n = 0 then 1 else n * fact (n - 1)
+
+devient
+
+def fact ()
+    locals tmp
+    l0: cmp %rdi, 0 -> l1, l2
+    l1: mov %rax, 1 -> l3
+    l3: ret
+    l2: tmp <- %rdi -> l4
+    l4: %rdi <- %rdi - 1 -> l5
+    l5: call fact -> l6
+    l6: %rax <- mul tmp, %rax -> l7
+    l7: ret
+** x86-64
+*** Quelques éléments de contexte
+   - Instruction Set Architecture (ISA) = abstraction
+   - Micro-architecture = techniques d'implémentations d'une ISA
+   - Deux styles d'ISA : RISC vs CISC.
+     RISC: petit nombre d'instruction orthogonales / distinction instructions arith., logique et mémoire.
+   - Frise historique
+
+		       8086 (16bits)    x86 (32bits)    AMD64 (64bits)
+	     |—————————————|——————————————|———————————————|—————————————|————————–→
+	    1970          1980           1990           2000          2010
+
+   - Avantages : répandu, rétrocompatible, performant
+   - Inconvénients : complexe et baroque
+   - Références : notes d'Andrew Tolmach, ISA réduit, spécifications d'Intel
+*** État du processeur
+    - registres:
+      %rax, %rbx, %rcx, %rdx, %rbp, %rsp, %rdi, %rsi, %r8, %r9, %r10, %r11, ..., %r15
+    - mémoires (dont la pile)
+    - little-endian/petit-boutien: https://fr.wikipedia.org/wiki/Endianness
+    - %ax ⊂ %eax ⊂ %rax
+    - %rip : compteur de programme
+    - %rflags : champ de bits, information sur les résultats arithmétiques
+    - OFFSET(BASE, INDEX, SCALE)
+      OFFSET est une valeur immédiate
+      BASE est un registre
+      INDEX est un registre, optionnel
+      SCALE est une valeur dans { 1, 2, 4, 8 }, optionnel
+      = OFFSET + BASE + INDEX * SCALE
+    - mov SRC, DST
+      attention: on ne peut pas aller de la mémoire à la mémoire.
+      variantes: movq, movl, movw, movb  (b = 8, w = 16, l = 32, q = 64)
+    - NB: Il y a deux syntaxes pour écrire du code ASM x86-64: Intel et GNU. Nous
+      suivons la syntaxe GNU. En Intel, SRC et DST sont inversés.
+    - exemples:
+      - movq $42, %rax         # %rax <- 42
+      - movq %rbx, -8(%rsp)    # MEM[%rsp - 8] <- %rbx
+    - Pile en x86-64 // System V
+      - %rsp: pointeur de pile
+      - La pile croît vers le bas
+      - %rsp doit être un multiple de 8
+      - %rbp pointeur de cadre (frame-pointeur)
+      - Pour travailler sur la pile, on utilise push/pop.
+      - pushq %rax est équivalent à
+	  subq $8, %rsp
+	  movq $rax, (%rsp)
+	ou
+	  movq $rax, -8(%rsp)
+	  subq %8, %rsp
+     - rflags, à quoi ça sert?
+
+       |-----+-----------------+------------|
+       | bit | signification   | mnémonique |
+       |-----+-----------------+------------|
+       |   0 | Retenue         | CF         |
+       |   1 | Parité          | PF         |
+       |   6 | Zéro            | ZF         |
+       |   7 | Signe (1 = neg) | SF         |
+       |  11 | Overflow        | OF         |
+       |-----+-----------------+------------|
+
+     - cmpq SRC1, SRC2
+       -> calcule SRC2 - SRC1, ignore le résultat mais met à jour rflags.
+
+     - je foo
+       -> sauter à "foo" si ZF est allumé
+
+     - jmp foo
+       -> saut inconditionnel à foo
+
+     - jmp *%rax
+       -> saut à l'adresse de code contenu par rax
+
+     - Il faut que $rsp+8 soit aligné sur 16 octets
+* Cours 10 "Compilation de Retrolix vers x86-64" <2019-01-21>
+
+  Le but de la séance d'aujourd'hui est de discuter le jalon 4 : la traduction
+  de Retrolix vers x86-64.
+
+** Retour sur la programmation x86-64
+   On a étudié des rudiments de programmation x86-64 lors de la dernière séance,
+   et lors du TD. Essayons de mettre en pratique aujourd'hui.
+*** Factorielle itérative
+    On écrit le code de factorielle dans un style itératif, avec une boucle. Le
+    code C, pour se fixer les idées :
+
+    int64_t fact(int64_t n) {
+      int64_t res = 1;
+      while (n > 1) {
+        res *= n--;
+      }
+      return res;
+    }
+**** Solution
+     fact:   movq $1, %rax
+     fact0:  cmp $1, %rdi
+             jle fact1
+             imulq %rdi, %rax
+             dec %rdi
+             jmp fact0
+     fact1:  ret
+
+*** Fonction principale
+    On souhaite appeler printf() pour afficher le résultat de fact(6). Attention
+    aux contraintes d'alignement de l'ABI System V !
+
+**** Solution
+    .global main
+    main:   subq $8, %rsp
+            movq $6, %rdi
+            call factr
+            movq $msg, %rdi
+            movq %rax, %rsi
+            call printf
+            movq $0, %rdi
+            call exit
+
+*** Factorielle récursive naïve.
+    On écrit le code de factorielle dans un style récursif naïf, l'équivalent du
+    code OCaml suivant :
+
+    let rec fact n = if n <= 1 then 1 else n * fact (n - 1)
+
+**** Solution
+
+     En écrivant du code mécaniquement, comme un compilateur un peu naïf, on
+     obtient l'assembleur ci-dessous.
+
+     factr:  pushq %rbp
+             movq %rsp, %rbp
+             subq $8, %rsp
+             cmp $1, %rdi
+             jle factr0
+             movq %rdi, -8(%rbp)
+             dec %rdi
+             call factr
+             imulq -8(%rbp), %rax
+             addq $8, %rsp
+             popq %rbp
+             ret
+     factr0: movq $1, %rax
+             addq $8, %rsp
+             popq %rbp
+             ret
+
+     Note : on a négligé la contrainte d'alignement de la pile à chaque call, ne
+     respectant pas strictement l'ABI System V. Ce n'est pas gênant dans la
+     mesure où on appelle jamais de fonction de la bibliothèque standard ici.
+
+** De Retrolix à x86-64
+*** Retrolix
+    Le code relatif à Retrolix est contenu dans src/retrolix/. Commencer par
+    lire l'AST présent dans retrolixAST.ml, puis en cas de question, regarder la
+    sémantique de référence dictée par l'interprète dans retrolixInterpreter.ml.
+
+    Il s'agit d'un langage presque aussi bas niveau que l'assembleur, mais pas
+    tout à fait. Quelques caractéristiques :
+
+    - des registres (x86-64) *et* des variables (locales, globales, paramètres),
+
+    - le registre matériel %r15 est réservé (jamais utilisé),
+
+    - respecte la convention d'appel en ce qui concerne les registres (registres
+      caller-save vs. callee-save, registre stockant la valeur de retour),
+
+    - un jeu d'instruction bas niveau.
+
+    /!\ Les six premiers arguments sont passés par %rdi, %rsi, etc. Donc les
+    arguments déclarés et passés explicitement en Rétrolix n'apparaîssent que
+    dans les fonctions avec strictement plus de six arguments. /!\
+
+*** x86-64
+
+    Le code est contenu dans src/x86-64/, et l'AST qui nous intéresse est dans
+    x86_64_AST.ml. Pas d'interprète ou parser.
+
+    On a vu les points saillants de l'assembleur x86-64 la dernière fois.
+
+    Remarque : comme on utilise GCC pour l'assemblage et l'édition de liens, nos
+    programmes assembleurs doivent disposer d'une fonction main().
+
+    /!\ L'AST est *trop permissif* ! Il permet d'écrire du code qui n'assemble
+    pas, par exemple "movq (%rsp), (%rsp)". Éviter de générer ce genre de code
+    fait partie de votre travail. /!\
+
+*** Différences entre Retrolix et x86-64
+
+    - des chaînes litérales en Retrolix,
+
+    - en Retrolix, pas de fonction main(), le point d'entrée du programme est la
+      séquence des blocs d'initialisation de ses variables globales,
+
+    - pas de variables en x86-64,
+
+    - jeu d'instructions assez différent : Retrolix est plutôt RISC mais x86-64
+      est très CISC ; par exemple :
+
+      * trois adresses vs. deux adresses,
+
+      * modes d'adressage et opérandes mémoires limités en x86-64,
+
+      * bizarreries en x86-64, par exemple la division.
+
+*** Traduire Retrolix vers x86-64
+
+    Certaines des différences que nous venons de décrire ne sont pas
+    essentielles, et sont donc déjà traitées pour vous (chaînes litérales,
+    génération d'un main, ...). On va se concentrer sur deux points :
+
+    - la traduction des constructions Retrolix en assembleur x86-64,
+
+    - la gestion des variables et de la pile.
+
+    La passe de traduction est dans src/x86-64/retrolixToX86_64.ml. Vous devez
+    remplacer les [failwith "Students! ..."] avec le code approprié.
+
+    Il s'agit essentiellement d'implémenter deux modules, MyInstructionSelector
+    et MyFrameManager. Le premier se charge de la traduction de construction
+    atomiques de Rétrolix en x86-64, le second de la gestion de la pile et des
+    variables. Le second va naturellement faire appel au premier.
+
+    /!\ Dans ce jalon, on se concentrera sur la *correction* du code généré, et
+    on ne cherchera pas nécessairement à optimiser la traduction. On reviendra
+    sur l'optimisation ultérieurement. /!\
+
+**** Points à gérer
+
+***** Bases de la gestion de la pile
+
+      Considérons la fonction ci-dessous.
+
+      def f(x, y)
+      local a, b, c:
+        ...
+      end
+
+      En suivant l'ABI System V, à quoi doit ressembler son cadre de pile après
+      l'exécution de son prologue ? Quel est le code du prologue, d'ailleurs ?
+      De l'épilogue ?
+
+****** Indications
+
+     Prologue :
+
+       pushq %rbp
+       movq %rsp, %rbp
+       subq $24, %rsp
+
+     Épilogue :
+
+       addq $24, %rsp
+       popq %rbp
+       ret
+
+     Disposition de la pile :
+
+     | cadre parent |        |
+     |--------------+--------|
+     | arg y        |        |
+     | arg x        |        |
+     | saved %rip   |        |
+     | saved %rbp   | <- rbp |
+     | var a        |        |
+     | var b        |        |
+     | var c        | <- rsp |
+
+     Notons que l'ABI nous laisse le choix de l'ordre des variables locales.
+
+***** Bases de la traduction
+
+      Comment traduire les instructions Retrolix suivantes ?
+
+        %rax <- load 42;
+
+        %rax <- add %rax, %rbx;
+
+        %rax <- add %rbx, %rcx;
+
+        %rax <- div %rbx, %rcx;
+
+      Comment traduire l'instruction suivante, si a est une variable locale ? Un
+      paramètre ? Une variable globale ?
+
+         a <- load 42;
+
+      Dans les instructions ci-dessous, on se place dans le corps d'une fonction
+      dont les variables locales sont a, b et c, déclarées dans cet ordre.
+
+         a <- load 42;
+
+         %rax <- add %rax, a;
+
+         a <- add a, %rax;
+
+         a <- add a, b;
+
+         a <- add b, c;
+
+***** Convention d'appel
+
+      Comment traduire les appels de fonction ?
+
+      def f()
+        call g(23, %rax, %rbx)
+

@@ -1,0 +1,1 @@
+val x = map <Int, Int => Int>

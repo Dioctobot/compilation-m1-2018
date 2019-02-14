@@ -1,0 +1,13 @@
+val test =
+    val r = ref 1;
+    for i = 1 to 5 {
+      for j = 1 to 5 {
+        r := !r * j
+      };
+      r := !r * i;
+      for j = 1 to 5 {
+        r := !r / j
+      }
+    };
+    print_string ("This test is ");
+    print_string (if !r =? 120 then "OK!\n" else "KO!\n")

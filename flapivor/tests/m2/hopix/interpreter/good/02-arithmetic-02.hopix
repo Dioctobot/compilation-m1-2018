@@ -1,0 +1,2 @@
+val x = 72 + 1
+val test = print_int (x)

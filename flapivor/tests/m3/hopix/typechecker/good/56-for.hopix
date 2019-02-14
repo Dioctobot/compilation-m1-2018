@@ -1,0 +1,7 @@
+val x : Ref<Int> = ref (4)
+
+val main : Int =
+    for i = 0 to 30 by 3 {
+      x := !x + 1
+    };
+    !x

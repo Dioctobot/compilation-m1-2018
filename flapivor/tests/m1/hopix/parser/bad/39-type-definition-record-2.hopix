@@ -1,0 +1,2 @@
+type Position = { offset : Int }
+type Located<a> = { value : a; Position : Position }

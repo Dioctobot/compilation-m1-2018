@@ -1,0 +1,7 @@
+type P = { x : Int; y : String }
+
+val p : P = { x = 42; y = "Dalek" }<>
+
+val px : Int = p.x
+
+val py : String = p.y

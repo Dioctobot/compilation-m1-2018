@@ -1,0 +1,2 @@
+type P <a, b> = { x : a; y : b }
+val x : P <Int, String> = { x = 0; y = "River Song" }<Int, String>

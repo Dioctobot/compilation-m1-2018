@@ -1,0 +1,2 @@
+val main =
+  fun (x) -> x := 0

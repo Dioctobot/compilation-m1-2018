@@ -1,0 +1,11 @@
+def fact(n, n1, n2)
+%rax <- copy n;
+end
+
+globals(x)
+x <- sub 0, 1;
+%rdi <- copy x;
+fact(x, 1, 2);
+observe_int (1);
+end
+

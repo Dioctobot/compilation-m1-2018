@@ -314,6 +314,7 @@ let rec evaluate runtime ast =
                         E, M ⊢ dv ⇒ E', M'
 
 *)
+
 and definition runtime d = match d.value with
   | DefineValue vd -> value_definition runtime.environment runtime.memory vd
   | _ -> runtime
@@ -325,7 +326,7 @@ and value_definition environment memory vd = match vd with
       memory = memory';
       environment = Environment.bind environment id.value evalue;
     }
-  | RecFunctions (polfd) -> 
+  | RecFunctions lfd ->
     let rec f env = function
       | [] -> env
       | hd::tl -> 
@@ -337,9 +338,14 @@ and value_definition environment memory vd = match vd with
         Environment.update id.position id.value e (closure e);
         f e tl 
     in
+    let env = f environment lfd in
+    List.iter (fun (id, _, fd) ->
+      let closure newenv = function_definition newenv fd in
+      Environment.update id.position id.value env (closure env)
+    ) lfd;
     {
       memory = memory;
-      environment = f environment polfd;
+      environment = env;
     }
 
 and expression' environment memory e =
@@ -387,7 +393,7 @@ and expression position environment memory = function
     (match eval with
       | VLocation loc ->
         let block = Memory.dereference memory'' loc in
-        let read = Memory.read block Int64.zero in
+        let read = Memory.read block Mint.zero in
         (match read with
           | VClosure (env, lid, e) ->
             let environment' = bind_ids environment lid evalues in
@@ -400,7 +406,7 @@ and expression position environment memory = function
       | _ -> error [position] "Apply fail")
   | Ref expr ->
     let eval, memory' = expression' environment memory expr in
-    let loc = Memory.allocate memory' Int64.one eval in
+    let loc = Memory.allocate memory' Mint.one eval in
     VLocation loc, memory'
   | Assign (e, e') -> 
     let eval, memory' = expression' environment memory e in
@@ -408,14 +414,14 @@ and expression position environment memory = function
     (match eval with
       | VLocation loc -> 
         let block = Memory.dereference memory'' loc in
-        Memory.write block Int64.zero eval';
+        Memory.write block Mint.zero eval';
         VUnit, memory''
       | _ ->  error [position] "Assign fail")
   | Read expr -> let eval, memory' = expression' environment memory expr in
     (match eval with
       | VLocation loc ->
         let block = Memory.dereference memory' loc in
-        Memory.read block Int64.zero, memory'
+        Memory.read block Mint.zero, memory'
       | _ ->  error [position] "Read fail")
   | Case (expr, lbr) -> 
     let eval, memory' = expression' environment memory expr in
@@ -455,21 +461,21 @@ and expression position environment memory = function
     let forend, memory2 = expression' environment memory1 e2 in
 
     let forstep, memory3 = match oe3 with
-      | None -> int_as_value Int64.one, memory2
+      | None -> int_as_value Mint.one, memory2
       | Some e3 -> expression' environment memory2 e3
     in
     
-    let n1 = to_int64_opt (value_as_int forinit) in
-    let n2 = to_int64_opt (value_as_int forend) in
-    let n3 = to_int64_opt (value_as_int forstep) in
+    let n1 = to_Mint_opt (value_as_int forinit) in
+    let n2 = to_Mint_opt (value_as_int forend) in
+    let n3 = to_Mint_opt (value_as_int forstep) in
 
     let rec for_loop memory' = function
-      | n when (Int64.compare n n2) <= 0  ->
-        let n1' = Int64.add n n3 in
+      | n when (Mint.compare n n2) <= 0  ->
+        let n1' = Mint.add n n3 in
         let (_, memory'') = expression' environment' memory' expr in
         Environment.update pos x environment' (int_as_value n1');
         for_loop memory'' n1'
-      | n when (Int64.compare n n2) > 0 -> 
+      | n when (Mint.compare n n2) > 0 -> 
         VUnit, memory'
       | _ -> error [position] "For fail"
     in for_loop memory3 n1 
@@ -498,7 +504,7 @@ and eval_memory' f memory = function
   | hd::tl -> let ev, mem' = f memory hd in
     eval_memory' f mem' tl
 
-and to_int64_opt = function None -> Int64.one | Some n -> n
+and to_Mint_opt = function None -> Mint.one | Some n -> n
 
 and pattern environment evalue = function
   | PVariable id -> Some (Environment.bind environment id.value evalue)
@@ -544,13 +550,6 @@ and pattern environment evalue = function
       | Some env, _ -> pattern env evalue (PAnd lp)
       | _ -> None)
   | _ -> Some environment
-
-
-and constructor_string = function
-  | KId id -> id
-
-and label_string = function
-  | LId id -> id
 
 (** This function returns the difference between two runtimes. *)
 and extract_observable runtime runtime' =

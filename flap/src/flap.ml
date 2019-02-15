@@ -29,6 +29,7 @@ and initialize_options () =
 
 and initialize_languages () =
   HopixInitialization.initialize ();
+  HobixInitialization.initialize ();
   FopixInitialization.initialize ();
   RetrolixInitialization.initialize ();
   X86_64_Initialization.initialize ();

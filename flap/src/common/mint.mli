@@ -32,3 +32,8 @@ val sexp_of_t : t -> Sexplib.Sexp.t
 (** {2 Low-level information} *)
 
 val size_in_bytes : int
+
+
+(** {Comparison function} *)
+val compare : t -> t -> int
+

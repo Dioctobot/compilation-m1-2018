@@ -16,3 +16,7 @@ checkout = git clone git@moule.informatique.univ-paris-diderot.fr:etamemay/compi
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:dibo/compilation-m1-2018.git pierre-dibo-jason-bardot
 [students/haifa]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:Haifa/compilation-m1-2018.git haifa
+[students/PA]
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:Shirenn/compilation-m1-2018.git PA
+[students/YRG-YAX]
+git clone git@moule.informatique.univ-paris-diderot.fr:8080/Daetheys/compilation-m1-2018.git YRG-YAX

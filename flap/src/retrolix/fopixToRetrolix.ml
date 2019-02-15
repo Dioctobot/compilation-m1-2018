@@ -120,7 +120,7 @@ and expression out = T.(function
   | S.FunCall (S.FunId f, es) when is_binop f ->
     assign out (binop f) es
 
-  | S.FunCall (S.FunId f, es) (* as e *) when is_condition f ->
+  | S.FunCall (S.FunId f, es) as e when is_condition f ->
        failwith "Students! This is your job!"
 
   | S.FunCall (S.FunId f, actuals) ->
@@ -194,8 +194,6 @@ and condition_op = T.(function
 )
 
 let preprocess p env =
-  Printf.printf "LOL %s\n" 
-    (FopixPrettyPrinter.(to_string program p));
   (p, env)
 
 

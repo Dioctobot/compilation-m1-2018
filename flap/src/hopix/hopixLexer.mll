@@ -103,7 +103,7 @@ rule token = parse
   | binop as b      { BINOP b       }
   
   (** Literals *)
-  | int as i        { INT (Int64.of_int32 (Int32.of_string i)) }
+  | int as i        { INT (Mint.of_string i) }
   | '"'             { read_string (Buffer.create 1024) lexbuf }
   | '\''            { read_char (Buffer.create 1) lexbuf }
   

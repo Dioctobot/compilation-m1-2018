@@ -81,10 +81,6 @@ let output_type_of_function = function
   | ATyArrow (_, ty) -> ty
   | _ -> raise NotAFunction
 
-let input_type_of_function = function
-  | ATyArrow (tys, _) -> tys
-  | _ -> []
-
 let constant x = TCon x, ATyCon (TCon x, [])
 let tcunit,   hunit    = constant "Unit"
 let tcbool,   hbool    = constant "Bool"
@@ -171,8 +167,8 @@ and type_information =
   | Sum of constructor list
   | Record of label list
 
-exception UnboundTypeConstructor of Position.position * type_constructor
 
+exception UnboundTypeConstructor of Position.position * type_constructor
 
 let is_type_variable_defined env tv =
   List.mem tv env.type_variables
@@ -195,7 +191,6 @@ let rec check_well_formed_type pos env ty = match ty with
     else
       raise (UnboundTypeConstructor (pos, tcons))
   | ATyArrow (lat, at) -> List.iter (check_well_formed_type pos env) (at::lat)
-
 
 let internalize_ty env ty =
   let pos = Position.position ty in
@@ -232,9 +227,6 @@ let bind_type_variables pos env ts =
 let is_type_variable_defined pos env tv =
   List.mem tv env.type_variables
 
-let is_empty_type_variables env = 
-  List.(length env.type_variables) = 0
-
 let bind_value x scheme env = {
   env with values = (x, scheme) :: env.values
 }
@@ -246,12 +238,6 @@ let lookup_type_scheme_of_value pos x env =
     List.assoc x env.values
   with Not_found ->
     raise (UnboundIdentifier (pos, x))
-
-let remove_type_scheme_of_value x env =
-  if List.mem_assoc x env.values then
-    { env with values = List.remove_assoc x env.values }
-  else
-    env
 
 let make_pre_type_environment env ts x arity tdef =
   let env = bind_type_variables Position.dummy env ts in
@@ -305,18 +291,6 @@ let lookup_type_scheme_of_constructor x env =
   with Not_found ->
     raise UnboundConstructor
 
-exception UnboundRecord
-
-let lookup_type_scheme_of_record x env =
-  try
-    List.assoc x env.destructors
-  with Not_found ->
-    raise UnboundRecord
-
-let clean_type_variables env = { 
-  env with type_variables = [] 
-}
-
 let initial_typing_environment () =
   empty_typing_environment |>
   List.fold_right (fun ti env -> bind_abstract_type ti [] env) [
@@ -365,4 +339,4 @@ let print_typing_environment tenv =
     not (List.mem_assoc x excluded.values)
   ) (List.rev tenv.values)
   in
-  String.concat "\n" (List.map print_binding values) 
+  String.concat "\n" (List.map print_binding values)

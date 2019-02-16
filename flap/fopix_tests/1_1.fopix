@@ -1,6 +1,0 @@
-val y = 5
-val main =
-  val y = 3;
-  val x = (val y = 4 ; 2);
-  val z = y;
-  z + x + y

@@ -42,6 +42,8 @@ let display ~src = match src with
   | `Imm i -> Printf.printf "%s\n" 
     X86_64_PrettyPrinter.(to_string imm i)
 
+let display' lsrc = List.iter (fun src -> display src) lsrc
+
 (** [align n b] returns the smallest multiple of [b] larger than [n]. *)
 let align n b =
   let m = n mod b in
@@ -547,7 +549,23 @@ module InstructionSelector : InstructionSelector =
       []
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
-      [T.(Instruction (cmpq srcl srcr));]
+      (*let aux () = match cc with
+        | E -> [T.(Instruction (jccl E ll)); T.(Instruction (jmpl lr));]
+        | NE -> Printf.printf "not equal"; []
+        | S -> Printf.printf "negative"; []
+        | NS -> Printf.printf "not negative"; []
+        | G -> [T.(Instruction (jmpl ll));]
+        | GE -> [T.(Instruction (jmpl ll));]
+        | L -> [T.(Instruction (jmpl ll));]
+        | LE -> [T.(Instruction (jmpl ll));]
+        | A -> Printf.printf "above"; []
+        | AE -> Printf.printf "above or equal"; []
+        | B -> Printf.printf "below"; []
+        | BE -> Printf.printf "below or equal"; []
+      in*)
+      
+      [T.(Instruction (cmpq srcl srcr));] @ 
+      [T.(Instruction (jccl cc ll)); T.(Instruction (jmpl lr));]
 
     let switch ?default ~discriminant ~cases =
       []
@@ -596,15 +614,15 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
 
     let function_prologue fd =
       (* Student! Implement me! *)
-      []
+      [T.(Instruction (calldi f));]
 
     let function_epilogue fd =
       (* Student! Implement me! *)
       []
 
     let call fd ~kind ~f ~args =
-      (*display f;*)
-      []
+      display' args;
+      [T.(Instruction (calldi f));]
   end
 
 module CG =

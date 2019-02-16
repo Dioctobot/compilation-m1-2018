@@ -1,11 +1,18 @@
-def fact(n, n1, n2)
-%rax <- copy n;
+def double_int (n1, n2)
+  d0: %rax <- add n1, n2;
+  d1: ret;
 end
 
-globals(x)
-x <- sub 0, 1;
-%rdi <- copy x;
-fact(x, 1, 2);
-observe_int (1);
+globals (x, y)
+	local a, b, c:
+  x <- copy 0;
+  y <- copy 1;
+	a <- copy 2;
+	b <- copy 3;
+	c <- copy 4;
+	double_int(b, c);
+  %rdi <- copy %rax;
+  observe_int();
+  exit;
 end
 

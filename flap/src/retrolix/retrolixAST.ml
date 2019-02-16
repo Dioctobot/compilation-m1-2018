@@ -150,5 +150,5 @@ let externals =
 (** [locals globals b] takes a set of variables [globals] and returns
     the variables use in the list of instructions [b] which are not
     in [globals]. *)
-let locals globals b =
-   failwith "Students! This is your job!"
+let locals globals b = 
+  []

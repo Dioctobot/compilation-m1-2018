@@ -33,16 +33,21 @@ let rsp = `Reg X86_64_Architecture.RSP
 let rbp = `Reg X86_64_Architecture.RBP
 let rdi = `Reg X86_64_Architecture.RDI
 
-let display ~src = match src with
+
+let string_src ~src = X86_64_PrettyPrinter.(match src with
   | dst -> match dst with
-    | `Addr addr -> Printf.printf "%s\n" 
-      X86_64_PrettyPrinter.(to_string address addr)
-    | `Reg r -> Printf.printf "%s\n" 
-      X86_64_PrettyPrinter.(to_string reg r)
-  | `Imm i -> Printf.printf "%s\n" 
-    X86_64_PrettyPrinter.(to_string imm i)
+    | `Addr addr -> (to_string address addr)
+    | `Reg r -> (to_string reg r)
+  | `Imm i -> (to_string imm i))
+
+let display ~src = Printf.printf "%s\n" (string_src src)
 
 let display' lsrc = List.iter (fun src -> display src) lsrc
+
+let position_argument offset = 
+  let n = Mint.to_int offset in
+  Printf.printf "%d\n" (n / 8)
+
 
 (** [align n b] returns the smallest multiple of [b] larger than [n]. *)
 let align n b =
@@ -549,23 +554,11 @@ module InstructionSelector : InstructionSelector =
       []
 
     let conditional_jump ~cc ~srcl ~srcr ~ll ~lr =
-      (*let aux () = match cc with
-        | E -> [T.(Instruction (jccl E ll)); T.(Instruction (jmpl lr));]
-        | NE -> Printf.printf "not equal"; []
-        | S -> Printf.printf "negative"; []
-        | NS -> Printf.printf "not negative"; []
-        | G -> [T.(Instruction (jmpl ll));]
-        | GE -> [T.(Instruction (jmpl ll));]
-        | L -> [T.(Instruction (jmpl ll));]
-        | LE -> [T.(Instruction (jmpl ll));]
-        | A -> Printf.printf "above"; []
-        | AE -> Printf.printf "above or equal"; []
-        | B -> Printf.printf "below"; []
-        | BE -> Printf.printf "below or equal"; []
-      in*)
-      
-      [T.(Instruction (cmpq srcl srcr));] @ 
-      [T.(Instruction (jccl cc ll)); T.(Instruction (jmpl lr));]
+      [
+        T.(Instruction (cmpq srcl srcr));
+        T.(Instruction (jccl cc ll));
+        T.(Instruction (jmpl lr));
+      ]
 
     let switch ?default ~discriminant ~cases =
       []
@@ -599,30 +592,137 @@ module FrameManager(IS : InstructionSelector) : FrameManager =
 
     let frame_descriptor ~params ~locals =
       (* Student! Implement me! *)
-      { param_count = 0; locals_space = 0; stack_map = S.IdMap.empty; }
+      let calc_offset_param index = Mint.of_int  ((-index + -1) * Mint.size_in_bytes) in
+      let calc_offset_local index = Mint.of_int  ((index + 1) * Mint.size_in_bytes) in
+
+      let stack_params = 
+        let par = List.mapi (fun index param ->
+          (param, calc_offset_param index)
+        ) params
+        in
+        List.fold_left (fun map -> function
+            | id, offset -> S.IdMap.add id offset map
+          ) (S.IdMap.empty) par
+      in
+      let base = S.IdMap.add (S.Id "rbp") (Mint.of_int 0) S.IdMap.empty in
+      let stack_locals = 
+        let loc = List.mapi (fun index local ->
+          (local, calc_offset_local index)
+        ) locals
+        in
+        List.fold_left (fun map -> function
+            | id, offset -> S.IdMap.add id offset map
+          ) (S.IdMap.empty) loc
+      in
+
+      let stack =
+        (S.IdMap.bindings stack_params) @ 
+        (S.IdMap.bindings base) @ 
+        (S.IdMap.bindings stack_locals)
+      in
+
+      { 
+        param_count = List.length params;
+        locals_space = List.length locals * Mint.size_in_bytes;
+        stack_map = List.fold_left (fun map -> function
+            | id, offset -> S.IdMap.add id offset map
+          ) (S.IdMap.empty) stack;
+      }
 
     let location_of fd id =
       let open X86_64_Architecture in
       let base = register_of_string "rip" in
       let idx = register_of_string "rsp" in
+      (*
+
+      Printf.printf "id = %s\n" (data_label_of_global id);
+      S.IdMap.iter (fun local_id offset ->
+        Printf.printf "%s %d\n" (data_label_of_global local_id) (Mint.to_int offset)) fd.stack_map;
       try
         T.(addr ~offset:(Lit (S.IdMap.find id fd.stack_map)) 
         ~base:base
         ~idx:idx ())
       with _ -> 
-        T.addr ~offset:(Lab(data_label_of_global id)) ~base:base ()
+        (T.addr ~offset:(Lab(data_label_of_global id)) ~base:base ()*)
+      try
+        T.addr ~offset:(Lit (S.IdMap.find id fd.stack_map)) ~base:base ~idx:idx ()
+      with _ -> 
+        T.addr ~offset:(Lab (data_label_of_global id)) ~base:base ()
+
+      
 
     let function_prologue fd =
-      (* Student! Implement me! *)
-      [T.(Instruction (calldi f));]
+      (* Student! Implement me!
+      [
+        T.(Instruction (pushq rbp));
+      ] 
+      @ (IS.mov rbp rsp) @
+      [
+        T.(Instruction (subq rdi rsp));
+      ]*)
+      let check_frame = 
+        if empty_frame fd then 
+          []
+        else
+          if fd.locals_space = 0 then
+            []
+          else
+            [T.(Instruction (subq (liti fd.locals_space) rsp))]
+      in
+      [
+        T.(Instruction (pushq rbp));
+        T.(Instruction (movq rsp rbp));
+      ] @ check_frame
 
     let function_epilogue fd =
       (* Student! Implement me! *)
-      []
+      let check_frame = 
+        if empty_frame fd then 
+          []
+        else
+          if fd.locals_space = 0 then
+            []
+          else
+            [T.(Instruction (addq (liti fd.locals_space) rsp))]
+      in
+      Printf.printf "%d\n" fd.locals_space;
+      check_frame @
+      [
+        T.(Instruction (popq rbp));
+      ]
 
     let call fd ~kind ~f ~args =
-      display' args;
-      [T.(Instruction (calldi f));]
+      let open X86_64_Architecture in
+      (*
+      let check_args = List.mapi (fun index arg -> 
+        if index < 5 then
+          T.(Instruction (movq arg (`Reg (List.nth (List.tl argument_passing_registers) index))))
+        else
+          T.(Instruction (pushq arg)) 
+      ) (List.tl args)
+      in
+      (List.rev check_args) @*)
+   
+      let n = List.length args in
+      let check_args = 
+        if n = 0 then 
+          [], []
+        else
+          List.rev (List.mapi (fun index arg ->
+            (*if index < 6 then
+              T.(Instruction (movq arg (`Reg (List.nth (argument_passing_registers) index))))
+            else*)
+            T.(Instruction (pushq arg))
+          ) args), 
+          [T.(Instruction (addq (liti fd.locals_space) rsp))]
+      in
+      (fst check_args)
+      @
+      [
+        T.(Instruction (calldi f));
+      ]
+      @ 
+      (snd check_args)
   end
 
 module CG =

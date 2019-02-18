@@ -530,7 +530,6 @@ module InstructionSelector : InstructionSelector =
         T.(Instruction (addq srcr scratch));
         T.(Instruction (movq scratch dst));
       ]
-
     let sub ~dst ~srcl ~srcr =
       [
         T.(Instruction (movq srcl scratch));

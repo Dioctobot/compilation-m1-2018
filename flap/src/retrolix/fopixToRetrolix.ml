@@ -193,9 +193,35 @@ and condition_op = T.(function
   | _ -> assert false
 )
 
-let preprocess p env =
-  (p, env)
+let rec preprocess p env = 
+  p, List.fold_left (fun local_env def -> 
+    preprocess_definition local_env def
+  ) (env) p
+  (*Printf.printf "%d\n" (List.length (snd env));
 
+  p, env
+  *)
+
+and preprocess_definition env = S.(function
+  | DefineValue (id, expr) -> 
+    let new_env = T.IdSet.add (identifier id) (fst env), snd env in
+    
+    new_env 
+  | _ -> env)
+
+and preprocess_expression env = S.(function
+  | Define (id, e1, e2) ->
+    let new_env = 
+      if exists_id id env then
+        fst env, (id, fresh_variable)::(snd env)
+      else
+        env
+    in
+    new_env
+  | _ -> env
+  )
+
+and exists_id id env = T.IdSet.mem (identifier id) (fst env)
 
 (** [translate p env] turns the fopix program [p] into a semantically
     equivalent retrolix program. *)

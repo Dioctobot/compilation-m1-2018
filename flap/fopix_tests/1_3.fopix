@@ -1,0 +1,10 @@
+val res =
+  val acc = allocate_block(1);
+  val i = allocate_block(1);
+  acc[0] := 0;
+  i[0] := 0;
+  while (i[0] <= 100) do
+    acc[0] := acc[0] + i[0];
+    i[0] := i[0] + 1
+  end;
+  if acc[0] > 1000 then 0 else 1 end

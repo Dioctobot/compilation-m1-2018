@@ -1,0 +1,10 @@
+globals(main, y)
+  local x, y1, y2, z, main2 :
+  y <- copy 5;
+  y1 <- copy 3;
+  y2 <- copy 4;
+  x <- copy 2;
+  z <- copy y1;
+  main2 <- add z, x;
+  main <- add main2, y1;
+end

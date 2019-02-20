@@ -1308,3 +1308,251 @@ else (* z = F *)
 ** Compilation du switch en X86-64
    - discussion sur les différentes façons d'encoder les tables de saut
      en x86.
+* Cours 14 "L'analyse de motifs et l'allocation de registres" <2019-02-18>
+** FAQ
+** TD: Spécification du jalon 8 à partir de l'article de Luc Maranget
+   - Etablir un plan de développement pour la compilation du pattern-matching
+   - Quel est le point où insérer l'appel à la fonction de compilation
+     optimisée du pattern-matching?
+
+   - Quels types définir? Quelles fonctions implémenter? Dans quel ordre
+     les implémenter et les tester?
+
+   - Le plan de développement:
+     1. Développer et tester un module indépendant du compilateur qui implémente
+	exactement l'article.
+     2. Brancher ce module au compilateur et pour cela:
+	a. Généraliser la syntaxe des motifs pour prendre en compte les variables.
+	b. Compiler les arbres de décision en Retrolix
+
+** Allocation de registres
+*** Allocation de registres, késako?
+
+   ReTroLix : RTL-like languages
+   Register Transfer Language
+
+   r3 <- r1 + r2
+
+   Problème: dans Retrolix, nous avons considéré qu'il y a un
+   ensemble infini de registres. On les appelle d'ailleurs des
+   *pseudo-registres*.
+
+*** Un exemple
+
+   l1: r1 <- 100     -> l2
+   l2: r2 <- 0       -> l3
+   l3: r3 <- 3       -> l4
+   l4: cmp r1 = 0    -> l8, l5
+   l5: r2 <- r2 + r3 -> l6
+   l6: r1 <- r1 - 1  -> l7
+   l7: jmp l4        -> l3
+   l8: exit
+
+   Supposons que la machine n'a que deux registres a et b.
+   Comment faire l'allocation de registres sur cet exemple?
+**** Solution
+   l1: a <- 100      -> l2
+   l2: b <- 0        -> l3
+   l3: r3 <- 3       -> l4
+   l4: cmp a = 0     -> l8, l5
+   l5: b <- b + r3   -> l6
+   l6: a <- a - 1    -> l7
+   l7: jmp l4        -> l3
+   l8: exit
+
+   Après la propagation des constantes, on obtient:
+
+   l1: a <- 100      -> l2
+   l2: b <- 0        -> l4
+   l4: cmp a = 0     -> l8, l5
+   l5: b <- b + 3    -> l6
+   l6: a <- a - 1    -> l7
+   l7: jmp l4        -> l3
+   l8: exit
+
+**** Autre version
+
+   l1: r2 <- 0       -> l2
+   l2: r1 <- 100     -> l3
+   l3: r3 <- r2 + r1 -> l4
+   l4: cmp r1 = 0    -> l7, l5
+   l5: r1 <- r1 - r3 -> l6
+   l6: jmp l4        -> l4
+   l7: exit
+
+*** Interférence entre variables
+
+   La règle pour qu'une certaine allocation de registres soit valide,
+   c'est que deux pseudoregistres (les rk) qui sont utiles en même
+   temps, on dit en fait qui sont "vivants en même temps" ne sont pas
+   représentés par le même registre physique.
+
+*** Décomposition de l'allocation de registres
+
+   On doit répondre à deux questions:
+
+   1. Quelles sont les variables/pseudoregistres qui sont vivantes en même temps?
+      => La réponse à cette question est un graphe d'interférence.
+      Ses noeuds ce sont les pseudoregistres et il y aura une arête entre deux noeuds
+      si les pseudoregistres de ces noeuds vivent en même temps.
+
+   2. Sachant les interférences entre variables, comment allouer du mieux possible
+      des registres physiques aux variables?
+      Cela revient à *colorier* le graphe.
+
+   Une fois que l'on a trouvé un coloriage, peut réécrire le programme Retrolix
+   en remplaçant chaque pseudoregistre par son registre physique correspond ou
+   pas, s'il n'a pas été colorié.
+
+*** Pourquoi ne peut-on obtenir qu'une approximation du graphe d'interférence?
+   Parce que c'est un problème indécidable. Exemple:
+
+   f (x):
+   y <- 3
+   if y = x then
+     z <- 5
+     return (y + z)
+   else
+     return y
+
+*** Retour sur l'exemple:
+
+   Dans notre exemple, r1, r2 et r3 sont toutes vivantes en même
+   temps: le graphe d'interférence est donc complet et on ne peut pas
+   le colorier avec seulement deux couleurs.
+
+   Voici un nouvel exemple:
+
+   l1: r1 <- 100     -> l2
+   l2: r2 <- 0       -> l3
+   l3: r3 <- 3       -> l4
+   l4: cmp r1 = 0    -> l8, l5
+   l5: r2 <- r2 + r3 -> l6
+   l6: r1 <- r1 - 1  -> l7
+   l7: jmp l4        -> l3
+   l8: r4 <- r2 * r1 -> l9
+   l9: r5 <- r3 + 1  -> l10
+   l10: ret (r5 + r4)
+
+   se réécrit en :
+
+   l1: a <- 100      -> l2
+   l2: b <- 0        -> l3
+   l3: r3 <- 3       -> l4
+   l4: cmp a = 0     -> l8, l5
+   l5: b <- b + r3   -> l6
+   l6: a <- a - 1    -> l7
+   l7: jmp l4        -> l3
+   l8: b <- b * a    -> l9
+   l9: a <- r3 + 1   -> l10
+   l10: ret (a + b)
+
+   Voici encore un nouvel exemple:
+
+   l1: r1 <- 100     -> l2
+   l2: r2 <- 0       -> l3
+   l3: r3 <- 3       -> l4
+   l4: cmp r1 = 0    -> l8, l5
+   l5: r2 <- r2 + r3 -> l6
+   l6: r1 <- r1 - 1  -> l7
+   l7: jmp l4        -> l3
+   l8: r4 <- r2 * r1 -> l9
+   l9: r5 <- r3 + 1  -> l10
+   l10: ret r5
+
+   Ici, r4 n'est pas une variable utile donc le programme peut finalement
+   s'optimiser drastiquement!
+
+   l10: ret 4
+
+*** Analyse de vivacité
+
+   L'analyse de vivacité, c'est une analyse statique.
+
+   USE(l) l'ensemble des variables (potentiellement) lues par l'instruction en l.
+   DEF(l) l'ensemble des variables (potentiellement) modifiées par l'instruction en l.
+
+   IN(l1)  associe l'ensemble des variables vivantes à l'entrée de l1.
+   OUT(l1) associe l'ensemble des variables vivantes à la sortie de l1.
+
+   x ∈ IN(l)  si x ∈ (OUT(l) \ DEF(l)) ∨ (∃ l' -> l, x ∈ OUT(l')) ∨ x ∈ USE(l)
+   x ∈ OUT(l) si ∃ l', l -> l', x ∈ IN(l')
+
+   l1: r1 <- 100     -> l2
+   l2: r2 <- 0       -> l3
+   l3: r3 <- 3       -> l4
+   l4: cmp r1 = 0    -> l8, l5
+   l5: r2 <- r2 + r3 -> l6
+   l6: r1 <- r1 - 1  -> l7
+   l7: jmp l4        -> l4
+   l8: r4 <- r2 * r1 -> l9
+   l9: r5 <- r3 + 1  -> l10
+   l10: ret (r5 + r4)
+
+**** Calcul en avant
+
+   En itérant sur le programme plusieurs fois du début à la fin, on
+   arrive péniblement à faire avancer les approximations des variables
+   vivantes... mais c'est terriblement long! C'est tellement long que
+   je ne suis pas allé jusqu'au bout et que je me suis endormi.
+
+   |-----+----------+---------|
+   | L   | IN       | OUT     |
+   |-----+----------+---------|
+   | l1  | {}       | {}      |
+   | l2  | {}       | {}      |
+   | l3  | {}       | {r1}    |
+   | l4  | {r1}     | {r2,r3} |
+   | l5  | {r2, r3} | {r1}    |
+   | l6  | {r1}     | {}      |
+   | l7  | {r1}     | {r1}    |
+   | l8  | {r2, r1} | {}      |
+   | l9  | {r3}     | {}      |
+   | l10 | {r4, r5} | {}      |
+   |-----+----------+---------|
+
+**** Calcul en arrière
+
+   |-----+--------------+--------------|
+   | L   | IN           | OUT          |
+   |-----+--------------+--------------|
+   | l1  | {}           | {r1}         |
+   | l2  | {r1}         | {r1, r2}     |
+   | l3  | {r1, r2}     | {r1, r2, r3} |
+   | l4  | {r1, r2, r3} | {r1, r2, r3} |
+   | l5  | {r1, r2, r3} | {r1, r2, r3} |
+   | l6  | {r1, r2, r3} | {r1, r2, r3} |
+   | l7  | {r1, r2, r3} | {r1, r2, r3} |
+   | l8  | {r1, r2, r3} | {r3, r4}     |
+   | l9  | {r3, r4}     | {r5, r4}     |
+   | l10 | {r5, r4}     | {}           |
+   |-----+--------------+--------------|
+
+*** Un premier algorithme (naif) de coloriage de graphe
+
+   let rec colorize : graph -> coloring = fun g ->
+     match pick_simplifiable_node g with
+     | Some n ->
+       let coloring = colorize (g \\ { n }) in
+       assign_remaining_color coloring n g
+     | None ->
+       let n = pick_some_node g in
+       let coloring = colorize (g \\ { n }) in
+       try
+        assign_remaining_color coloring n g
+       with NoMoreColor -> give_up coloring n
+
+   let rec colorize : graph -> coloring = fun g ->
+     let n =
+         match pick_simplifiable_node g with
+        | Some n -> n
+        | None -> pick_some_node g
+     in
+       try
+        let coloring = colorize (g \\ { n }) in
+        assign_remaining_color coloring n g
+       with NoMoreColor -> give_up coloring n
+
+
+* Cours 15
+*** TODO Lire http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/

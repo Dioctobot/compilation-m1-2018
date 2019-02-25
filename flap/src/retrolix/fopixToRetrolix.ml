@@ -109,8 +109,11 @@ and expression out = T.(function
        failwith "Students! This is your job!"
 
   | S.IfThenElse (c, t, f) ->
-       failwith "Students! This is your job!"
-
+    let texp = expression out t in
+    let fexp = expression out f in
+    let cond = condition texp fexp c in
+    failwith "Students! This is your job!"
+    
   | S.FunCall (S.FunId "`&&", [e1; e2]) ->
      expression out (S.(IfThenElse (e1, e2, Variable (Id "false"))))
 
@@ -147,8 +150,9 @@ and assign out op rs =
     [labelled (T.Assign (out, op, xs))]
   )
 
-and condition lt lf c =
-  failwith "Students! This is your job!"
+and condition lt lf c = match lt, lf with
+  | [], _ | _, [] -> failwith "Should not be reached !"
+  | thd::_, fhd::_ -> failwith ""
 
 and first_label = function
   | [] -> assert false
@@ -193,35 +197,78 @@ and condition_op = T.(function
   | _ -> assert false
 )
 
-let rec preprocess p env = 
-  p, List.fold_left (fun local_env def -> 
-    preprocess_definition local_env def
-  ) (env) p
-  (*Printf.printf "%d\n" (List.length (snd env));
+let fresh_variable' =
+  let c = ref 0 in
+  fun id -> incr c; S.(Id (id ^ string_of_int !c))
 
-  p, env
-  *)
+let rec preprocess p env = 
+  List.fold_left (fun (acc, local_env) def -> 
+    let f, s = preprocess_definition local_env def in
+    (f::acc), s
+  ) ([], env) p
 
 and preprocess_definition env = S.(function
-  | DefineValue (id, expr) -> 
-    let new_env = T.IdSet.add (identifier id) (fst env), snd env in
-    
-    new_env 
-  | _ -> env)
+  | DefineValue (id, e) -> 
+    let expr, new_env = preprocess_expression env e in
+    DefineValue (id, expr), new_env
+  | DefineFunction ((FunId id) as fid, args, e) -> 
+    let args' = List.map (fun (Id arg) -> (Id arg, fresh_variable' arg)) args in
+    let alpha_conversion = (Id id, Id id)::(snd env) in
+    let new_env = (fst env), (args' @ alpha_conversion) in
+    let expr, new_env' = preprocess_expression new_env e in
+    let args'' = List.split args' in
+    DefineFunction (fid, (snd args''), expr), new_env'
+  | ExternalFunction ((FunId id) as fid) ->
+    let alpha_conversion = (Id id, Id id)::(snd env) in
+    let new_env = (fst env), alpha_conversion in
+    ExternalFunction fid, new_env)
 
 and preprocess_expression env = S.(function
-  | Define (id, e1, e2) ->
-    let new_env = 
-      if exists_id id env then
-        fst env, (id, fresh_variable)::(snd env)
-      else
-        env
-    in
-    new_env
-  | _ -> env
-  )
-
-and exists_id id env = T.IdSet.mem (identifier id) (fst env)
+  | Literal lit as l -> l, env
+  | Variable id as var_id ->
+    begin 
+      try
+        Variable (List.assoc id (snd env)), env
+      with Not_found ->
+        var_id, env
+    end
+  | Define (Id id, e1, e2) ->
+    let def_id = fresh_variable' id in
+    let alpha_conversion = (Id id, def_id)::(snd env) in
+    let new_env = (fst env), alpha_conversion in
+    let expr1, _ = preprocess_expression new_env e1 in
+    let expr2, _ = preprocess_expression new_env e2 in
+    Define (def_id, expr1, expr2), new_env
+  | FunCall (fid, lexpr) ->
+    let lexpr' = List.map (fun expr -> 
+      fst (preprocess_expression env expr)
+    ) lexpr in
+    FunCall (fid, lexpr'), env
+  | UnknownFunCall (e, lexpr) ->
+    let expr, new_env = preprocess_expression env e in
+    let lexpr' = List.map (fun e' -> 
+      fst (preprocess_expression new_env e')
+    ) lexpr in
+    UnknownFunCall (expr, lexpr'), new_env
+  | While (e1, e2) ->
+    let expr1, _ = preprocess_expression env e1 in
+    let expr2, _ = preprocess_expression env e2 in
+    While (expr1, expr2), env
+  | IfThenElse (e, e1, e2) ->
+    let expr, _ = preprocess_expression env e in
+    let expr1, _ = preprocess_expression env e1 in
+    let expr2, _ = preprocess_expression env e2 in
+    IfThenElse (expr, expr1, expr2), env
+  | Switch (e, lcn, e_default) ->
+    let expr, new_env = preprocess_expression env e in
+    let lcn' = Array.map (fun oe -> match oe with
+      | None -> None
+      | Some en -> Some (fst (preprocess_expression new_env en))
+    ) lcn in
+    let expr_default = match e_default with
+      | None -> None
+      | Some e_d -> Some (fst (preprocess_expression new_env e_d)) in
+    Switch (expr, lcn', expr_default), new_env)
 
 (** [translate p env] turns the fopix program [p] into a semantically
     equivalent retrolix program. *)

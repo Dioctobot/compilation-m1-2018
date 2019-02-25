@@ -1,0 +1,16 @@
+globals (y)
+
+l1: y <- copy 5;
+l2: ret;
+end
+
+globals (x)
+local x2, X2, X1, x3, x1 :
+l8: x1 <- copy 5;
+l7: x3 <- copy 10;
+l4: X1 <- copy x3;
+l5: X2 <- copy 5;
+l6: x2 <- add X1, X2;
+l3: x <- copy x2;
+l9: ret;
+end

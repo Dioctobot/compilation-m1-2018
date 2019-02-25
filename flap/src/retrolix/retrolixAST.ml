@@ -150,5 +150,22 @@ let externals =
 (** [locals globals b] takes a set of variables [globals] and returns
     the variables use in the list of instructions [b] which are not
     in [globals]. *)
-let locals globals b = 
-  []
+let rec locals globals b = 
+  List.fold_left (fun acc ins -> match ins with
+    | Call (rv, lrv, _) -> 
+      let l = push rv globals acc in
+      vars_rvalue globals l lrv
+    | Assign (lv, _, lrv) -> 
+      let l = vars_rvalue globals acc lrv in
+      push (lv : lvalue :> rvalue) globals l
+    | ConditionalJump (_, lrv, _, _) -> vars_rvalue globals acc lrv
+    | Switch (rv, _, _) -> push rv globals acc
+    | _ -> acc
+  ) ([]) (List.map snd b)
+
+and vars_rvalue globals acc lrv = List.fold_left (fun l rv -> 
+  push rv globals l) (acc) lrv
+
+and push value globals l = match value with
+  | `Variable id when not (IdSet.mem id globals || List.mem id l) -> id::l
+  | _ -> l

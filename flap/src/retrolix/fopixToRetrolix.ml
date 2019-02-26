@@ -18,6 +18,15 @@
 let error pos msg =
   Error.error "compilation" pos msg
 
+let display_list l =
+  Printf.printf "---\n";
+  List.iter (fun (lab, ins) ->
+    Printf.printf "%s | %s\n" 
+      RetrolixPrettyPrinter.(to_string slabel lab) 
+      RetrolixPrettyPrinter.(to_string instruction ins)
+  ) l;
+  Printf.printf "---\n"
+
 (** As in any module that implements {!Compilers.Compiler}, the source
     language and the target language must be specified. *)
 module Source = Fopix
@@ -111,29 +120,51 @@ and expression out = T.(function
   | S.IfThenElse (c, t, f) ->
     let texp = expression out t in
     let fexp = expression out f in
-    let cond = condition texp fexp c in
-    failwith "Students! This is your job!"
+    condition texp fexp (expression out c)
     
   | S.FunCall (S.FunId "`&&", [e1; e2]) ->
-     expression out (S.(IfThenElse (e1, e2, Variable (Id "false"))))
+    expression out (S.(IfThenElse (e1, e2, Variable (Id "false"))))
 
   | S.FunCall (S.FunId "`||", [e1; e2]) ->
-     expression out (S.(IfThenElse (e1, Variable (Id "true"), e2)))
+    expression out (S.(IfThenElse (e1, Variable (Id "true"), e2)))
 
   | S.FunCall (S.FunId f, es) when is_binop f ->
     assign out (binop f) es
 
   | S.FunCall (S.FunId f, es) as e when is_condition f ->
-       failwith "Students! This is your job!"
+    let vars, linstr = List.fold_left (fun (v, li) expr ->
+      let x, i = as_rvalue expr in
+      v @ [x], li @ [i]
+    ) ([], [[]]) es in
+
+    let lab = fresh_label () in
+    let jump1 = fresh_label () in
+    let jump2 = fresh_label () in
+    let linstr' = List.filter (fun l -> List.length l > 0) linstr in
+
+    List.flatten linstr' @
+    [
+      lab,
+      (ConditionalJump ((condition_op f), vars, jump1, jump2))
+    ] @
+    [
+      jump1,
+      (Jump jump1)
+    ] @
+    [
+      jump2,
+      (Jump jump2)
+    ]
+    
 
   | S.FunCall (S.FunId f, actuals) ->
-       failwith "Students! This is your job!"
+    failwith "Students! This is your job!"
 
   | S.UnknownFunCall (ef, actuals) ->
-       failwith "Students! This is your job!"
+    failwith "Students! This is your job!"
 
   | S.Switch (e, cases, default) ->
-       failwith "Students! This is your job!"
+    failwith "Students! This is your job!"
 )
 
 
@@ -150,9 +181,27 @@ and assign out op rs =
     [labelled (T.Assign (out, op, xs))]
   )
 
-and condition lt lf c = match lt, lf with
-  | [], _ | _, [] -> failwith "Should not be reached !"
-  | thd::_, fhd::_ -> failwith ""
+and condition lt lf c = 
+   
+    
+    (*Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lt)));
+    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lf)));
+    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lr)));
+    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel (fst (List.hd lr)));
+    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string rvalue x);*)
+    (*
+    let rec last_two = function
+      | [] | [_] -> failwith ""
+      | [x;y] -> (x,y)
+      | _::t -> last_two t
+    in
+    let (f, _), (s, _) = last_two lr in*)
+
+    (*Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel f);
+    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel s);*)
+    (*display_list lr;*)
+    c
+
 
 and first_label = function
   | [] -> assert false

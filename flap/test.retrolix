@@ -1,16 +1,15 @@
-globals (y)
-
-l1: y <- copy 5;
-l2: ret;
-end
-
 globals (x)
-local x2, X2, X1, x3, x1 :
-l8: x1 <- copy 5;
-l7: x3 <- copy 10;
-l4: X1 <- copy x3;
-l5: X2 <- copy 5;
-l6: x2 <- add X1, X2;
-l3: x <- copy x2;
-l9: ret;
+local X6, X8, X7, X1, X5, X2, X4, X3 :
+ l3: X3 <- copy 3;
+ l4: X4 <- copy 1;
+ l5: X2 <- sub X3, X4;
+ l6: X5 <- copy 1;
+ l7: X1 <- sub X2, X5;
+ l8: X7 <- copy 1;
+ l9: X8 <- copy 1;
+l10: X6 <- add X7, X8;
+l11: jumpif gte X1, X6 -> l12,  l13;
+l12: jump l12;
+l13: jump l13;
+l14: ret;
 end

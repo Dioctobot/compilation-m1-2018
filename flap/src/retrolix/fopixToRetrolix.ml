@@ -120,7 +120,7 @@ and expression out = T.(function
   | S.IfThenElse (c, t, f) ->
     let texp = expression out t in
     let fexp = expression out f in
-    condition texp fexp (expression out c)
+    condition (fst (List.hd texp)) (fst (List.hd fexp)) c
     
   | S.FunCall (S.FunId "`&&", [e1; e2]) ->
     expression out (S.(IfThenElse (e1, e2, Variable (Id "false"))))
@@ -146,14 +146,6 @@ and expression out = T.(function
     [
       lab,
       (ConditionalJump ((condition_op f), vars, jump1, jump2))
-    ] @
-    [
-      jump1,
-      (Jump jump1)
-    ] @
-    [
-      jump2,
-      (Jump jump2)
     ]
     
 
@@ -182,8 +174,14 @@ and assign out op rs =
   )
 
 and condition lt lf c = 
-   
-    
+  let x, lc = as_rvalue c in 
+
+  display_list lc;
+  [
+    labelled
+    (ConditionalJump ((condition_op f), vars, jump1, jump2))
+  ]
+  []
     (*Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lt)));
     Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lf)));
     Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lr)));
@@ -200,8 +198,7 @@ and condition lt lf c =
     (*Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel f);
     Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel s);*)
     (*display_list lr;*)
-    c
-
+    
 
 and first_label = function
   | [] -> assert false

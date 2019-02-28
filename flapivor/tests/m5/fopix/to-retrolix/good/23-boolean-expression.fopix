@@ -1,0 +1,3 @@
+val main =
+   val b = 1 < 2;
+   if b then print_int (111) else print_int (999) end

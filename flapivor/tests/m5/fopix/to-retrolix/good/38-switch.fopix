@@ -1,0 +1,8 @@
+val main =
+  print_int (switch 3 in
+    !
+  | 1
+  | 2
+  | 3
+  orelse 4
+  end)

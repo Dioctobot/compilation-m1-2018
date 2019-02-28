@@ -1,0 +1,18 @@
+def ref (v) =
+  val b = allocate_block (1);
+  b[0] := v;
+  b
+
+def read (r) =
+  r[0]
+
+def write (r, v) =
+  r[0] := v
+
+val main =
+  val i = ref (10);
+  while (read (i) > 0) do
+    val z = read (i) - 1;
+    write (i, z);
+    print_int (read (i))
+  end

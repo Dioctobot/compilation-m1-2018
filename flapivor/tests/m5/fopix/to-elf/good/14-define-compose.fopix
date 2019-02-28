@@ -1,0 +1,7 @@
+def g (x, y) =
+    y
+
+def f (x) =
+    x
+
+val main = print_int (g(0, f (37)))

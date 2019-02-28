@@ -1,0 +1,5 @@
+val main =
+  val x = 1;
+  val y = (val x = 2; x);
+  val z = x;
+  print_int (z)

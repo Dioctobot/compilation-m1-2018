@@ -1,0 +1,12 @@
+def f0 () = 0
+def f1 (x) = 1
+def f2 (x, y) = 2
+def f3 (x, y, z) = 3
+def f4 (x, y, z, t) = 4
+def f5 (x, y, z, t, u) = 5
+def f6 (x, y, z, t, u, v) = 6
+def f7 (x, y, z, t, u, v, w) = 7
+
+val main =
+    print_int (f0 () + f1 (0) + f2 (0, 1) + f3 (0, 1, 2) + f4 (0, 1, 2, 3) + f5 (0, 1, 2, 3, 4)
+               + f6 (0, 1, 2, 3, 4, 5) + f7 (0, 1, 2, 3, 4, 5, 6))

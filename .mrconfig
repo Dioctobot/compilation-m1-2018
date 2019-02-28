@@ -19,4 +19,4 @@ checkout = git clone git@moule.informatique.univ-paris-diderot.fr:Haifa/compilat
 [students/PA]
 checkout = git clone git@moule.informatique.univ-paris-diderot.fr:Shirenn/compilation-m1-2018.git PA
 [students/YRG-YAX]
-git clone git@moule.informatique.univ-paris-diderot.fr:8080/Daetheys/compilation-m1-2018.git YRG-YAX
+checkout = git clone git@moule.informatique.univ-paris-diderot.fr:8080/Daetheys/compilation-m1-2018.git YRG-YAX

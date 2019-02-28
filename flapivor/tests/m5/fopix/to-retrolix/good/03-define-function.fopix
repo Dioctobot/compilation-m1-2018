@@ -1,0 +1,2 @@
+def f() = print_int (42)
+val main = f ()

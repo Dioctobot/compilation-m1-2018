@@ -1,0 +1,2 @@
+val main =
+    print_int (if 42 < 73 && 73 < 73 || 1 < 0 then 37 else 73 end)

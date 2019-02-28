@@ -1,0 +1,3 @@
+val x = 73
+
+val main = print_int (x)

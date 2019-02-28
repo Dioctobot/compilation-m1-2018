@@ -1,0 +1,5 @@
+def fact (x) =
+  if x = 0 then 1 else x * fact (x - 1) end
+
+val main =
+    print_int (fact (23))

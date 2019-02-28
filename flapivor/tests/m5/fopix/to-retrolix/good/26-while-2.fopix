@@ -1,0 +1,7 @@
+val main =
+    val r = allocate_block (1);
+    r[0] := 0;
+    while (r[0] < 5) do
+      r[0] := r[0] + 1;
+      print_int (r[0])
+    end

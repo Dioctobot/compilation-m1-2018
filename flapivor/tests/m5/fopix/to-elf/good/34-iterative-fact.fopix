@@ -1,0 +1,23 @@
+def ref (v) =
+  val b = allocate_block (1);
+  b[0] := v;
+  b
+
+def read (r) =
+    r[0]
+
+def write (r, v) =
+    r[0] := v
+
+def fact (n) =
+    val a = ref (1);
+    val i = ref (n);
+    while (read (i)) > 0 do
+      write (a, read (i) * read (a));
+      write (i, read (i) - 1)
+    end;
+    read (a)
+
+val res = fact (5000)
+
+val main = print_int (res)

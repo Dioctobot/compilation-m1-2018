@@ -1,0 +1,64 @@
+val m = 10
+val n = 10
+
+def ref (v) =
+  val b = allocate_block (1);
+  b[0] := v;
+  b
+
+def read (r) =
+  r[0]
+
+def write (r, v) =
+  r[0] := v
+
+def make_matrix (m, n) =
+  val rows = allocate_block (m);
+  val count = ref (m - 1);
+  while (read (count) >= 0) do
+     rows[read(count)] := allocate_block (n);
+     val i = ref (n - 1);
+     while (read (i) >= 0) do
+       rows[read(count)][read(i)] := read(i) + read(count);
+       write (i, read (i) - 1)
+     end;
+     write (count, read (count) - 1)
+  end;
+  rows
+
+def transpose (matrix, m, n) =
+  val out = make_matrix (n, m);
+  val r = ref (n - 1);
+  while (read (r) >= 0) do
+    val c = ref (m - 1);
+    while (read (c) >= 0) do
+      out[read(r)][read(c)] := matrix[read(c)][read(r)];
+      write (c, read (c) - 1)
+    end;
+    write (r, read (r) - 1)
+  end;
+  out
+
+def check (m1, m2, m, n) =
+  val count = ref (0);
+  val r = ref (m - 1);
+  while (read (r) >= 0) do
+    val c = ref (n - 1);
+    while (read (c) >= 0) do
+      if (m1[read(r)][read(c)]) = (m2[read(r)][read(c)]) then
+	write (count, read(count) + 1)
+      else
+	print_int (read(count))
+      end;
+      write (c, read (c) - 1)
+    end;
+    write (r, read (r) - 1)
+  end;
+  print_int (read (count))
+
+val main =
+  val m1 = make_matrix (m, n);
+  val m2 = transpose (m1, m, n);
+  val m3 = transpose (m2, n, m);
+  check (m1, m3, m, n);
+  print_int (0)

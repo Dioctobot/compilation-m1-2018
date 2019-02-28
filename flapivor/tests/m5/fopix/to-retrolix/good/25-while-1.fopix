@@ -1,0 +1,5 @@
+val main =
+    while (1 < 0) do
+      print_int (0)
+    end;
+    print_int (1)

@@ -1,0 +1,4 @@
+def f (x) =
+    x
+
+val main = print_int (f (f (f (f (f (37))))))

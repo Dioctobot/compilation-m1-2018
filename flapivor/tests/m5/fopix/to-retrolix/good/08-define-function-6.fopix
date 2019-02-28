@@ -1,0 +1,8 @@
+def f(x, y, z, t, u) =
+  print_int (x);
+  print_int (y);
+  print_int (z);
+  print_int (t);
+  print_int (u)
+
+val main = f (37, 73, 13, 31, 42)

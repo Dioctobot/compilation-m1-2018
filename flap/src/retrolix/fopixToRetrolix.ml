@@ -115,12 +115,20 @@ and expression out = T.(function
     expression (`Variable (Id x)) e1 @ expression out e2
 
   | S.While (c, e) ->
-       failwith "Students! This is your job!"
-
+    let ins_e = expression out e in
+    let lab_end = fresh_label () in
+    let cr = condition (fst (List.hd ins_e)) lab_end c in
+    let jump = [labelled (Jump (fst (List.hd (List.rev cr))))] in
+    let empty = [lab_end, (Comment "empty")] in
+    cr @ ins_e @ jump @ empty
   | S.IfThenElse (c, t, f) ->
-    let texp = expression out t in
-    let fexp = expression out f in
-    condition (fst (List.hd texp)) (fst (List.hd fexp)) c
+    let tr = expression out t in
+    let fr = expression out f in
+    let cr = condition (fst (List.hd tr)) (fst (List.hd fr)) c in
+    let empty = [labelled (Comment "empty")]
+    in
+    let jump = [labelled (Jump (fst (List.hd empty)))] in
+    cr @ tr @ jump @ fr @ empty
     
   | S.FunCall (S.FunId "`&&", [e1; e2]) ->
     expression out (S.(IfThenElse (e1, e2, Variable (Id "false"))))
@@ -137,20 +145,13 @@ and expression out = T.(function
       v @ [x], li @ [i]
     ) ([], [[]]) es in
 
-    let lab = fresh_label () in
-    let jump1 = fresh_label () in
-    let jump2 = fresh_label () in
     let linstr' = List.filter (fun l -> List.length l > 0) linstr in
 
     List.flatten linstr' @
-    [
-      lab,
-      (ConditionalJump ((condition_op f), vars, jump1, jump2))
-    ]
+    [labelled (ConditionalJump (condition_op f, vars, Label "", Label ""))]
     
-
   | S.FunCall (S.FunId f, actuals) ->
-    failwith "Students! This is your job!"
+    []
 
   | S.UnknownFunCall (ef, actuals) ->
     failwith "Students! This is your job!"
@@ -158,7 +159,6 @@ and expression out = T.(function
   | S.Switch (e, cases, default) ->
     failwith "Students! This is your job!"
 )
-
 
 and as_rvalue e =
   let x = `Variable (fresh_variable ()) in
@@ -175,30 +175,13 @@ and assign out op rs =
 
 and condition lt lf c = 
   let x, lc = as_rvalue c in 
-
-  display_list lc;
-  [
-    labelled
-    (ConditionalJump ((condition_op f), vars, jump1, jump2))
-  ]
-  []
-    (*Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lt)));
-    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lf)));
-    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string instruction (snd (List.hd lr)));
-    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel (fst (List.hd lr)));
-    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string rvalue x);*)
-    (*
-    let rec last_two = function
-      | [] | [_] -> failwith ""
-      | [x;y] -> (x,y)
-      | _::t -> last_two t
-    in
-    let (f, _), (s, _) = last_two lr in*)
-
-    (*Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel f);
-    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string slabel s);*)
-    (*display_list lr;*)
-    
+  begin match List.hd (List.rev lc) with
+    | l, ConditionalJump (c_op, lrv, l1, l2) ->
+      (List.rev (List.tl (List.rev lc))) @ [l, ConditionalJump (c_op, lrv, lt, lf)]
+    | l, _ ->
+      let zero = `Immediate T.(LInt Mint.zero) in
+      lc @ [l, ConditionalJump (GT, [x; zero], lt, lf)]
+  end
 
 and first_label = function
   | [] -> assert false

@@ -13,10 +13,7 @@ install-test:
 	  cp Makefile.test $$i/Makefile;	\
 	done
 
-build:
-	$(MAKE) -C ..
-
-check:	build announce
+check:	announce
 	@ for i in */*/bad */*/good; do				    \
 	  $(MAKE) --silent -C $$i check 2> /dev/null || true;    	    \
 	done;
@@ -39,7 +36,7 @@ clean:
 	done;
 	@ rm --force *counter *~
 
-expected: build
+expected:
 	@ for i in */*/bad */*/good; do					    \
 	  $(MAKE) --silent -C $$i expected 2> /dev/null || true;    	    \
 	done;

@@ -152,9 +152,9 @@ let externals =
     in [globals]. *)
 let rec locals globals b = 
   List.fold_left (fun acc ins -> match ins with
-    | Call (rv, lrv, _) -> 
-      let l = push rv globals acc in
-      vars_rvalue globals l lrv
+    | Call (_, lrv, _) -> 
+      (*let l = push rv globals acc in*)
+      vars_rvalue globals acc lrv
     | Assign (lv, _, lrv) -> 
       let l = vars_rvalue globals acc lrv in
       push (lv : lvalue :> rvalue) globals l

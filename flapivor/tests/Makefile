@@ -1,4 +1,4 @@
-.PHONY: check m1 m2 m3 m5
+.PHONY: check m1 m2 m3 m4 m5
 
 check: m1 m2 m3 m4 m5
 

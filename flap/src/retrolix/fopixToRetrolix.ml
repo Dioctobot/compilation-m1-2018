@@ -151,6 +151,11 @@ and expression out = T.(function
     [labelled (ConditionalJump (condition_op f, vars, Label "", Label ""))]
     
   | S.FunCall (S.FunId f, actuals) ->
+    (*Printf.printf "%s\n" f;
+    Printf.printf "%s\n" RetrolixPrettyPrinter.(to_string lvalue out);*)
+    let regs, rvls = as_registers actuals in
+    regs @
+    [labelled (Call (`Immediate (LFun (FId f)), rvls, false))] @
     []
 
   | S.UnknownFunCall (ef, actuals) ->
@@ -181,6 +186,16 @@ and condition lt lf c =
     | l, _ ->
       let zero = `Immediate T.(LInt Mint.zero) in
       lc @ [l, ConditionalJump (GT, [x; zero], lt, lf)]
+  end
+
+and as_registers args =
+  let regs = List.flatten (List.mapi (fun index expr ->
+    let out = register (List.nth Arch.argument_passing_registers index) in
+    expression out expr
+  ) args) in
+  begin match List.length args with
+    | n when n < 6 -> regs, []
+    | _ -> failwith "TODO"
   end
 
 and first_label = function

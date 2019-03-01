@@ -1,13 +1,6 @@
-globals (res)
-local _2, X1, X3, X2, x1 :
-l8: x1 <- copy 5;
-l4: X2 <- copy 1;
-l5: X3 <- copy 1;
-l6: X1 <- add X2, X3;
-l6: jumpif gt X1, 0 -> l2,  l3;
-l2: _2 <- copy x1;
-l7: jump l6;
-l3: ;; empty;
-l1: res <- copy 5;
-l9: ret;
+globals (main)
+
+l1: %rdi <- copy 73;
+l2: print_int () ;
+l3: ret;
 end
